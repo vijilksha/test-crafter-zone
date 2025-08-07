@@ -45,7 +45,7 @@ const Index = () => {
       )}
       
       {currentView === 'dashboard' && userRole && (
-        <Dashboard userRole={userRole} />
+        <Dashboard userRole={userRole} onStartTest={handleStartTest} />
       )}
       
       {currentView === 'test' && (

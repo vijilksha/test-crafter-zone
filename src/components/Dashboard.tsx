@@ -7,9 +7,10 @@ import { useState } from "react";
 
 interface DashboardProps {
   userRole: 'trainer' | 'student';
+  onStartTest?: () => void;
 }
 
-export const Dashboard = ({ userRole }: DashboardProps) => {
+export const Dashboard = ({ userRole, onStartTest }: DashboardProps) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'tests' | 'results'>('overview');
 
   if (userRole === 'trainer') {
@@ -161,9 +162,9 @@ export const Dashboard = ({ userRole }: DashboardProps) => {
           <CardContent>
             <div className="space-y-4">
               {[
-                { name: "React Components", difficulty: "Intermediate", duration: "30 min", completed: false },
-                { name: "State Management", difficulty: "Advanced", duration: "45 min", completed: true },
-                { name: "API Integration", difficulty: "Intermediate", duration: "25 min", completed: false }
+                { name: "HTML/CSS Fundamentals", difficulty: "Intermediate", duration: "40 min", completed: false },
+                { name: "Responsive Design", difficulty: "Advanced", duration: "45 min", completed: true },
+                { name: "CSS Grid & Flexbox", difficulty: "Intermediate", duration: "35 min", completed: false }
               ].map((test, i) => (
                 <div key={i} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                   <div>
@@ -177,6 +178,7 @@ export const Dashboard = ({ userRole }: DashboardProps) => {
                     variant={test.completed ? "secondary" : "default"} 
                     size="sm"
                     disabled={test.completed}
+                    onClick={test.completed ? undefined : onStartTest}
                   >
                     {test.completed ? "Completed" : "Start Test"}
                   </Button>
@@ -194,10 +196,10 @@ export const Dashboard = ({ userRole }: DashboardProps) => {
           <CardContent>
             <div className="space-y-6">
               {[
-                { topic: "React Fundamentals", progress: 90, score: 88 },
-                { topic: "JavaScript ES6+", progress: 75, score: 82 },
-                { topic: "Node.js Basics", progress: 60, score: 76 },
-                { topic: "Database Design", progress: 40, score: 0 }
+                { topic: "HTML Semantics", progress: 90, score: 88 },
+                { topic: "CSS Styling", progress: 85, score: 82 },
+                { topic: "Responsive Design", progress: 70, score: 76 },
+                { topic: "CSS Grid Layout", progress: 40, score: 0 }
               ].map((item, i) => (
                 <div key={i} className="space-y-2">
                   <div className="flex justify-between text-sm">

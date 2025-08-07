@@ -4,49 +4,23 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Clock, CheckCircle, AlertCircle, ArrowLeft, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { Clock, CheckCircle, AlertCircle, ArrowLeft, ArrowRight, Play } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CodeEditor } from "@/components/CodeEditor";
+import { htmlCssQuestions, type Question } from "@/data/htmlCssQuestions";
 
-interface Question {
-  id: number;
-  text: string;
-  scenario: string;
-  difficulty: 'intermediate' | 'advanced';
-  options: string[];
-  correctAnswer: number;
-  topic: string;
+interface TestCaseResult {
+  name: string;
+  passed: boolean;
+  message: string;
 }
 
-const sampleQuestions: Question[] = [
-  {
-    id: 1,
-    text: "What would be the best approach to optimize this React component?",
-    scenario: "You have a React component that renders a list of 1000 items. Users are experiencing lag when scrolling through the list. The component re-renders frequently due to state updates in the parent component.",
-    difficulty: 'intermediate',
-    options: [
-      "Use React.memo to prevent unnecessary re-renders",
-      "Implement virtual scrolling with react-window",
-      "Move the list state to a separate context",
-      "Both A and B"
-    ],
-    correctAnswer: 3,
-    topic: "React Performance"
-  },
-  {
-    id: 2,
-    text: "How would you handle this API integration challenge?",
-    scenario: "Your application needs to fetch data from multiple APIs simultaneously. Some APIs are slow and might timeout. You need to display partial results even if some APIs fail, and implement proper error handling without blocking the user interface.",
-    difficulty: 'advanced',
-    options: [
-      "Use Promise.all() and handle errors with try-catch",
-      "Use Promise.allSettled() with individual error handling",
-      "Make sequential API calls to avoid overloading",
-      "Use async/await with parallel execution"
-    ],
-    correctAnswer: 1,
-    topic: "API Integration"
-  }
-];
+interface Answer {
+  questionId: number;
+  type: 'multiple-choice' | 'code';
+  value: number | { html: string; css: string };
+  testResults?: TestCaseResult[];
+}
 
 interface TestInterfaceProps {
   onComplete: (results: any) => void;
@@ -55,18 +29,63 @@ interface TestInterfaceProps {
 
 export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [timeRemaining, setTimeRemaining] = useState(1800); // 30 minutes
-  const [showResults, setShowResults] = useState(false);
+  const [answers, setAnswers] = useState<Record<number, Answer>>({});
+  const [timeRemaining, setTimeRemaining] = useState(2400); // 40 minutes for coding questions
+  const [testResults, setTestResults] = useState<Record<number, TestCaseResult[]>>({});
 
-  const progress = ((currentQuestion + 1) / sampleQuestions.length) * 100;
+  // Use HTML/CSS questions instead of sample questions
+  const questions = htmlCssQuestions;
 
-  const handleAnswerSelect = (questionId: number, answerIndex: number) => {
-    setAnswers(prev => ({ ...prev, [questionId]: answerIndex }));
+  const progress = ((currentQuestion + 1) / questions.length) * 100;
+
+  const handleMultipleChoiceAnswer = (questionId: number, answerIndex: number) => {
+    setAnswers(prev => ({ 
+      ...prev, 
+      [questionId]: {
+        questionId,
+        type: 'multiple-choice',
+        value: answerIndex
+      }
+    }));
+  };
+
+  const handleCodeAnswer = (questionId: number, html: string, css: string) => {
+    setAnswers(prev => ({ 
+      ...prev, 
+      [questionId]: {
+        questionId,
+        type: 'code',
+        value: { html, css }
+      }
+    }));
+  };
+
+  const runTests = (question: Question) => {
+    if (question.type !== 'code') return;
+    
+    const answer = answers[question.id];
+    if (!answer || answer.type !== 'code') return;
+
+    const { html, css } = answer.value as { html: string; css: string };
+    const results = question.testCases.map(testCase => ({
+      name: testCase.name,
+      ...testCase.test(html, css)
+    }));
+
+    setTestResults(prev => ({ ...prev, [question.id]: results }));
+    
+    // Update answer with test results
+    setAnswers(prev => ({
+      ...prev,
+      [question.id]: {
+        ...prev[question.id],
+        testResults: results
+      }
+    }));
   };
 
   const handleNext = () => {
-    if (currentQuestion < sampleQuestions.length - 1) {
+    if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
       finishTest();
@@ -80,12 +99,30 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
   };
 
   const finishTest = () => {
-    const results = sampleQuestions.map(q => ({
-      questionId: q.id,
-      correct: answers[q.id] === q.correctAnswer,
-      topic: q.topic,
-      difficulty: q.difficulty
-    }));
+    const results = questions.map(q => {
+      const answer = answers[q.id];
+      if (!answer) return { questionId: q.id, correct: false, topic: q.topic, difficulty: q.difficulty };
+
+      if (q.type === 'multiple-choice') {
+        return {
+          questionId: q.id,
+          correct: answer.value === q.correctAnswer,
+          topic: q.topic,
+          difficulty: q.difficulty
+        };
+      } else {
+        // For code questions, check if all test cases passed
+        const testResults = answer.testResults || [];
+        const allPassed = testResults.length > 0 && testResults.every(r => r.passed);
+        return {
+          questionId: q.id,
+          correct: allPassed,
+          topic: q.topic,
+          difficulty: q.difficulty,
+          testResults
+        };
+      }
+    });
     onComplete(results);
   };
 
@@ -95,11 +132,12 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const question = sampleQuestions[currentQuestion];
-
+  const question = questions[currentQuestion];
+  const currentAnswer = answers[question.id];
+  const hasAnswer = currentAnswer !== undefined;
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" onClick={onBack}>
@@ -112,7 +150,7 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
               <span className="font-mono text-lg">{formatTime(timeRemaining)}</span>
             </div>
             <Badge variant="outline">
-              Question {currentQuestion + 1} of {sampleQuestions.length}
+              Question {currentQuestion + 1} of {questions.length}
             </Badge>
           </div>
         </div>
@@ -131,7 +169,7 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl">
-                Question {currentQuestion + 1}
+                {question.type === 'code' ? question.title : `Question ${currentQuestion + 1}`}
               </CardTitle>
               <div className="flex gap-2">
                 <Badge variant={question.difficulty === 'advanced' ? 'destructive' : 'default'}>
@@ -150,24 +188,51 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
               <p className="text-foreground leading-relaxed">{question.scenario}</p>
             </div>
 
-            {/* Question */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">{question.text}</h3>
-              
-              <RadioGroup 
-                value={answers[question.id]?.toString()} 
-                onValueChange={(value) => handleAnswerSelect(question.id, parseInt(value))}
-              >
-                {question.options.map((option, index) => (
-                  <div key={index} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value={index.toString()} id={`option-${index}`} className="mt-1" />
-                    <Label htmlFor={`option-${index}`} className="text-sm leading-relaxed cursor-pointer flex-1">
-                      {option}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
+            {/* Question Content */}
+            {question.type === 'multiple-choice' ? (
+              <div>
+                <h3 className="text-lg font-semibold mb-4">{question.text}</h3>
+                
+                <RadioGroup 
+                  value={currentAnswer?.value?.toString()} 
+                  onValueChange={(value) => handleMultipleChoiceAnswer(question.id, parseInt(value))}
+                >
+                  {question.options.map((option, index) => (
+                    <div key={index} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                      <RadioGroupItem value={index.toString()} id={`option-${index}`} className="mt-1" />
+                      <Label htmlFor={`option-${index}`} className="text-sm leading-relaxed cursor-pointer flex-1">
+                        {option}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Instructions</h3>
+                  <Button 
+                    variant="secondary" 
+                    size="sm"
+                    onClick={() => runTests(question)}
+                    disabled={!currentAnswer}
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Run Tests
+                  </Button>
+                </div>
+                <div className="mb-6 p-4 bg-accent/10 rounded-lg">
+                  <pre className="whitespace-pre-wrap text-sm">{question.instructions}</pre>
+                </div>
+                
+                <CodeEditor
+                  initialHtml={question.starterCode.html}
+                  initialCss={question.starterCode.css}
+                  onCodeChange={(html, css) => handleCodeAnswer(question.id, html, css)}
+                  testResults={testResults[question.id] || []}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -183,13 +248,13 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
           </Button>
 
           <div className="flex items-center gap-2">
-            {sampleQuestions.map((_, index) => (
+            {questions.map((_, index) => (
               <div
                 key={index}
                 className={`w-3 h-3 rounded-full transition-colors ${
                   index === currentQuestion 
                     ? 'bg-primary' 
-                    : answers[sampleQuestions[index].id] !== undefined 
+                    : answers[questions[index].id] !== undefined 
                       ? 'bg-success' 
                       : 'bg-muted'
                 }`}
@@ -199,10 +264,10 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
 
           <Button 
             onClick={handleNext}
-            disabled={answers[question.id] === undefined}
-            variant={currentQuestion === sampleQuestions.length - 1 ? "success" : "default"}
+            disabled={!hasAnswer}
+            variant={currentQuestion === questions.length - 1 ? "success" : "default"}
           >
-            {currentQuestion === sampleQuestions.length - 1 ? (
+            {currentQuestion === questions.length - 1 ? (
               <>
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Finish Test
