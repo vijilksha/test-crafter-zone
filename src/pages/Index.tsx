@@ -5,8 +5,9 @@ import { Dashboard } from "@/components/Dashboard";
 import { TestInterface } from "@/components/TestInterface";
 import { ResultsView } from "@/components/ResultsView";
 import { ScoreViewer } from "@/components/ScoreViewer";
+import { TestCreator } from "@/components/TestCreator";
 
-type ViewType = 'landing' | 'dashboard' | 'test' | 'results' | 'scores';
+type ViewType = 'landing' | 'dashboard' | 'test' | 'results' | 'scores' | 'create-test';
 type UserRole = 'trainer' | 'student' | null;
 
 const Index = () => {
@@ -41,6 +42,10 @@ const Index = () => {
     setCurrentView('scores');
   };
 
+  const handleCreateTest = () => {
+    setCurrentView('create-test');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {currentView !== 'landing' && <Header />}
@@ -50,7 +55,7 @@ const Index = () => {
       )}
       
       {currentView === 'dashboard' && userRole && (
-        <Dashboard userRole={userRole} onStartTest={handleStartTest} onViewScores={handleViewScores} />
+        <Dashboard userRole={userRole} onStartTest={handleStartTest} onViewScores={handleViewScores} onCreateTest={handleCreateTest} />
       )}
       
       {currentView === 'test' && (
@@ -69,6 +74,12 @@ const Index = () => {
 
       {currentView === 'scores' && (
         <ScoreViewer 
+          onBack={handleBackToDashboard}
+        />
+      )}
+
+      {currentView === 'create-test' && (
+        <TestCreator 
           onBack={handleBackToDashboard}
         />
       )}

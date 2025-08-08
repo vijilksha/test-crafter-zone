@@ -9,9 +9,10 @@ interface DashboardProps {
   userRole: 'trainer' | 'student';
   onStartTest?: () => void;
   onViewScores?: () => void;
+  onCreateTest?: () => void;
 }
 
-export const Dashboard = ({ userRole, onStartTest, onViewScores }: DashboardProps) => {
+export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }: DashboardProps) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'tests' | 'results'>('overview');
 
   if (userRole === 'trainer') {
@@ -67,9 +68,9 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores }: DashboardProp
               <CardDescription>Create and manage your content</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="hero" className="w-full justify-start" size="lg">
+              <Button variant="hero" className="w-full justify-start" size="lg" onClick={onCreateTest}>
                 <Plus className="h-4 w-4" />
-                Add New Concept
+                Create New Test
               </Button>
               <Button variant="secondary" className="w-full justify-start" size="lg">
                 <FileText className="h-4 w-4" />
