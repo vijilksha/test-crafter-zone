@@ -8,8 +8,10 @@ import { CheckCircle, XCircle, Play, Code } from "lucide-react";
 interface CodeEditorProps {
   initialHtml?: string;
   initialCss?: string;
-  onCodeChange: (html: string, css: string) => void;
+  initialJs?: string;
+  onCodeChange: (html: string, css: string, js?: string) => void;
   testResults?: TestCaseResult[];
+  showJsTab?: boolean;
 }
 
 interface TestCaseResult {
@@ -21,21 +23,29 @@ interface TestCaseResult {
 export const CodeEditor = ({ 
   initialHtml = "", 
   initialCss = "", 
+  initialJs = "",
   onCodeChange,
-  testResults = []
+  testResults = [],
+  showJsTab = false
 }: CodeEditorProps) => {
   const [html, setHtml] = useState(initialHtml);
   const [css, setCss] = useState(initialCss);
+  const [js, setJs] = useState(initialJs);
   const [showPreview, setShowPreview] = useState(true);
 
   const handleHtmlChange = (value: string) => {
     setHtml(value);
-    onCodeChange(value, css);
+    onCodeChange(value, css, js);
   };
 
   const handleCssChange = (value: string) => {
     setCss(value);
-    onCodeChange(html, value);
+    onCodeChange(html, value, js);
+  };
+
+  const handleJsChange = (value: string) => {
+    setJs(value);
+    onCodeChange(html, css, value);
   };
 
   const generatePreviewCode = () => {
@@ -47,11 +57,20 @@ export const CodeEditor = ({
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
           body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+          .error { color: red; font-size: 12px; display: block; margin-top: 4px; }
+          .form-group { margin-bottom: 16px; }
+          label { display: block; margin-bottom: 4px; font-weight: bold; }
+          input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+          button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+          button:disabled { background: #ccc; cursor: not-allowed; }
           ${css}
         </style>
       </head>
       <body>
         ${html}
+        <script>
+          ${js}
+        </script>
       </body>
       </html>
     `;
@@ -77,9 +96,10 @@ export const CodeEditor = ({
         {/* Code Editors */}
         <div className="space-y-4">
           <Tabs defaultValue="html" className="h-full flex flex-col">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className={`grid w-full ${showJsTab ? 'grid-cols-3' : 'grid-cols-2'}`}>
               <TabsTrigger value="html">HTML</TabsTrigger>
               <TabsTrigger value="css">CSS</TabsTrigger>
+              {showJsTab && <TabsTrigger value="js">JavaScript</TabsTrigger>}
             </TabsList>
             
             <TabsContent value="html" className="flex-1">
@@ -101,6 +121,18 @@ export const CodeEditor = ({
                 spellCheck={false}
               />
             </TabsContent>
+            
+            {showJsTab && (
+              <TabsContent value="js" className="flex-1">
+                <textarea
+                  value={js}
+                  onChange={(e) => handleJsChange(e.target.value)}
+                  className="w-full h-full p-3 border rounded-md font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Enter your JavaScript code here..."
+                  spellCheck={false}
+                />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
 

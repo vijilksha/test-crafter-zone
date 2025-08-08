@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Clock, CheckCircle, AlertCircle, ArrowLeft, ArrowRight, Play } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CodeEditor } from "@/components/CodeEditor";
-import { htmlCssQuestions, type Question } from "@/data/htmlCssQuestions";
+import { allQuestions, type Question } from "@/data/allQuestions";
 
 interface TestCaseResult {
   name: string;
@@ -17,8 +17,8 @@ interface TestCaseResult {
 
 interface Answer {
   questionId: number;
-  type: 'multiple-choice' | 'code';
-  value: number | { html: string; css: string };
+  type: 'multiple-choice' | 'code' | 'js-code';
+  value: number | { html: string; css: string } | { html: string; js: string };
   testResults?: TestCaseResult[];
 }
 
@@ -33,8 +33,8 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
   const [timeRemaining, setTimeRemaining] = useState(2400); // 40 minutes for coding questions
   const [testResults, setTestResults] = useState<Record<number, TestCaseResult[]>>({});
 
-  // Use HTML/CSS questions instead of sample questions
-  const questions = htmlCssQuestions;
+  // Use all questions (HTML/CSS and JavaScript)
+  const questions = allQuestions;
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
@@ -49,28 +49,38 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
     }));
   };
 
-  const handleCodeAnswer = (questionId: number, html: string, css: string) => {
+  const handleCodeAnswer = (questionId: number, html: string, css: string, js?: string) => {
+    const question = questions.find(q => q.id === questionId);
     setAnswers(prev => ({ 
       ...prev, 
       [questionId]: {
         questionId,
-        type: 'code',
-        value: { html, css }
+        type: question?.type === 'js-code' ? 'js-code' : 'code',
+        value: question?.type === 'js-code' ? { html, js: js || '' } : { html, css }
       }
     }));
   };
 
   const runTests = (question: Question) => {
-    if (question.type !== 'code') return;
+    if (question.type !== 'code' && question.type !== 'js-code') return;
     
     const answer = answers[question.id];
-    if (!answer || answer.type !== 'code') return;
+    if (!answer || (answer.type !== 'code' && answer.type !== 'js-code')) return;
 
-    const { html, css } = answer.value as { html: string; css: string };
-    const results = question.testCases.map(testCase => ({
-      name: testCase.name,
-      ...testCase.test(html, css)
-    }));
+    let results;
+    if (question.type === 'js-code') {
+      const { html, js } = answer.value as { html: string; js: string };
+      results = question.testCases.map(testCase => ({
+        name: testCase.name,
+        ...testCase.test(html, js)
+      }));
+    } else {
+      const { html, css } = answer.value as { html: string; css: string };
+      results = question.testCases.map(testCase => ({
+        name: testCase.name,
+        ...testCase.test(html, css)
+      }));
+    }
 
     setTestResults(prev => ({ ...prev, [question.id]: results }));
     
@@ -111,7 +121,7 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
           difficulty: q.difficulty
         };
       } else {
-        // For code questions, check if all test cases passed
+        // For code and js-code questions, check if all test cases passed
         const testResults = answer.testResults || [];
         const allPassed = testResults.length > 0 && testResults.every(r => r.passed);
         return {
@@ -227,9 +237,11 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
                 
                 <CodeEditor
                   initialHtml={question.starterCode.html}
-                  initialCss={question.starterCode.css}
-                  onCodeChange={(html, css) => handleCodeAnswer(question.id, html, css)}
+                  initialCss={question.type === 'code' ? question.starterCode.css : ''}
+                  initialJs={question.type === 'js-code' ? question.starterCode.js : ''}
+                  onCodeChange={(html, css, js) => handleCodeAnswer(question.id, html, css, js)}
                   testResults={testResults[question.id] || []}
+                  showJsTab={question.type === 'js-code'}
                 />
               </div>
             )}

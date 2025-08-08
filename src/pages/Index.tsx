@@ -4,8 +4,9 @@ import { HeroSection } from "@/components/HeroSection";
 import { Dashboard } from "@/components/Dashboard";
 import { TestInterface } from "@/components/TestInterface";
 import { ResultsView } from "@/components/ResultsView";
+import { ScoreViewer } from "@/components/ScoreViewer";
 
-type ViewType = 'landing' | 'dashboard' | 'test' | 'results';
+type ViewType = 'landing' | 'dashboard' | 'test' | 'results' | 'scores';
 type UserRole = 'trainer' | 'student' | null;
 
 const Index = () => {
@@ -36,6 +37,10 @@ const Index = () => {
     setUserRole(null);
   };
 
+  const handleViewScores = () => {
+    setCurrentView('scores');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {currentView !== 'landing' && <Header />}
@@ -45,7 +50,7 @@ const Index = () => {
       )}
       
       {currentView === 'dashboard' && userRole && (
-        <Dashboard userRole={userRole} onStartTest={handleStartTest} />
+        <Dashboard userRole={userRole} onStartTest={handleStartTest} onViewScores={handleViewScores} />
       )}
       
       {currentView === 'test' && (
@@ -58,6 +63,12 @@ const Index = () => {
       {currentView === 'results' && (
         <ResultsView 
           results={testResults}
+          onBack={handleBackToDashboard}
+        />
+      )}
+
+      {currentView === 'scores' && (
+        <ScoreViewer 
           onBack={handleBackToDashboard}
         />
       )}

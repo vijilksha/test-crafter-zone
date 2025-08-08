@@ -2,15 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Users, Trophy, Plus, BarChart3, FileText } from "lucide-react";
+import { BookOpen, Users, Trophy, Plus, BarChart3, FileText, Eye } from "lucide-react";
 import { useState } from "react";
 
 interface DashboardProps {
   userRole: 'trainer' | 'student';
   onStartTest?: () => void;
+  onViewScores?: () => void;
 }
 
-export const Dashboard = ({ userRole, onStartTest }: DashboardProps) => {
+export const Dashboard = ({ userRole, onStartTest, onViewScores }: DashboardProps) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'tests' | 'results'>('overview');
 
   if (userRole === 'trainer') {
@@ -74,9 +75,9 @@ export const Dashboard = ({ userRole, onStartTest }: DashboardProps) => {
                 <FileText className="h-4 w-4" />
                 Create Test
               </Button>
-              <Button variant="default" className="w-full justify-start" size="lg">
-                <BarChart3 className="h-4 w-4" />
-                View Analytics
+              <Button variant="default" className="w-full justify-start" size="lg" onClick={onViewScores}>
+                <Eye className="h-4 w-4" />
+                View Student Scores
               </Button>
             </CardContent>
           </Card>
