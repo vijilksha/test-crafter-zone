@@ -72,9 +72,10 @@ const Index = () => {
         />
       )}
 
-      {currentView === 'scores' && (
+      {currentView === 'scores' && userRole && (
         <ScoreViewer 
           onBack={handleBackToDashboard}
+          userRole={userRole}
         />
       )}
 

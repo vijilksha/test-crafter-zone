@@ -24,6 +24,7 @@ interface Student {
 
 interface ScoreViewerProps {
   onBack: () => void;
+  userRole: 'trainer' | 'student';
 }
 
 // Mock data - in real app this would come from Supabase
@@ -72,8 +73,13 @@ const mockStudentResults: Student[] = [
   }
 ];
 
-export const ScoreViewer = ({ onBack }: ScoreViewerProps) => {
+export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  
+  // Filter data based on role
+  const displayData = userRole === 'student' 
+    ? mockStudentResults.filter(student => student.id === 'current-student') // In real app, use actual student ID
+    : mockStudentResults;
 
   const getTopicScores = (results: TestResult[]) => {
     const topicGroups = results.reduce((acc, result) => {
