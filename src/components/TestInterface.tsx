@@ -8,6 +8,8 @@ import { Clock, CheckCircle, AlertCircle, ArrowLeft, ArrowRight, Play } from "lu
 import { useState, useEffect } from "react";
 import { CodeEditor } from "@/components/CodeEditor";
 import { allQuestions, type Question } from "@/data/allQuestions";
+import { useTestSession } from "@/hooks/useTestSession";
+import { useToast } from "@/hooks/use-toast";
 
 interface TestCaseResult {
   name: string;
@@ -25,18 +27,54 @@ interface Answer {
 interface TestInterfaceProps {
   onComplete: (results: any) => void;
   onBack: () => void;
+  userName: string;
+  userRole: 'student' | 'trainer';
 }
 
-export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
+export const TestInterface = ({ onComplete, onBack, userName, userRole }: TestInterfaceProps) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, Answer>>({});
   const [timeRemaining, setTimeRemaining] = useState(2400); // 40 minutes for coding questions
   const [testResults, setTestResults] = useState<Record<number, TestCaseResult[]>>({});
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  
+  const { createTestSession, saveTestResult, completeTestSession, loading } = useTestSession();
+  const { toast } = useToast();
 
-  // Use all questions (HTML/CSS and JavaScript)
+  // Use all questions (JavaScript scenario-based)
   const questions = allQuestions;
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
+
+  // Initialize test session when component mounts
+  useEffect(() => {
+    const initializeSession = async () => {
+      const newSessionId = await createTestSession(userName, userRole);
+      if (newSessionId) {
+        setSessionId(newSessionId);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to initialize test session",
+          variant: "destructive"
+        });
+      }
+    };
+
+    initializeSession();
+  }, [userName, userRole]);
+
+  // Timer effect
+  useEffect(() => {
+    if (timeRemaining > 0) {
+      const timer = setTimeout(() => {
+        setTimeRemaining(prev => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      finishTest();
+    }
+  }, [timeRemaining]);
 
   const handleMultipleChoiceAnswer = (questionId: number, answerIndex: number) => {
     setAnswers(prev => ({ 
@@ -62,25 +100,16 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
   };
 
   const runTests = (question: Question) => {
-    if (question.type !== 'code' && question.type !== 'js-code') return;
+    if (question.type !== 'js-code') return;
     
     const answer = answers[question.id];
-    if (!answer || (answer.type !== 'code' && answer.type !== 'js-code')) return;
+    if (!answer || answer.type !== 'js-code') return;
 
-    let results;
-    if (question.type === 'js-code') {
-      const { html, js } = answer.value as { html: string; js: string };
-      results = question.testCases.map(testCase => ({
-        name: testCase.name,
-        ...testCase.test(html, js)
-      }));
-    } else {
-      const { html, css } = answer.value as { html: string; css: string };
-      results = question.testCases.map(testCase => ({
-        name: testCase.name,
-        ...testCase.test(html, css)
-      }));
-    }
+    const { html, js } = answer.value as { html: string; js: string };
+    const results = question.testCases.map(testCase => ({
+      name: testCase.name,
+      ...testCase.test(html, js)
+    }));
 
     setTestResults(prev => ({ ...prev, [question.id]: results }));
     
@@ -108,7 +137,59 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
     }
   };
 
-  const finishTest = () => {
+  const finishTest = async () => {
+    if (!sessionId) {
+      toast({
+        title: "Error",
+        description: "No active test session",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Save all answers to database
+    for (const q of questions) {
+      const answer = answers[q.id];
+      let isCorrect = false;
+      let selectedAnswer = 'No answer';
+      let correctAnswer = '';
+
+      if (answer) {
+        if (q.type === 'multiple-choice') {
+          isCorrect = answer.value === q.correctAnswer;
+          selectedAnswer = q.options[answer.value as number] || 'Invalid selection';
+          correctAnswer = q.options[q.correctAnswer];
+        } else {
+          // For code questions, check if all test cases passed
+          const testResults = answer.testResults || [];
+          isCorrect = testResults.length > 0 && testResults.every(r => r.passed);
+          selectedAnswer = JSON.stringify(answer.value);
+          correctAnswer = 'All test cases must pass';
+        }
+      } else {
+        if (q.type === 'multiple-choice') {
+          correctAnswer = q.options[q.correctAnswer];
+        } else {
+          correctAnswer = 'All test cases must pass';
+        }
+      }
+
+      await saveTestResult(
+        sessionId,
+        q.id.toString(),
+        q.type === 'multiple-choice' ? q.text : q.title,
+        q.topic,
+        q.difficulty,
+        selectedAnswer,
+        correctAnswer,
+        isCorrect
+      );
+    }
+
+    // Complete the session
+    await completeTestSession(sessionId);
+
+    // Calculate results for UI
     const results = questions.map(q => {
       const answer = answers[q.id];
       if (!answer) return { questionId: q.id, correct: false, topic: q.topic, difficulty: q.difficulty };
@@ -121,7 +202,6 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
           difficulty: q.difficulty
         };
       } else {
-        // For code and js-code questions, check if all test cases passed
         const testResults = answer.testResults || [];
         const allPassed = testResults.length > 0 && testResults.every(r => r.passed);
         return {
@@ -133,7 +213,8 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
         };
       }
     });
-    onComplete(results);
+
+    onComplete({ results, sessionId, userName });
   };
 
   const formatTime = (seconds: number) => {
@@ -178,11 +259,11 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
         <Card className="shadow-card mb-8">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl">
-                {question.type === 'code' ? question.title : `Question ${currentQuestion + 1}`}
+                <CardTitle className="text-xl">
+                {question.type === 'js-code' ? question.title : `Question ${currentQuestion + 1}`}
               </CardTitle>
               <div className="flex gap-2">
-                <Badge variant={question.difficulty === 'advanced' ? 'destructive' : 'default'}>
+                <Badge variant={question.difficulty === 'Hard' ? 'destructive' : question.difficulty === 'Medium' ? 'secondary' : 'default'}>
                   {question.difficulty}
                 </Badge>
                 <Badge variant="outline">{question.topic}</Badge>
@@ -237,11 +318,11 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
                 
                 <CodeEditor
                   initialHtml={question.starterCode.html}
-                  initialCss={question.type === 'code' ? question.starterCode.css : ''}
-                  initialJs={question.type === 'js-code' ? question.starterCode.js : ''}
+                  initialCss={''}
+                  initialJs={question.starterCode.js}
                   onCodeChange={(html, css, js) => handleCodeAnswer(question.id, html, css, js)}
                   testResults={testResults[question.id] || []}
-                  showJsTab={question.type === 'js-code'}
+                  showJsTab={true}
                 />
               </div>
             )}
@@ -276,8 +357,8 @@ export const TestInterface = ({ onComplete, onBack }: TestInterfaceProps) => {
 
           <Button 
             onClick={handleNext}
-            disabled={!hasAnswer}
-            variant={currentQuestion === questions.length - 1 ? "success" : "default"}
+            disabled={!hasAnswer || loading}
+            variant={currentQuestion === questions.length - 1 ? "default" : "default"}
           >
             {currentQuestion === questions.length - 1 ? (
               <>

@@ -3,7 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Users, Trophy, Plus, BarChart3, FileText, Eye } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTestSession } from "@/hooks/useTestSession";
 
 interface DashboardProps {
   userRole: 'trainer' | 'student';
@@ -14,6 +15,42 @@ interface DashboardProps {
 
 export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }: DashboardProps) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'tests' | 'results'>('overview');
+  const [studentCount, setStudentCount] = useState(0);
+  const [recentTests, setRecentTests] = useState<any[]>([]);
+  
+  const { getStudentScores } = useTestSession();
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (userRole === 'trainer') {
+        const scores = await getStudentScores();
+        setStudentCount(scores.length);
+        
+        // Group by date and calculate averages for recent tests
+        const testsByDate = scores.reduce((acc, score) => {
+          const date = new Date(score.completed_at).toDateString();
+          if (!acc[date]) {
+            acc[date] = { scores: [], count: 0 };
+          }
+          acc[date].scores.push(score.total_score);
+          acc[date].count++;
+          return acc;
+        }, {} as Record<string, { scores: number[], count: number }>);
+
+        const recent = Object.entries(testsByDate)
+          .map(([date, data]) => ({
+            name: `Tests on ${date}`,
+            students: data.count,
+            avgScore: Math.round(data.scores.reduce((sum, score) => sum + score, 0) / data.count)
+          }))
+          .slice(-3);
+          
+        setRecentTests(recent);
+      }
+    };
+
+    fetchDashboardData();
+  }, [userRole]);
 
   if (userRole === 'trainer') {
     return (
@@ -41,8 +78,8 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
               <Users className="h-4 w-4 text-secondary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">85</div>
-              <p className="text-xs text-muted-foreground">Active learners</p>
+              <div className="text-2xl font-bold">{studentCount}</div>
+              <p className="text-xs text-muted-foreground">Students tested</p>
             </CardContent>
           </Card>
 
@@ -90,21 +127,23 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[
-                  { name: "React Fundamentals", students: 15, avgScore: 78 },
-                  { name: "JavaScript Advanced", students: 12, avgScore: 85 },
-                  { name: "Data Structures", students: 18, avgScore: 72 }
-                ].map((test, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                    <div>
-                      <p className="font-medium">{test.name}</p>
-                      <p className="text-sm text-muted-foreground">{test.students} students</p>
-                    </div>
-                    <Badge variant={test.avgScore >= 80 ? "default" : "secondary"}>
-                      {test.avgScore}%
-                    </Badge>
+                {recentTests.length === 0 ? (
+                  <div className="text-center py-4 text-muted-foreground">
+                    No test results yet
                   </div>
-                ))}
+                ) : (
+                  recentTests.map((test, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <div>
+                        <p className="font-medium">{test.name}</p>
+                        <p className="text-sm text-muted-foreground">{test.students} students</p>
+                      </div>
+                      <Badge variant={test.avgScore >= 80 ? "default" : "secondary"}>
+                        {test.avgScore}%
+                      </Badge>
+                    </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
@@ -164,9 +203,9 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
           <CardContent>
             <div className="space-y-4">
               {[
-                { name: "HTML/CSS Fundamentals", difficulty: "Intermediate", duration: "40 min", completed: false },
-                { name: "Responsive Design", difficulty: "Advanced", duration: "45 min", completed: true },
-                { name: "CSS Grid & Flexbox", difficulty: "Intermediate", duration: "35 min", completed: false }
+                { name: "JavaScript Scenarios", difficulty: "Mixed", duration: "40 min", completed: false },
+                { name: "Advanced JavaScript", difficulty: "Hard", duration: "45 min", completed: false },
+                { name: "ES6 Features", difficulty: "Medium", duration: "35 min", completed: false }
               ].map((test, i) => (
                 <div key={i} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                   <div>
@@ -198,10 +237,10 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
           <CardContent>
             <div className="space-y-6">
               {[
-                { topic: "HTML Semantics", progress: 90, score: 88 },
-                { topic: "CSS Styling", progress: 85, score: 82 },
-                { topic: "Responsive Design", progress: 70, score: 76 },
-                { topic: "CSS Grid Layout", progress: 40, score: 0 }
+                { topic: "DOM Manipulation", progress: 90, score: 88 },
+                { topic: "ES6 Features", progress: 85, score: 82 },
+                { topic: "Async Programming", progress: 70, score: 76 },
+                { topic: "Event Handling", progress: 40, score: 0 }
               ].map((item, i) => (
                 <div key={i} className="space-y-2">
                   <div className="flex justify-between text-sm">

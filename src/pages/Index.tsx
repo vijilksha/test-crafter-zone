@@ -13,10 +13,12 @@ type UserRole = 'trainer' | 'student' | null;
 const Index = () => {
   const [currentView, setCurrentView] = useState<ViewType>('landing');
   const [userRole, setUserRole] = useState<UserRole>(null);
+  const [userName, setUserName] = useState<string>('');
   const [testResults, setTestResults] = useState<any[]>([]);
 
-  const handleRoleSelect = (role: UserRole) => {
+  const handleRoleSelect = (role: UserRole, name?: string) => {
     setUserRole(role);
+    setUserName(name || 'Anonymous User');
     setCurrentView('dashboard');
   };
 
@@ -58,10 +60,12 @@ const Index = () => {
         <Dashboard userRole={userRole} onStartTest={handleStartTest} onViewScores={handleViewScores} onCreateTest={handleCreateTest} />
       )}
       
-      {currentView === 'test' && (
+      {currentView === 'test' && userRole && (
         <TestInterface 
           onComplete={handleTestComplete}
           onBack={handleBackToDashboard}
+          userName={userName}
+          userRole={userRole}
         />
       )}
       

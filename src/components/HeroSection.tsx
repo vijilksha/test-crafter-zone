@@ -1,12 +1,86 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, BookOpen, Users } from "lucide-react";
+import { useState } from "react";
 import heroImage from "@/assets/hero-education.jpg";
 
 interface HeroSectionProps {
-  onRoleSelect: (role: 'trainer' | 'student') => void;
+  onRoleSelect: (role: 'trainer' | 'student', name?: string) => void;
 }
 
 export const HeroSection = ({ onRoleSelect }: HeroSectionProps) => {
+  const [showNameInput, setShowNameInput] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<'trainer' | 'student' | null>(null);
+  const [userName, setUserName] = useState('');
+
+  const handleRoleClick = (role: 'trainer' | 'student') => {
+    setSelectedRole(role);
+    setShowNameInput(true);
+  };
+
+  const handleSubmit = () => {
+    if (selectedRole && userName.trim()) {
+      onRoleSelect(selectedRole, userName.trim());
+    }
+  };
+
+  const handleBack = () => {
+    setShowNameInput(false);
+    setSelectedRole(null);
+    setUserName('');
+  };
+
+  if (showNameInput) {
+    return (
+      <section className="relative overflow-hidden bg-gradient-hero py-20 min-h-screen flex items-center">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-md mx-auto">
+            <Card className="bg-white/10 backdrop-blur-md border-white/20">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl text-white">
+                  Welcome, {selectedRole === 'trainer' ? 'Trainer' : 'Student'}!
+                </CardTitle>
+                <p className="text-white/80">Please enter your name to continue</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="userName" className="text-white">Your Name</Label>
+                  <Input
+                    id="userName"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    placeholder="Enter your full name"
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                    onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleBack}
+                    className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  >
+                    Back
+                  </Button>
+                  <Button 
+                    onClick={handleSubmit}
+                    disabled={!userName.trim()}
+                    className="flex-1 bg-white text-primary hover:bg-white/90"
+                  >
+                    Continue
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="relative overflow-hidden bg-gradient-hero py-20">
       <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
@@ -29,7 +103,7 @@ export const HeroSection = ({ onRoleSelect }: HeroSectionProps) => {
               <Button 
                 variant="hero" 
                 size="lg" 
-                onClick={() => onRoleSelect('trainer')}
+                onClick={() => handleRoleClick('trainer')}
                 className="group"
               >
                 <BookOpen className="h-5 w-5 mr-2" />
@@ -39,7 +113,7 @@ export const HeroSection = ({ onRoleSelect }: HeroSectionProps) => {
               <Button 
                 variant="secondary" 
                 size="lg" 
-                onClick={() => onRoleSelect('student')}
+                onClick={() => handleRoleClick('student')}
                 className="group"
               >
                 <Users className="h-5 w-5 mr-2" />
