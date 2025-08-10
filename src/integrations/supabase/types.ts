@@ -14,7 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      test_results: {
+        Row: {
+          answered_at: string
+          correct_answer: string
+          created_at: string
+          difficulty: string
+          id: string
+          is_correct: boolean
+          question_id: string
+          question_text: string
+          selected_answer: string
+          session_id: string
+          topic: string
+        }
+        Insert: {
+          answered_at?: string
+          correct_answer: string
+          created_at?: string
+          difficulty: string
+          id?: string
+          is_correct: boolean
+          question_id: string
+          question_text: string
+          selected_answer: string
+          session_id: string
+          topic: string
+        }
+        Update: {
+          answered_at?: string
+          correct_answer?: string
+          created_at?: string
+          difficulty?: string
+          id?: string
+          is_correct?: boolean
+          question_id?: string
+          question_text?: string
+          selected_answer?: string
+          session_id?: string
+          topic?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_results_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "test_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_sessions: {
+        Row: {
+          completed_at: string | null
+          correct_answers: number
+          created_at: string
+          id: string
+          started_at: string
+          total_questions: number
+          total_score: number
+          updated_at: string
+          user_name: string
+          user_role: string
+        }
+        Insert: {
+          completed_at?: string | null
+          correct_answers?: number
+          created_at?: string
+          id?: string
+          started_at?: string
+          total_questions?: number
+          total_score?: number
+          updated_at?: string
+          user_name: string
+          user_role: string
+        }
+        Update: {
+          completed_at?: string | null
+          correct_answers?: number
+          created_at?: string
+          id?: string
+          started_at?: string
+          total_questions?: number
+          total_score?: number
+          updated_at?: string
+          user_name?: string
+          user_role?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
