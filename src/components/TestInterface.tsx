@@ -18,9 +18,9 @@ interface TestCaseResult {
 }
 
 interface Answer {
-  questionId: number;
-  type: 'multiple-choice' | 'code' | 'js-code';
-  value: number | { html: string; css: string } | { html: string; js: string };
+  questionId: string;
+  type: 'multiple-choice' | 'code';
+  value: string | { html: string; css: string } | { html: string; js: string };
   testResults?: TestCaseResult[];
 }
 
@@ -33,9 +33,9 @@ interface TestInterfaceProps {
 
 export const TestInterface = ({ onComplete, onBack, userName, userRole }: TestInterfaceProps) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, Answer>>({});
+  const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [timeRemaining, setTimeRemaining] = useState(2400); // 40 minutes for coding questions
-  const [testResults, setTestResults] = useState<Record<number, TestCaseResult[]>>({});
+  const [testResults, setTestResults] = useState<Record<string, TestCaseResult[]>>({});
   const [sessionId, setSessionId] = useState<string | null>(null);
   
   const { createTestSession, saveTestResult, completeTestSession, loading } = useTestSession();
@@ -76,7 +76,7 @@ export const TestInterface = ({ onComplete, onBack, userName, userRole }: TestIn
     }
   }, [timeRemaining]);
 
-  const handleMultipleChoiceAnswer = (questionId: number, answerIndex: number) => {
+  const handleMultipleChoiceAnswer = (questionId: string, answerIndex: string) => {
     setAnswers(prev => ({ 
       ...prev, 
       [questionId]: {
@@ -87,29 +87,30 @@ export const TestInterface = ({ onComplete, onBack, userName, userRole }: TestIn
     }));
   };
 
-  const handleCodeAnswer = (questionId: number, html: string, css: string, js?: string) => {
+  const handleCodeAnswer = (questionId: string, html: string, css: string, js?: string) => {
     const question = questions.find(q => q.id === questionId);
     setAnswers(prev => ({ 
       ...prev, 
       [questionId]: {
         questionId,
-        type: question?.type === 'js-code' ? 'js-code' : 'code',
-        value: question?.type === 'js-code' ? { html, js: js || '' } : { html, css }
+        type: question?.type === 'code' ? 'code' : 'multiple-choice',
+        value: question?.type === 'code' ? { html, js: js || '' } : { html, css }
       }
     }));
   };
 
-  const runTests = (question: Question) => {
-    if (question.type !== 'js-code') return;
+  const runTests = async (question: Question) => {
+    if (question.type !== 'code') return;
     
     const answer = answers[question.id];
-    if (!answer || answer.type !== 'js-code') return;
+    if (!answer || answer.type !== 'code') return;
 
     const { html, js } = answer.value as { html: string; js: string };
-    const results = question.testCases.map(testCase => ({
+    const results = await Promise.all(question.testCases.map(async testCase => ({
       name: testCase.name,
-      ...testCase.test(html, js)
-    }));
+      passed: await testCase.test(js),
+      message: 'Test completed'
+    })));
 
     setTestResults(prev => ({ ...prev, [question.id]: results }));
     
@@ -157,8 +158,8 @@ export const TestInterface = ({ onComplete, onBack, userName, userRole }: TestIn
       if (answer) {
         if (q.type === 'multiple-choice') {
           isCorrect = answer.value === q.correctAnswer;
-          selectedAnswer = q.options[answer.value as number] || 'Invalid selection';
-          correctAnswer = q.options[q.correctAnswer];
+          selectedAnswer = answer.value as string;
+          correctAnswer = q.correctAnswer;
         } else {
           // For code questions, check if all test cases passed
           const testResults = answer.testResults || [];
@@ -168,7 +169,7 @@ export const TestInterface = ({ onComplete, onBack, userName, userRole }: TestIn
         }
       } else {
         if (q.type === 'multiple-choice') {
-          correctAnswer = q.options[q.correctAnswer];
+          correctAnswer = q.correctAnswer;
         } else {
           correctAnswer = 'All test cases must pass';
         }
@@ -260,7 +261,7 @@ export const TestInterface = ({ onComplete, onBack, userName, userRole }: TestIn
           <CardHeader>
             <div className="flex items-center justify-between">
                 <CardTitle className="text-xl">
-                {question.type === 'js-code' ? question.title : `Question ${currentQuestion + 1}`}
+                {question.type === 'code' ? question.title : `Question ${currentQuestion + 1}`}
               </CardTitle>
               <div className="flex gap-2">
                 <Badge variant={question.difficulty === 'Hard' ? 'destructive' : question.difficulty === 'Medium' ? 'secondary' : 'default'}>
@@ -286,7 +287,7 @@ export const TestInterface = ({ onComplete, onBack, userName, userRole }: TestIn
                 
                 <RadioGroup 
                   value={currentAnswer?.value?.toString()} 
-                  onValueChange={(value) => handleMultipleChoiceAnswer(question.id, parseInt(value))}
+                  onValueChange={(value) => handleMultipleChoiceAnswer(question.id, value)}
                 >
                   {question.options.map((option, index) => (
                     <div key={index} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
