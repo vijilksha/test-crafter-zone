@@ -26,31 +26,23 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
         const scores = await getStudentScores();
         setStudentCount(scores.length);
         
-        // Group by date and calculate averages for recent tests
-        const testsByDate = scores.reduce((acc, score) => {
-          const date = new Date(score.completed_at).toDateString();
-          if (!acc[date]) {
-            acc[date] = { scores: [], count: 0 };
-          }
-          acc[date].scores.push(score.total_score);
-          acc[date].count++;
-          return acc;
-        }, {} as Record<string, { scores: number[], count: number }>);
-
-        const recent = Object.entries(testsByDate)
-          .map(([date, data]) => ({
-            name: `Tests on ${date}`,
-            students: data.count,
-            avgScore: Math.round(data.scores.reduce((sum, score) => sum + score, 0) / data.count)
-          }))
-          .slice(-3);
+        // Get the 5 most recent individual test results
+        const recent = scores
+          .slice(0, 5)
+          .map(score => ({
+            studentName: score.user_name,
+            score: Math.round(score.total_score),
+            questions: `${score.correct_answers}/${score.total_questions}`,
+            completedAt: new Date(score.completed_at).toLocaleDateString(),
+            time: new Date(score.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }));
           
         setRecentTests(recent);
       }
     };
 
     fetchDashboardData();
-  }, [userRole]);
+  }, [userRole, getStudentScores]);
 
   if (userRole === 'trainer') {
     return (
@@ -134,12 +126,17 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
                 ) : (
                   recentTests.map((test, i) => (
                     <div key={i} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                      <div>
-                        <p className="font-medium">{test.name}</p>
-                        <p className="text-sm text-muted-foreground">{test.students} students</p>
+                      <div className="flex-1">
+                        <p className="font-medium">{test.studentName}</p>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span>{test.questions} correct</span>
+                          <span>•</span>
+                          <span>{test.completedAt}</span>
+                          <span>{test.time}</span>
+                        </div>
                       </div>
-                      <Badge variant={test.avgScore >= 80 ? "default" : "secondary"}>
-                        {test.avgScore}%
+                      <Badge variant={test.score >= 80 ? "default" : "secondary"}>
+                        {test.score}%
                       </Badge>
                     </div>
                   ))
