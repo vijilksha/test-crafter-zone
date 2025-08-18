@@ -2,24 +2,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Trophy, BarChart3, FileText, ArrowLeft, CheckCircle, XCircle } from "lucide-react";
-import { useState } from "react";
+import { Trophy, BarChart3, FileText, ArrowLeft, CheckCircle, XCircle, Download } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useTestSession } from "@/hooks/useTestSession";
+import { TestResult, StudentScore } from "@/types/database";
+import * as XLSX from 'xlsx';
 
-interface TestResult {
-  questionId: number;
+interface DetailedTestResult extends TestResult {
+  questionId: string;
   correct: boolean;
-  topic: string;
-  difficulty: 'intermediate' | 'advanced';
-  testResults?: any[];
 }
 
 interface Student {
   id: string;
   name: string;
-  email: string;
-  results: TestResult[];
+  results: DetailedTestResult[];
   completedAt: string;
   totalScore: number;
+  sessionId: string;
 }
 
 interface ScoreViewerProps {
@@ -27,61 +27,107 @@ interface ScoreViewerProps {
   userRole: 'trainer' | 'student';
 }
 
-// Mock data - in real app this would come from Supabase
-const mockStudentResults: Student[] = [
-  {
-    id: "1",
-    name: "Alice Johnson",
-    email: "alice@example.com",
-    results: [
-      { questionId: 1, correct: true, topic: "CSS Responsive Design", difficulty: "intermediate" },
-      { questionId: 2, correct: false, topic: "CSS Grid Layout", difficulty: "advanced" },
-      { questionId: 3, correct: true, topic: "CSS Flexbox", difficulty: "intermediate" },
-      { questionId: 101, correct: true, topic: "DOM Manipulation", difficulty: "intermediate" },
-      { questionId: 102, correct: false, topic: "ES6 Features", difficulty: "advanced" }
-    ],
-    completedAt: "2024-01-15T10:30:00Z",
-    totalScore: 60
-  },
-  {
-    id: "2", 
-    name: "Bob Smith",
-    email: "bob@example.com",
-    results: [
-      { questionId: 1, correct: true, topic: "CSS Responsive Design", difficulty: "intermediate" },
-      { questionId: 2, correct: true, topic: "CSS Grid Layout", difficulty: "advanced" },
-      { questionId: 3, correct: true, topic: "CSS Flexbox", difficulty: "intermediate" },
-      { questionId: 101, correct: false, topic: "DOM Manipulation", difficulty: "intermediate" },
-      { questionId: 102, correct: true, topic: "ES6 Features", difficulty: "advanced" }
-    ],
-    completedAt: "2024-01-14T14:20:00Z",
-    totalScore: 80
-  },
-  {
-    id: "3",
-    name: "Carol Davis", 
-    email: "carol@example.com",
-    results: [
-      { questionId: 1, correct: true, topic: "CSS Responsive Design", difficulty: "intermediate" },
-      { questionId: 2, correct: true, topic: "CSS Grid Layout", difficulty: "advanced" },
-      { questionId: 3, correct: true, topic: "CSS Flexbox", difficulty: "intermediate" },
-      { questionId: 101, correct: true, topic: "DOM Manipulation", difficulty: "intermediate" },
-      { questionId: 102, correct: true, topic: "ES6 Features", difficulty: "advanced" }
-    ],
-    completedAt: "2024-01-13T09:15:00Z",
-    totalScore: 100
-  }
-];
-
 export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { getStudentScores, getTestResults } = useTestSession();
+
+  useEffect(() => {
+    loadStudentData();
+  }, []);
+
+  const loadStudentData = async () => {
+    try {
+      setLoading(true);
+      const scores = await getStudentScores();
+      
+      const studentsWithResults = await Promise.all(
+        scores.map(async (score) => {
+          const results = await getTestResults(score.session_id);
+          return {
+            id: score.session_id,
+            name: score.user_name,
+            totalScore: Math.round(score.total_score),
+            completedAt: score.completed_at,
+            sessionId: score.session_id,
+            results: results.map(result => ({
+              ...result,
+              questionId: result.question_id,
+              correct: result.is_correct
+            }))
+          };
+        })
+      );
+      
+      setStudents(studentsWithResults);
+    } catch (error) {
+      console.error('Failed to load student data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const exportToExcel = () => {
+    // Prepare data for Excel export
+    const excelData = students.map(student => {
+      const topicScores = getTopicScores(student.results);
+      const row: any = {
+        'Student Name': student.name,
+        'Total Score': `${student.totalScore}%`,
+        'Questions Correct': `${student.results.filter(r => r.correct).length}/${student.results.length}`,
+        'Completion Date': formatDate(student.completedAt)
+      };
+      
+      // Add topic scores
+      topicScores.forEach(topic => {
+        row[`${topic.topic} Score`] = `${topic.score}%`;
+        row[`${topic.topic} Correct`] = `${topic.correct}/${topic.total}`;
+      });
+      
+      return row;
+    });
+
+    // Calculate averages
+    const totalStudents = students.length;
+    const averageScore = Math.round(students.reduce((sum, s) => sum + s.totalScore, 0) / totalStudents);
+    
+    // Add summary row
+    const summaryRow: any = {
+      'Student Name': 'CLASS AVERAGE',
+      'Total Score': `${averageScore}%`,
+      'Questions Correct': '-',
+      'Completion Date': '-'
+    };
+
+    // Calculate topic averages
+    const allTopics = [...new Set(students.flatMap(s => s.results.map(r => r.topic)))];
+    allTopics.forEach(topic => {
+      const topicResults = students.flatMap(s => s.results.filter(r => r.topic === topic));
+      const topicAverage = Math.round((topicResults.filter(r => r.correct).length / topicResults.length) * 100);
+      summaryRow[`${topic} Score`] = `${topicAverage}%`;
+      summaryRow[`${topic} Correct`] = '-';
+    });
+
+    excelData.push(summaryRow);
+
+    // Create workbook and worksheet
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Student Results');
+    
+    // Save file
+    XLSX.writeFile(workbook, `student-test-results-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   // Filter data based on role
   const displayData = userRole === 'student' 
-    ? mockStudentResults.filter(student => student.id === 'current-student') // In real app, use actual student ID
-    : mockStudentResults;
+    ? students.filter(student => student.id === 'current-student') // In real app, use actual student ID
+    : students;
 
-  const getTopicScores = (results: TestResult[]) => {
+  const getTopicScores = (results: DetailedTestResult[]) => {
     const topicGroups = results.reduce((acc, result) => {
       if (!acc[result.topic]) {
         acc[result.topic] = { correct: 0, total: 0 };
@@ -99,7 +145,7 @@ export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
     }));
   };
 
-  const getDifficultyScores = (results: TestResult[]) => {
+  const getDifficultyScores = (results: DetailedTestResult[]) => {
     const difficultyGroups = results.reduce((acc, result) => {
       if (!acc[result.difficulty]) {
         acc[result.difficulty] = { correct: 0, total: 0 };
@@ -141,7 +187,6 @@ export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
             </Button>
             <div className="text-right">
               <h1 className="text-2xl font-bold">{selectedStudent.name}</h1>
-              <p className="text-muted-foreground">{selectedStudent.email}</p>
               <p className="text-sm text-muted-foreground">Completed: {formatDate(selectedStudent.completedAt)}</p>
             </div>
           </div>
@@ -262,7 +307,7 @@ export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={result.difficulty === 'advanced' ? 'destructive' : 'default'}>
+                      <Badge variant={result.difficulty === 'Hard' ? 'destructive' : 'default'}>
                         {result.difficulty}
                       </Badge>
                       <Badge variant={result.correct ? "default" : "secondary"}>
@@ -279,6 +324,18 @@ export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center">
+            <p>Loading student results...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
@@ -287,10 +344,16 @@ export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
             <h1 className="text-3xl font-bold text-foreground mb-2">Student Test Results</h1>
             <p className="text-muted-foreground">View and analyze student performance</p>
           </div>
-          <Button variant="ghost" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={exportToExcel}>
+              <Download className="h-4 w-4 mr-2" />
+              Export to Excel
+            </Button>
+            <Button variant="ghost" onClick={onBack}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -300,7 +363,7 @@ export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
               <FileText className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{mockStudentResults.length}</div>
+              <div className="text-2xl font-bold">{students.length}</div>
               <p className="text-xs text-muted-foreground">Completed tests</p>
             </CardContent>
           </Card>
@@ -312,7 +375,7 @@ export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {Math.round(mockStudentResults.reduce((sum, student) => sum + student.totalScore, 0) / mockStudentResults.length)}%
+                {students.length > 0 ? Math.round(students.reduce((sum, student) => sum + student.totalScore, 0) / students.length) : 0}%
               </div>
               <p className="text-xs text-muted-foreground">Class average</p>
             </CardContent>
@@ -325,10 +388,10 @@ export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold">
-                {mockStudentResults.sort((a, b) => b.totalScore - a.totalScore)[0]?.name}
+                {students.length > 0 ? students.sort((a, b) => b.totalScore - a.totalScore)[0]?.name : 'No data'}
               </div>
               <p className="text-xs text-muted-foreground">
-                {mockStudentResults.sort((a, b) => b.totalScore - a.totalScore)[0]?.totalScore}% score
+                {students.length > 0 ? students.sort((a, b) => b.totalScore - a.totalScore)[0]?.totalScore : 0}% score
               </p>
             </CardContent>
           </Card>
@@ -341,9 +404,12 @@ export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {mockStudentResults
-                .sort((a, b) => b.totalScore - a.totalScore)
-                .map((student) => (
+              {students.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">No test results found</p>
+              ) : (
+                students
+                  .sort((a, b) => b.totalScore - a.totalScore)
+                  .map((student) => (
                 <div
                   key={student.id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
@@ -355,7 +421,6 @@ export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
                     </div>
                     <div>
                       <p className="font-medium">{student.name}</p>
-                      <p className="text-sm text-muted-foreground">{student.email}</p>
                       <p className="text-xs text-muted-foreground">
                         Completed: {formatDate(student.completedAt)}
                       </p>
@@ -376,7 +441,8 @@ export const ScoreViewer = ({ onBack, userRole }: ScoreViewerProps) => {
                     </Badge>
                   </div>
                 </div>
-              ))}
+                  ))
+              )}
             </div>
           </CardContent>
         </Card>
