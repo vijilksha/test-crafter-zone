@@ -17,12 +17,15 @@ interface ResultsViewProps {
 }
 
 export const ResultsView = ({ results, onBack }: ResultsViewProps) => {
-  const totalQuestions = results.length;
-  const correctAnswers = results.filter(r => r.correct).length;
+  // Ensure results is always an array to prevent filter errors
+  const safeResults = Array.isArray(results) ? results : [];
+  
+  const totalQuestions = safeResults.length;
+  const correctAnswers = safeResults.filter(r => r.correct).length;
   const score = Math.round((correctAnswers / totalQuestions) * 100);
 
   // Topic-wise analysis
-  const topicAnalysis = results.reduce((acc, result) => {
+  const topicAnalysis = safeResults.reduce((acc, result) => {
     if (!acc[result.topic]) {
       acc[result.topic] = { total: 0, correct: 0 };
     }
@@ -32,7 +35,7 @@ export const ResultsView = ({ results, onBack }: ResultsViewProps) => {
   }, {} as Record<string, { total: number; correct: number }>);
 
   // Difficulty analysis
-  const difficultyAnalysis = results.reduce((acc, result) => {
+  const difficultyAnalysis = safeResults.reduce((acc, result) => {
     if (!acc[result.difficulty]) {
       acc[result.difficulty] = { total: 0, correct: 0 };
     }
