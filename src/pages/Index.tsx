@@ -85,7 +85,7 @@ const Index = () => {
         <TestInterface 
           onComplete={handleTestComplete}
           onBack={handleBackToDashboard}
-          userName={user.email || 'Anonymous User'}
+          userName={user.user_metadata?.name || user.email || 'Anonymous User'}
           userRole={userRole}
           category={selectedCategory ?? 'functional-testing'}
         />

@@ -9,8 +9,8 @@ interface AuthContextType {
   session: Session | null;
   userRole: UserRole;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (email: string, password: string, role: 'trainer' | 'student') => Promise<{ success: boolean; error?: string }>;
+  signIn: (cohortCode: string, name: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (cohortCode: string, name: string, password: string, role: 'trainer' | 'student') => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   setUserRole: (role: UserRole) => Promise<void>;
 }
@@ -110,8 +110,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (cohortCode: string, name: string, password: string) => {
     try {
+      // Generate synthetic email for Supabase auth
+      const email = `${name.toLowerCase().replace(/\s+/g, '-')}@${cohortCode.toLowerCase()}.cohort`;
+      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -127,11 +130,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, role: 'trainer' | 'student') => {
+  const signUp = async (cohortCode: string, name: string, password: string, role: 'trainer' | 'student') => {
     try {
+      // Generate synthetic email for Supabase auth
+      const email = `${name.toLowerCase().replace(/\s+/g, '-')}@${cohortCode.toLowerCase()}.cohort`;
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            name: name,
+            cohort_code: cohortCode,
+            role: role
+          }
+        }
       });
 
       if (error) {

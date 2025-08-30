@@ -10,7 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, UserCheck, GraduationCap } from "lucide-react";
 
 export const AuthForm = () => {
-  const [email, setEmail] = useState("");
+  const [cohortCode, setCohortCode] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState<'trainer' | 'student'>('student');
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +24,7 @@ export const AuthForm = () => {
     setIsLoading(true);
     
     try {
-      const result = await signIn(email, password);
+      const result = await signIn(cohortCode, name, password);
       
       if (!result.success) {
         toast({
@@ -47,7 +48,7 @@ export const AuthForm = () => {
     setIsLoading(true);
     
     try {
-      const result = await signUp(email, password, selectedRole);
+      const result = await signUp(cohortCode, name, password, selectedRole);
       
       if (!result.success) {
         toast({
@@ -85,13 +86,24 @@ export const AuthForm = () => {
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="cohort-code">Cohort Code</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="cohort-code"
+                    type="text"
+                    placeholder="Enter cohort code"
+                    value={cohortCode}
+                    onChange={(e) => setCohortCode(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Enter your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     required
                   />
                 </div>
@@ -116,13 +128,24 @@ export const AuthForm = () => {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
+                  <Label htmlFor="signup-cohort">Cohort Code</Label>
                   <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="signup-cohort"
+                    type="text"
+                    placeholder="Enter cohort code"
+                    value={cohortCode}
+                    onChange={(e) => setCohortCode(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-name">Name</Label>
+                  <Input
+                    id="signup-name"
+                    type="text"
+                    placeholder="Enter your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     required
                   />
                 </div>

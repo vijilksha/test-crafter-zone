@@ -18,7 +18,7 @@ export const Header = () => {
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-muted-foreground">
-            {user?.email} ({userRole})
+            {user?.user_metadata?.name || user?.email} ({userRole})
           </span>
           <Button variant="outline" size="sm" onClick={handleSignOut}>
             <LogOut className="h-4 w-4 mr-2" />
