@@ -101,10 +101,9 @@ const userSettings = { theme: 'dark', notifications: false };`
         name: 'Should use destructuring and spread operator correctly',
         test: async (code) => {
           try {
-            // Create a more isolated evaluation context
-            const testFunction = new Function('defaultSettings', code + '; return processUserData;');
-            const defaultSettings = { theme: 'light', notifications: true, language: 'en' };
-            const processUserData = testFunction(defaultSettings);
+            // Evaluate code and extract the function
+            const testFunction = new Function('', code + '; return processUserData;');
+            const processUserData = testFunction();
             const testUser = { name: 'Alice', email: 'alice@test.com', id: 1 };
             const userSettings = { theme: 'dark', notifications: false };
             const result = processUserData(testUser, userSettings);
