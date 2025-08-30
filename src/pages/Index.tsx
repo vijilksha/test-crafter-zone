@@ -28,8 +28,8 @@ const Index = () => {
     setCurrentView('test');
   };
 
-  const handleTestComplete = (results: any[]) => {
-    setTestResults(results);
+  const handleTestComplete = (data: any) => {
+    setTestResults(data.results || data);
     setCurrentView('results');
   };
 
