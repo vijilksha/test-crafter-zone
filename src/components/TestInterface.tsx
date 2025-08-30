@@ -450,7 +450,7 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
 
           <Button 
             onClick={handleNext}
-            disabled={!hasAnswer || loading}
+            disabled={!hasAnswer}
             variant={currentQuestion === questions.length - 1 ? "default" : "default"}
           >
             {currentQuestion === questions.length - 1 ? (
