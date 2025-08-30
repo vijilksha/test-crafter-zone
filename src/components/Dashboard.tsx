@@ -200,9 +200,10 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
           <CardContent>
             <div className="space-y-4">
               {[
-                { name: "JavaScript Scenarios", difficulty: "Mixed", duration: "40 min", completed: false },
+                { name: "JavaScript Fundamentals", difficulty: "Mixed", duration: "40 min", completed: false },
+                { name: "Functional Testing Concepts", difficulty: "Medium", duration: "35 min", completed: false },
                 { name: "Advanced JavaScript", difficulty: "Hard", duration: "45 min", completed: false },
-                { name: "ES6 Features", difficulty: "Medium", duration: "35 min", completed: false }
+                { name: "Test Design & Strategy", difficulty: "Medium", duration: "30 min", completed: false }
               ].map((test, i) => (
                 <div key={i} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                   <div>
