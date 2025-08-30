@@ -127,3 +127,21 @@ All colors MUST be HSL.
     background-size: 20px 20px;
   }
 }
+
+@layer components {
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .bg-gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+  
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+}
