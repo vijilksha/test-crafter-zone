@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Clock, CheckCircle, AlertCircle, ArrowLeft, ArrowRight, Play } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CodeEditor } from "@/components/CodeEditor";
-import { allQuestions, type Question } from "@/data/allQuestions";
+import { allQuestions, getQuestionsByCategory, type Question } from "@/data/allQuestions";
 import { useTestSession } from "@/hooks/useTestSession";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,9 +29,10 @@ interface TestInterfaceProps {
   onBack: () => void;
   userName: string;
   userRole: 'student' | 'trainer';
+  category?: 'javascript' | 'functional-testing';
 }
 
-export const TestInterface = ({ onComplete, onBack, userName, userRole }: TestInterfaceProps) => {
+export const TestInterface = ({ onComplete, onBack, userName, userRole, category }: TestInterfaceProps) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [timeRemaining, setTimeRemaining] = useState(2400); // 40 minutes for coding questions
@@ -41,8 +42,8 @@ export const TestInterface = ({ onComplete, onBack, userName, userRole }: TestIn
   const { createTestSession, saveTestResult, completeTestSession, loading } = useTestSession();
   const { toast } = useToast();
 
-  // Use all questions (JavaScript scenario-based)
-  const questions = allQuestions;
+// Use category-specific questions when provided
+const questions = category ? getQuestionsByCategory(category) : allQuestions;
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 

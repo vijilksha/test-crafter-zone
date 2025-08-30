@@ -8,7 +8,7 @@ import { useTestSession } from "@/hooks/useTestSession";
 
 interface DashboardProps {
   userRole: 'trainer' | 'student';
-  onStartTest?: () => void;
+  onStartTest?: (category: 'javascript' | 'functional-testing') => void;
   onViewScores?: () => void;
   onCreateTest?: () => void;
 }
@@ -200,10 +200,9 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
           <CardContent>
             <div className="space-y-4">
               {[
-                { name: "JavaScript Fundamentals", difficulty: "Mixed", duration: "40 min", completed: false },
-                { name: "Functional Testing Concepts", difficulty: "Medium", duration: "35 min", completed: false },
-                { name: "Advanced JavaScript", difficulty: "Hard", duration: "45 min", completed: false },
-                { name: "Test Design & Strategy", difficulty: "Medium", duration: "30 min", completed: false }
+                { name: "Functional Testing Concepts", difficulty: "Medium", duration: "35 min", completed: false, category: 'functional-testing' },
+                { name: "Test Design & Strategy", difficulty: "Medium", duration: "30 min", completed: false, category: 'functional-testing' },
+                { name: "API Functional Testing", difficulty: "Hard", duration: "40 min", completed: false, category: 'functional-testing' }
               ].map((test, i) => (
                 <div key={i} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                   <div>
@@ -217,7 +216,7 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
                     variant={test.completed ? "secondary" : "default"} 
                     size="sm"
                     disabled={test.completed}
-                    onClick={test.completed ? undefined : onStartTest}
+                    onClick={() => !test.completed && onStartTest?.('functional-testing')}
                   >
                     {test.completed ? "Completed" : "Start Test"}
                   </Button>
@@ -235,10 +234,10 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
           <CardContent>
             <div className="space-y-6">
               {[
-                { topic: "DOM Manipulation", progress: 90, score: 88 },
-                { topic: "ES6 Features", progress: 85, score: 82 },
-                { topic: "Async Programming", progress: 70, score: 76 },
-                { topic: "Event Handling", progress: 40, score: 0 }
+                { topic: "Test Case Design", progress: 90, score: 88 },
+                { topic: "Boundary Value Analysis", progress: 85, score: 82 },
+                { topic: "API Testing", progress: 70, score: 76 },
+                { topic: "Exploratory Testing", progress: 40, score: 0 }
               ].map((item, i) => (
                 <div key={i} className="space-y-2">
                   <div className="flex justify-between text-sm">

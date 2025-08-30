@@ -14,7 +14,8 @@ const Index = () => {
   const [currentView, setCurrentView] = useState<ViewType>('landing');
   const [userRole, setUserRole] = useState<UserRole>(null);
   const [userName, setUserName] = useState<string>('');
-  const [testResults, setTestResults] = useState<any[]>([]);
+const [testResults, setTestResults] = useState<any[]>([]);
+const [selectedCategory, setSelectedCategory] = useState<'javascript' | 'functional-testing' | null>(null);
 
   const handleRoleSelect = (role: UserRole, name?: string) => {
     setUserRole(role);
@@ -22,9 +23,10 @@ const Index = () => {
     setCurrentView('dashboard');
   };
 
-  const handleStartTest = () => {
-    setCurrentView('test');
-  };
+const handleStartTest = (category: 'javascript' | 'functional-testing') => {
+  setSelectedCategory(category);
+  setCurrentView('test');
+};
 
   const handleTestComplete = (results: any[]) => {
     setTestResults(results);
@@ -60,14 +62,15 @@ const Index = () => {
         <Dashboard userRole={userRole} onStartTest={handleStartTest} onViewScores={handleViewScores} onCreateTest={handleCreateTest} />
       )}
       
-      {currentView === 'test' && userRole && (
-        <TestInterface 
-          onComplete={handleTestComplete}
-          onBack={handleBackToDashboard}
-          userName={userName}
-          userRole={userRole}
-        />
-      )}
+{currentView === 'test' && userRole && (
+  <TestInterface 
+    onComplete={handleTestComplete}
+    onBack={handleBackToDashboard}
+    userName={userName}
+    userRole={userRole}
+    category={selectedCategory ?? 'functional-testing'}
+  />
+)}
       
       {currentView === 'results' && (
         <ResultsView 
