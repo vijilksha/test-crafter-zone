@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      issues: {
+        Row: {
+          assignee: string | null
+          created_at: string
+          description: string | null
+          id: string
+          priority: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          assignee?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          priority: string
+          status: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          assignee?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       test_results: {
         Row: {
           answered_at: string
