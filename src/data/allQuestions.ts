@@ -4,8 +4,23 @@ import { functionalTestingQuestions, type FunctionalTestingQuestion } from './fu
 // Combined question types
 export type Question = JSQuestion | FunctionalTestingQuestion;
 
-// Combined questions from all categories
+// Export separate question categories
+export { jsQuestions, functionalTestingQuestions };
+
+// Combined questions from all categories (for backward compatibility)
 export const allQuestions: Question[] = [...jsQuestions, ...functionalTestingQuestions];
+
+// Helper function to get questions by category
+export const getQuestionsByCategory = (category: 'javascript' | 'functional-testing'): Question[] => {
+  switch (category) {
+    case 'javascript':
+      return jsQuestions;
+    case 'functional-testing':
+      return functionalTestingQuestions;
+    default:
+      return allQuestions;
+  }
+};
 
 // Helper function to get questions by topic
 export const getQuestionsByTopic = (topic: string): Question[] => {
