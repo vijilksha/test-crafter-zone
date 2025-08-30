@@ -230,25 +230,18 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
         }
       }
 
-      // Create test result with correct database schema
-      const testResult = {
-        session_id: sessionId,
-        question_id: q.id.toString(),
-        question_text: q.type === 'multiple-choice' || q.type === 'text-input' ? q.text : (q as any).title,
-        topic: q.topic,
-        difficulty: q.difficulty,
-        selected_answer: selectedAnswer,
-        correct_answer: correctAnswer,
-        is_correct: isCorrect,
-        user_answer: selectedAnswer,
-        question_type: q.type,
-        score: score,
-        ai_feedback: aiEvaluation ? JSON.stringify(aiEvaluation) : null
-      };
-
+      // Save using the useTestSession hook method
       try {
-        const { error } = await supabase.from('test_results').insert([testResult]);
-        if (error) throw error;
+        await saveTestResult(
+          sessionId,
+          q.id.toString(),
+          q.type === 'multiple-choice' || q.type === 'text-input' ? q.text : (q as any).title,
+          q.topic,
+          q.difficulty,
+          selectedAnswer,
+          correctAnswer,
+          isCorrect
+        );
       } catch (error) {
         console.error('Failed to save test result:', error);
         toast({
