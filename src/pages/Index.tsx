@@ -6,36 +6,22 @@ import { TestInterface } from "@/components/TestInterface";
 import { ResultsView } from "@/components/ResultsView";
 import { ScoreViewer } from "@/components/ScoreViewer";
 import { TestCreator } from "@/components/TestCreator";
-import { AuthForm } from "@/components/AuthForm";
-import { useAuth } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
 
 type ViewType = 'landing' | 'dashboard' | 'test' | 'results' | 'scores' | 'create-test';
+type UserRole = 'student' | 'trainer';
 
 const Index = () => {
-  const { user, userRole, loading } = useAuth();
   const [currentView, setCurrentView] = useState<ViewType>('landing');
   const [testResults, setTestResults] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'javascript' | 'functional-testing' | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [userName, setUserName] = useState<string>('');
 
-  // Show loading spinner while checking auth state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  // Show auth form if user is not authenticated
-  if (!user) {
-    return <AuthForm />;
-  }
-
-  // Show role selection if user doesn't have a role assigned
-  if (!userRole) {
-    return <HeroSection onRoleSelect={() => {}} />;
-  }
+  const handleRoleSelect = (role: UserRole, name?: string) => {
+    setUserRole(role);
+    setUserName(name || 'Anonymous User');
+    setCurrentView('dashboard');
+  };
 
   const handleStartTest = (category: 'javascript' | 'functional-testing') => {
     setSelectedCategory(category);
@@ -61,9 +47,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {currentView === 'landing' && (
+        <HeroSection onRoleSelect={handleRoleSelect} />
+      )}
+      
       {currentView !== 'landing' && <Header />}
       
-      {currentView === 'landing' && (
+      {currentView === 'dashboard' && userRole && (
         <Dashboard 
           userRole={userRole} 
           onStartTest={handleStartTest} 
@@ -72,20 +62,11 @@ const Index = () => {
         />
       )}
       
-      {currentView === 'dashboard' && (
-        <Dashboard 
-          userRole={userRole} 
-          onStartTest={handleStartTest} 
-          onViewScores={handleViewScores} 
-          onCreateTest={handleCreateTest} 
-        />
-      )}
-      
-      {currentView === 'test' && user && (
+      {currentView === 'test' && userRole && (
         <TestInterface 
           onComplete={handleTestComplete}
           onBack={handleBackToDashboard}
-          userName={user.user_metadata?.name || user.email || 'Anonymous User'}
+          userName={userName}
           userRole={userRole}
           category={selectedCategory ?? 'functional-testing'}
         />
@@ -98,7 +79,7 @@ const Index = () => {
         />
       )}
 
-      {currentView === 'scores' && (
+      {currentView === 'scores' && userRole && (
         <ScoreViewer 
           onBack={handleBackToDashboard}
           userRole={userRole}
