@@ -6,27 +6,41 @@ import { TestInterface } from "@/components/TestInterface";
 import { ResultsView } from "@/components/ResultsView";
 import { ScoreViewer } from "@/components/ScoreViewer";
 import { TestCreator } from "@/components/TestCreator";
+import { AuthForm } from "@/components/AuthForm";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 type ViewType = 'landing' | 'dashboard' | 'test' | 'results' | 'scores' | 'create-test';
-type UserRole = 'trainer' | 'student' | null;
 
 const Index = () => {
+  const { user, userRole, loading } = useAuth();
   const [currentView, setCurrentView] = useState<ViewType>('landing');
-  const [userRole, setUserRole] = useState<UserRole>(null);
-  const [userName, setUserName] = useState<string>('');
-const [testResults, setTestResults] = useState<any[]>([]);
-const [selectedCategory, setSelectedCategory] = useState<'javascript' | 'functional-testing' | null>(null);
+  const [testResults, setTestResults] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<'javascript' | 'functional-testing' | null>(null);
 
-  const handleRoleSelect = (role: UserRole, name?: string) => {
-    setUserRole(role);
-    setUserName(name || 'Anonymous User');
-    setCurrentView('dashboard');
+  // Show loading spinner while checking auth state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Show auth form if user is not authenticated
+  if (!user) {
+    return <AuthForm />;
+  }
+
+  // Show role selection if user doesn't have a role assigned
+  if (!userRole) {
+    return <HeroSection onRoleSelect={() => {}} />;
+  }
+
+  const handleStartTest = (category: 'javascript' | 'functional-testing') => {
+    setSelectedCategory(category);
+    setCurrentView('test');
   };
-
-const handleStartTest = (category: 'javascript' | 'functional-testing') => {
-  setSelectedCategory(category);
-  setCurrentView('test');
-};
 
   const handleTestComplete = (results: any[]) => {
     setTestResults(results);
@@ -35,11 +49,6 @@ const handleStartTest = (category: 'javascript' | 'functional-testing') => {
 
   const handleBackToDashboard = () => {
     setCurrentView('dashboard');
-  };
-
-  const handleBackToLanding = () => {
-    setCurrentView('landing');
-    setUserRole(null);
   };
 
   const handleViewScores = () => {
@@ -55,22 +64,32 @@ const handleStartTest = (category: 'javascript' | 'functional-testing') => {
       {currentView !== 'landing' && <Header />}
       
       {currentView === 'landing' && (
-        <HeroSection onRoleSelect={handleRoleSelect} />
+        <Dashboard 
+          userRole={userRole} 
+          onStartTest={handleStartTest} 
+          onViewScores={handleViewScores} 
+          onCreateTest={handleCreateTest} 
+        />
       )}
       
-      {currentView === 'dashboard' && userRole && (
-        <Dashboard userRole={userRole} onStartTest={handleStartTest} onViewScores={handleViewScores} onCreateTest={handleCreateTest} />
+      {currentView === 'dashboard' && (
+        <Dashboard 
+          userRole={userRole} 
+          onStartTest={handleStartTest} 
+          onViewScores={handleViewScores} 
+          onCreateTest={handleCreateTest} 
+        />
       )}
       
-{currentView === 'test' && userRole && (
-  <TestInterface 
-    onComplete={handleTestComplete}
-    onBack={handleBackToDashboard}
-    userName={userName}
-    userRole={userRole}
-    category={selectedCategory ?? 'functional-testing'}
-  />
-)}
+      {currentView === 'test' && user && (
+        <TestInterface 
+          onComplete={handleTestComplete}
+          onBack={handleBackToDashboard}
+          userName={user.email || 'Anonymous User'}
+          userRole={userRole}
+          category={selectedCategory ?? 'functional-testing'}
+        />
+      )}
       
       {currentView === 'results' && (
         <ResultsView 
@@ -79,14 +98,14 @@ const handleStartTest = (category: 'javascript' | 'functional-testing') => {
         />
       )}
 
-      {currentView === 'scores' && userRole && (
+      {currentView === 'scores' && (
         <ScoreViewer 
           onBack={handleBackToDashboard}
           userRole={userRole}
         />
       )}
 
-      {currentView === 'create-test' && (
+      {currentView === 'create-test' && userRole === 'trainer' && (
         <TestCreator 
           onBack={handleBackToDashboard}
         />

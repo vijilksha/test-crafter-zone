@@ -1,38 +1,29 @@
 import { Button } from "@/components/ui/button";
-import { GraduationCap, User, LogOut } from "lucide-react";
-import { useState } from "react";
+import { GraduationCap, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Header = () => {
-  const [userRole, setUserRole] = useState<'trainer' | 'student' | null>('trainer');
+  const { user, userRole, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
-    <header className="border-b bg-card shadow-card">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-primary rounded-lg shadow-elegant">
-              <GraduationCap className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">LearnTest Pro</h1>
-              <p className="text-sm text-muted-foreground">Assessment Platform</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {userRole && (
-              <>
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium capitalize">{userRole}</span>
-                </div>
-                <Button variant="ghost" size="sm">
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </Button>
-              </>
-            )}
-          </div>
+    <header className="bg-background border-b border-border/60 sticky top-0 z-50 backdrop-blur-sm">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <GraduationCap className="h-8 w-8 text-primary" />
+          <h1 className="text-xl font-bold">Testing Platform</h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-muted-foreground">
+            {user?.email} ({userRole})
+          </span>
+          <Button variant="outline" size="sm" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
         </div>
       </div>
     </header>

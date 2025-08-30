@@ -65,7 +65,7 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
     };
 
     initializeSession();
-  }, [userName, userRole]);
+  }, [userName, userRole, createTestSession, toast]);
 
   // Timer effect
   useEffect(() => {

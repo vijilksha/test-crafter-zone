@@ -62,21 +62,23 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
           <h2 className="text-3xl font-bold text-foreground mb-2">Trainer Dashboard</h2>
           <p className="text-muted-foreground">Manage concepts, create tests, and track student progress</p>
           
-          <div className="flex gap-4 mt-4">
-            <Button 
-              variant={activeTab === 'overview' ? 'default' : 'outline'}
-              onClick={() => setActiveTab('overview')}
-            >
-              Overview
-            </Button>
-            <Button 
-              variant={activeTab === 'answers' ? 'default' : 'outline'}
-              onClick={() => setActiveTab('answers')}
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Student Answers
-            </Button>
-          </div>
+          {userRole === 'trainer' && (
+            <div className="flex gap-4 mt-4">
+              <Button 
+                variant={activeTab === 'overview' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('overview')}
+              >
+                Overview
+              </Button>
+              <Button 
+                variant={activeTab === 'answers' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('answers')}
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Student Answers
+              </Button>
+            </div>
+          )}
         </div>
 
         {activeTab === 'overview' && (
@@ -126,18 +128,22 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
                   <CardDescription>Create and manage your content</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Button variant="hero" className="w-full justify-start" size="lg" onClick={onCreateTest}>
-                    <Plus className="h-4 w-4" />
-                    Create New Test
-                  </Button>
-                  <Button variant="secondary" className="w-full justify-start" size="lg">
-                    <FileText className="h-4 w-4" />
-                    Create Test
-                  </Button>
-                  <Button variant="default" className="w-full justify-start" size="lg" onClick={onViewScores}>
-                    <Eye className="h-4 w-4" />
-                    View Student Scores
-                  </Button>
+                  {userRole === 'trainer' && (
+                    <>
+                      <Button variant="hero" className="w-full justify-start" size="lg" onClick={onCreateTest}>
+                        <Plus className="h-4 w-4" />
+                        Create New Test
+                      </Button>
+                      <Button variant="secondary" className="w-full justify-start" size="lg">
+                        <FileText className="h-4 w-4" />
+                        Create Test
+                      </Button>
+                      <Button variant="default" className="w-full justify-start" size="lg" onClick={onViewScores}>
+                        <Eye className="h-4 w-4" />
+                        View Student Scores
+                      </Button>
+                    </>
+                  )}
                 </CardContent>
               </Card>
 
@@ -177,7 +183,7 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
           </>
         )}
 
-        {activeTab === 'answers' && (
+        {userRole === 'trainer' && activeTab === 'answers' && (
           <div className="space-y-6">
             <Card className="shadow-card">
               <CardHeader>

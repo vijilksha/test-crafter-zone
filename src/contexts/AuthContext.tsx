@@ -1,0 +1,173 @@
+import { useState, useEffect, createContext, useContext } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+
+type UserRole = 'trainer' | 'student' | null;
+
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  userRole: UserRole;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (email: string, password: string, role: 'trainer' | 'student') => Promise<{ success: boolean; error?: string }>;
+  signOut: () => Promise<void>;
+  setUserRole: (role: UserRole) => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [userRole, setUserRoleState] = useState<UserRole>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching user role:', error);
+        return null;
+      }
+
+      return data?.role || null;
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+      return null;
+    }
+  };
+
+  const setUserRole = async (role: UserRole) => {
+    if (!user || !role) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .upsert([
+          {
+            user_id: user.id,
+            role: role
+          }
+        ]);
+
+      if (error) {
+        console.error('Error setting user role:', error);
+        return;
+      }
+
+      setUserRoleState(role);
+    } catch (error) {
+      console.error('Error setting user role:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchUserRole(session.user.id).then(role => {
+          setUserRoleState(role);
+          setLoading(false);
+        });
+      } else {
+        setLoading(false);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          const role = await fetchUserRole(session.user.id);
+          setUserRoleState(role);
+        } else {
+          setUserRoleState(null);
+        }
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'An unexpected error occurred' };
+    }
+  };
+
+  const signUp = async (email: string, password: string, role: 'trainer' | 'student') => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data.user) {
+        // Set the user role
+        await setUserRole(role);
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'An unexpected error occurred' };
+    }
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setUserRoleState(null);
+  };
+
+  const value = {
+    user,
+    session,
+    userRole,
+    loading,
+    signIn,
+    signUp,
+    signOut,
+    setUserRole,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
