@@ -1,10 +1,11 @@
 import { jsQuestions, type JSQuestion } from './jsQuestions';
+import { functionalTestingQuestions, type FunctionalTestingQuestion } from './functionalTestingQuestions';
 
-// Use only JavaScript questions
-export type Question = JSQuestion;
+// Combined question types
+export type Question = JSQuestion | FunctionalTestingQuestion;
 
-// Use only JavaScript questions
-export const allQuestions: Question[] = jsQuestions;
+// Combined questions from all categories
+export const allQuestions: Question[] = [...jsQuestions, ...functionalTestingQuestions];
 
 // Helper function to get questions by topic
 export const getQuestionsByTopic = (topic: string): Question[] => {
