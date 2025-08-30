@@ -23,6 +23,10 @@ export interface TestResult {
   is_correct: boolean;
   answered_at: string;
   created_at: string;
+  user_answer?: string;
+  question_type?: string;
+  score?: number;
+  ai_feedback?: string;
 }
 
 export interface TestResultWithSession extends TestResult {

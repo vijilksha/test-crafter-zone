@@ -11,6 +11,7 @@ import { CodeEditor } from "@/components/CodeEditor";
 import { allQuestions, getQuestionsByCategory, type Question } from "@/data/allQuestions";
 import { useTestSession } from "@/hooks/useTestSession";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TestCaseResult {
   name: string;
@@ -167,23 +168,57 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
       let isCorrect = false;
       let selectedAnswer = 'No answer';
       let correctAnswer = '';
+      let score = 0;
+      let aiEvaluation = null;
 
       if (answer) {
         if (q.type === 'multiple-choice') {
           isCorrect = answer.value === q.correctAnswer;
           selectedAnswer = answer.value as string;
           correctAnswer = q.correctAnswer || '';
+          score = isCorrect ? 100 : 0;
         } else if (q.type === 'text-input') {
-          // For text input, we'll consider it correct if answered (manual review needed)
-          isCorrect = (answer.value as string).trim().length > 10; // Minimum 10 characters
           selectedAnswer = answer.value as string;
           correctAnswer = 'Detailed answer expected';
+          
+          // Use AI evaluation for functional testing questions
+          if (category === 'functional-testing' && selectedAnswer.trim().length > 10) {
+            try {
+              const { data, error } = await supabase.functions.invoke('evaluate-answer', {
+                body: {
+                  question: q.text,
+                  answer: selectedAnswer,
+                  expectedKeywords: (q as any).expectedKeywords
+                }
+              });
+
+              if (!error && data) {
+                aiEvaluation = data;
+                score = data.score || 0;
+                isCorrect = score >= 70; // Consider 70+ as correct
+              } else {
+                // Fallback to basic evaluation
+                isCorrect = selectedAnswer.trim().length > 10;
+                score = isCorrect ? 50 : 0;
+              }
+            } catch (error) {
+              console.error('AI evaluation failed:', error);
+              // Fallback to basic evaluation
+              isCorrect = selectedAnswer.trim().length > 10;
+              score = isCorrect ? 50 : 0;
+            }
+          } else {
+            // Basic evaluation for non-functional testing or short answers
+            isCorrect = selectedAnswer.trim().length > 10;
+            score = isCorrect ? 50 : 0;
+          }
         } else {
           // For code questions, check if all test cases passed
           const testResults = answer.testResults || [];
           isCorrect = testResults.length > 0 && testResults.every(r => r.passed);
           selectedAnswer = JSON.stringify(answer.value);
           correctAnswer = 'All test cases must pass';
+          score = isCorrect ? 100 : 0;
         }
       } else {
         if (q.type === 'multiple-choice') {
@@ -195,16 +230,33 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
         }
       }
 
-      await saveTestResult(
-        sessionId,
-        q.id.toString(),
-        q.type === 'multiple-choice' || q.type === 'text-input' ? q.text : (q as any).title,
-        q.topic,
-        q.difficulty,
-        selectedAnswer,
-        correctAnswer,
-        isCorrect
-      );
+      // Create test result with correct database schema
+      const testResult = {
+        session_id: sessionId,
+        question_id: q.id.toString(),
+        question_text: q.type === 'multiple-choice' || q.type === 'text-input' ? q.text : (q as any).title,
+        topic: q.topic,
+        difficulty: q.difficulty,
+        selected_answer: selectedAnswer,
+        correct_answer: correctAnswer,
+        is_correct: isCorrect,
+        user_answer: selectedAnswer,
+        question_type: q.type,
+        score: score,
+        ai_feedback: aiEvaluation ? JSON.stringify(aiEvaluation) : null
+      };
+
+      try {
+        const { error } = await supabase.from('test_results').insert([testResult]);
+        if (error) throw error;
+      } catch (error) {
+        console.error('Failed to save test result:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save some answers. Please try again.",
+          variant: "destructive"
+        });
+      }
     }
 
     // Complete the session

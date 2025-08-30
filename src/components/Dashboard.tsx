@@ -218,11 +218,54 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
                           </div>
                         </div>
                         
-                        <div className="bg-muted rounded-md p-3">
-                          <h5 className="font-medium text-sm text-muted-foreground mb-2">Student Answer:</h5>
-                          <p className="text-sm text-foreground whitespace-pre-wrap">
-                            {answer.selected_answer}
-                          </p>
+                        <div className="bg-muted rounded-md p-3 space-y-3">
+                          <div>
+                            <h5 className="font-medium text-sm text-muted-foreground mb-2">Student Answer:</h5>
+                            <p className="text-sm text-foreground whitespace-pre-wrap">
+                              {answer.selected_answer || answer.user_answer}
+                            </p>
+                          </div>
+                          
+                          {answer.ai_feedback && (() => {
+                            try {
+                              const feedback = JSON.parse(answer.ai_feedback);
+                              return (
+                                <div className="space-y-2 pt-2 border-t border-border">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant={feedback.score >= 70 ? "default" : "secondary"}>
+                                      AI Score: {feedback.score}/100
+                                    </Badge>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">AI Feedback:</p>
+                                    <p className="text-sm text-muted-foreground">{feedback.feedback}</p>
+                                  </div>
+                                  {feedback.strengths?.length > 0 && (
+                                    <div>
+                                      <p className="text-sm font-medium text-green-600">Strengths:</p>
+                                      <ul className="text-sm text-muted-foreground list-disc list-inside">
+                                        {feedback.strengths.map((strength: string, i: number) => (
+                                          <li key={i}>{strength}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  {feedback.improvements?.length > 0 && (
+                                    <div>
+                                      <p className="text-sm font-medium text-orange-600">Areas for Improvement:</p>
+                                      <ul className="text-sm text-muted-foreground list-disc list-inside">
+                                        {feedback.improvements.map((improvement: string, i: number) => (
+                                          <li key={i}>{improvement}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            } catch {
+                              return null;
+                            }
+                          })()}
                         </div>
                       </div>
                     ))
