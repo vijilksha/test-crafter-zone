@@ -57,12 +57,15 @@ const user = { name: 'John Doe', age: 30, email: 'john@example.com' };`
         name: 'Should format user profile with arrow function and template literals',
         test: async (code) => {
           try {
-            eval(code);
+            // Create a more isolated evaluation context
+            const testFunction = new Function('', code + '; return formatUserProfile;');
+            const formatUserProfile = testFunction();
             const user = { name: 'John Doe', age: 30, email: 'john@example.com' };
-            const result = (globalThis as any).formatUserProfile(user);
+            const result = formatUserProfile(user);
             
             return result === "Name: John Doe, Age: 30, Contact: john@example.com";
-          } catch {
+          } catch (error) {
+            console.error('Test error:', error);
             return false;
           }
         }
@@ -98,10 +101,13 @@ const userSettings = { theme: 'dark', notifications: false };`
         name: 'Should use destructuring and spread operator correctly',
         test: async (code) => {
           try {
-            eval(code);
+            // Create a more isolated evaluation context
+            const testFunction = new Function('defaultSettings', code + '; return processUserData;');
+            const defaultSettings = { theme: 'light', notifications: true, language: 'en' };
+            const processUserData = testFunction(defaultSettings);
             const testUser = { name: 'Alice', email: 'alice@test.com', id: 1 };
             const userSettings = { theme: 'dark', notifications: false };
-            const result = (globalThis as any).processUserData(testUser, userSettings);
+            const result = processUserData(testUser, userSettings);
             
             return result && 
                    result.name === 'Alice' &&
@@ -110,7 +116,8 @@ const userSettings = { theme: 'dark', notifications: false };`
                    result.preferences.theme === 'dark' &&
                    result.preferences.notifications === false &&
                    result.preferences.language === 'en';
-          } catch {
+          } catch (error) {
+            console.error('Test error:', error);
             return false;
           }
         }
@@ -146,8 +153,10 @@ const item2 = { id: 2, name: 'Pen', price: 2.50 };`
         name: 'Should implement ES6 class with private fields and getters',
         test: async (code) => {
           try {
-            eval(code);
-            const cart = new (globalThis as any).ShoppingCart();
+            // Create a more isolated evaluation context
+            const testFunction = new Function('', code + '; return ShoppingCart;');
+            const ShoppingCart = testFunction();
+            const cart = new ShoppingCart();
             const item1 = { id: 1, name: 'Book', price: 15.99 };
             const item2 = { id: 2, name: 'Pen', price: 2.50 };
             
@@ -162,7 +171,8 @@ const item2 = { id: 2, name: 'Pen', price: 2.50 };`
             const hasCorrectTotalAfterRemoval = Math.abs(cart.totalPrice - 2.50) < 0.01;
             
             return hasCorrectCount && hasCorrectTotal && hasCorrectCountAfterRemoval && hasCorrectTotalAfterRemoval;
-          } catch {
+          } catch (error) {
+            console.error('Test error:', error);
             return false;
           }
         }
