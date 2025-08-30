@@ -2,9 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Users, Trophy, Plus, BarChart3, FileText, Eye } from "lucide-react";
+import { BookOpen, Users, Trophy, Plus, BarChart3, FileText, Eye, MessageSquare } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTestSession } from "@/hooks/useTestSession";
+import { TestResult } from "@/types/database";
 
 interface DashboardProps {
   userRole: 'trainer' | 'student';
@@ -14,11 +15,12 @@ interface DashboardProps {
 }
 
 export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }: DashboardProps) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'tests' | 'results'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'answers'>('overview');
   const [studentCount, setStudentCount] = useState(0);
   const [recentTests, setRecentTests] = useState<any[]>([]);
+  const [allAnswers, setAllAnswers] = useState<TestResult[]>([]);
   
-  const { getStudentScores } = useTestSession();
+  const { getStudentScores, getTestResults } = useTestSession();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -34,15 +36,24 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
             score: Math.round(score.total_score),
             questions: `${score.correct_answers}/${score.total_questions}`,
             completedAt: new Date(score.completed_at).toLocaleDateString(),
-            time: new Date(score.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            time: new Date(score.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            sessionId: score.session_id
           }));
           
         setRecentTests(recent);
+
+        // Fetch all detailed answers from all sessions
+        const allDetailedAnswers: TestResult[] = [];
+        for (const score of scores) {
+          const sessionResults = await getTestResults(score.session_id);
+          allDetailedAnswers.push(...sessionResults);
+        }
+        setAllAnswers(allDetailedAnswers);
       }
     };
 
     fetchDashboardData();
-  }, [userRole, getStudentScores]);
+  }, [userRole, getStudentScores, getTestResults]);
 
   if (userRole === 'trainer') {
     return (
@@ -50,101 +61,177 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-foreground mb-2">Trainer Dashboard</h2>
           <p className="text-muted-foreground">Manage concepts, create tests, and track student progress</p>
+          
+          <div className="flex gap-4 mt-4">
+            <Button 
+              variant={activeTab === 'overview' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('overview')}
+            >
+              Overview
+            </Button>
+            <Button 
+              variant={activeTab === 'answers' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('answers')}
+            >
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Student Answers
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="shadow-card hover:shadow-elegant transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Concepts</CardTitle>
-              <BookOpen className="h-4 w-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-muted-foreground">+2 from last week</p>
-            </CardContent>
-          </Card>
+        {activeTab === 'overview' && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card className="shadow-card hover:shadow-elegant transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Active Concepts</CardTitle>
+                  <BookOpen className="h-4 w-4 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">12</div>
+                  <p className="text-xs text-muted-foreground">+2 from last week</p>
+                </CardContent>
+              </Card>
 
-          <Card className="shadow-card hover:shadow-elegant transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-              <Users className="h-4 w-4 text-secondary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{studentCount}</div>
-              <p className="text-xs text-muted-foreground">Students tested</p>
-            </CardContent>
-          </Card>
+              <Card className="shadow-card hover:shadow-elegant transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+                  <Users className="h-4 w-4 text-secondary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{studentCount}</div>
+                  <p className="text-xs text-muted-foreground">Students tested</p>
+                </CardContent>
+              </Card>
 
-          <Card className="shadow-card hover:shadow-elegant transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tests Created</CardTitle>
-              <FileText className="h-4 w-4 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">24</div>
-              <p className="text-xs text-muted-foreground">This month</p>
-            </CardContent>
-          </Card>
-        </div>
+              <Card className="shadow-card hover:shadow-elegant transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Tests Created</CardTitle>
+                  <FileText className="h-4 w-4 text-accent" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">24</div>
+                  <p className="text-xs text-muted-foreground">This month</p>
+                </CardContent>
+              </Card>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Plus className="h-5 w-5 text-primary" />
-                Quick Actions
-              </CardTitle>
-              <CardDescription>Create and manage your content</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button variant="hero" className="w-full justify-start" size="lg" onClick={onCreateTest}>
-                <Plus className="h-4 w-4" />
-                Create New Test
-              </Button>
-              <Button variant="secondary" className="w-full justify-start" size="lg">
-                <FileText className="h-4 w-4" />
-                Create Test
-              </Button>
-              <Button variant="default" className="w-full justify-start" size="lg" onClick={onViewScores}>
-                <Eye className="h-4 w-4" />
-                View Student Scores
-              </Button>
-            </CardContent>
-          </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Plus className="h-5 w-5 text-primary" />
+                    Quick Actions
+                  </CardTitle>
+                  <CardDescription>Create and manage your content</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button variant="hero" className="w-full justify-start" size="lg" onClick={onCreateTest}>
+                    <Plus className="h-4 w-4" />
+                    Create New Test
+                  </Button>
+                  <Button variant="secondary" className="w-full justify-start" size="lg">
+                    <FileText className="h-4 w-4" />
+                    Create Test
+                  </Button>
+                  <Button variant="default" className="w-full justify-start" size="lg" onClick={onViewScores}>
+                    <Eye className="h-4 w-4" />
+                    View Student Scores
+                  </Button>
+                </CardContent>
+              </Card>
 
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle>Recent Test Results</CardTitle>
-              <CardDescription>Latest student performance</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentTests.length === 0 ? (
-                  <div className="text-center py-4 text-muted-foreground">
-                    No test results yet
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle>Recent Test Results</CardTitle>
+                  <CardDescription>Latest student performance</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {recentTests.length === 0 ? (
+                      <div className="text-center py-4 text-muted-foreground">
+                        No test results yet
+                      </div>
+                    ) : (
+                      recentTests.map((test, i) => (
+                        <div key={i} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                          <div className="flex-1">
+                            <p className="font-medium">{test.studentName}</p>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <span>{test.questions} correct</span>
+                              <span>•</span>
+                              <span>{test.completedAt}</span>
+                              <span>{test.time}</span>
+                            </div>
+                          </div>
+                          <Badge variant={test.score >= 80 ? "default" : "secondary"}>
+                            {test.score}%
+                          </Badge>
+                        </div>
+                      ))
+                    )}
                   </div>
-                ) : (
-                  recentTests.map((test, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-medium">{test.studentName}</p>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>{test.questions} correct</span>
-                          <span>•</span>
-                          <span>{test.completedAt}</span>
-                          <span>{test.time}</span>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'answers' && (
+          <div className="space-y-6">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5 text-primary" />
+                  All Student Answers
+                </CardTitle>
+                <CardDescription>
+                  Detailed answers from functional testing assessments
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {allAnswers.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No answers yet. Students need to complete assessments first.
+                    </div>
+                  ) : (
+                    allAnswers.map((answer, i) => (
+                      <div key={i} className="border border-border rounded-lg p-4 space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant="outline">{answer.topic}</Badge>
+                              <Badge variant={answer.difficulty === 'Easy' ? 'secondary' : answer.difficulty === 'Medium' ? 'default' : 'destructive'}>
+                                {answer.difficulty}
+                              </Badge>
+                            </div>
+                            <h4 className="font-medium text-foreground mb-2">
+                              Question {answer.question_id}
+                            </h4>
+                            <p className="text-sm text-muted-foreground mb-3">
+                              {answer.question_text}
+                            </p>
+                          </div>
+                          <div className="text-right text-sm text-muted-foreground">
+                            {new Date(answer.answered_at).toLocaleDateString()}
+                          </div>
+                        </div>
+                        
+                        <div className="bg-muted rounded-md p-3">
+                          <h5 className="font-medium text-sm text-muted-foreground mb-2">Student Answer:</h5>
+                          <p className="text-sm text-foreground whitespace-pre-wrap">
+                            {answer.selected_answer}
+                          </p>
                         </div>
                       </div>
-                      <Badge variant={test.score >= 80 ? "default" : "secondary"}>
-                        {test.score}%
-                      </Badge>
-                    </div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     );
   }
