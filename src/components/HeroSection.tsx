@@ -99,17 +99,7 @@ export const HeroSection = ({ onRoleSelect }: HeroSectionProps) => {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                variant="hero" 
-                size="lg" 
-                onClick={() => handleRoleClick('trainer')}
-                className="group"
-              >
-                <BookOpen className="h-5 w-5 mr-2" />
-                I'm a Trainer
-                <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
+            <div className="flex justify-center">
               <Button 
                 variant="secondary" 
                 size="lg" 
