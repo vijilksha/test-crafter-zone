@@ -152,8 +152,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       if (data.user) {
-        // Set the user role
+        // Set the user role and update local state
         await setUserRole(role);
+        setUserRoleState(role);
       }
 
       return { success: true };
