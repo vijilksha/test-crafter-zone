@@ -194,34 +194,26 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle>Available Tests</CardTitle>
-            <CardDescription>Take assessments to improve your skills</CardDescription>
+            <CardTitle>Functional Testing Assessment</CardTitle>
+            <CardDescription>Take scenario-based functional testing assessment with detailed questions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {[
-                { name: "Functional Testing Concepts", difficulty: "Medium", duration: "35 min", completed: false, category: 'functional-testing' },
-                { name: "Test Design & Strategy", difficulty: "Medium", duration: "30 min", completed: false, category: 'functional-testing' },
-                { name: "API Functional Testing", difficulty: "Hard", duration: "40 min", completed: false, category: 'functional-testing' }
-              ].map((test, i) => (
-                <div key={i} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div>
-                    <p className="font-medium">{test.name}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">{test.difficulty}</Badge>
-                      <span className="text-xs text-muted-foreground">{test.duration}</span>
-                    </div>
-                  </div>
-                  <Button 
-                    variant={test.completed ? "secondary" : "default"} 
-                    size="sm"
-                    disabled={test.completed}
-                    onClick={() => !test.completed && onStartTest?.('functional-testing')}
-                  >
-                    {test.completed ? "Completed" : "Start Test"}
-                  </Button>
-                </div>
-              ))}
+            <div className="text-center py-8">
+              <div className="mb-4">
+                <Badge variant="outline" className="mb-2">Scenario-Based Questions</Badge>
+                <h3 className="text-lg font-medium mb-2">Comprehensive Functional Testing</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  10 detailed questions requiring elaborate answers about testing strategies, approaches, and methodologies
+                </p>
+              </div>
+              <Button 
+                variant="default" 
+                size="lg"
+                onClick={() => onStartTest?.('functional-testing')}
+                className="w-full max-w-xs"
+              >
+                Start Assessment
+              </Button>
             </div>
           </CardContent>
         </Card>

@@ -9,252 +9,113 @@ export interface FunctionalTestingQuestion {
   text: string;
   scenario: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
-  options: string[];
-  correctAnswer: string;
+  options?: string[];
+  correctAnswer?: string;
   topic: string;
-  type: 'multiple-choice';
+  type: 'multiple-choice' | 'text-input';
   explanation?: string;
+  expectedKeywords?: string[];
 }
 
 export const functionalTestingQuestions: FunctionalTestingQuestion[] = [
   {
     id: 'ft-001',
-    text: 'What is the primary purpose of functional testing?',
-    scenario: 'You are explaining testing concepts to a new team member who needs to understand the fundamentals of functional testing.',
+    text: 'Describe your approach to testing a user login functionality. What test scenarios would you create and what edge cases would you consider?',
+    scenario: 'You are assigned to test a web application login feature that accepts email and password. The system should authenticate users and redirect them to their dashboard upon successful login.',
     difficulty: 'Easy',
-    options: [
-      'To test the performance and speed of the application',
-      'To verify that the software functions according to specified requirements',
-      'To check the internal code structure and logic',
-      'To test the user interface design and aesthetics'
-    ],
-    correctAnswer: 'To verify that the software functions according to specified requirements',
-    topic: 'Functional Testing Fundamentals',
-    type: 'multiple-choice',
-    explanation: 'Functional testing focuses on testing the software against functional requirements/specifications.'
+    topic: 'Basic Functional Testing',
+    type: 'text-input',
+    explanation: 'A comprehensive answer should cover positive scenarios, negative scenarios, boundary conditions, and security considerations.',
+    expectedKeywords: ['valid credentials', 'invalid credentials', 'empty fields', 'password security', 'account lockout', 'error messages']
   },
   {
     id: 'ft-002',
-    text: 'Which testing technique involves testing software without knowledge of internal code structure?',
-    scenario: 'Your team is deciding on testing approaches and needs to understand different testing methodologies.',
-    difficulty: 'Easy',
-    options: [
-      'White Box Testing',
-      'Gray Box Testing',
-      'Black Box Testing',
-      'Unit Testing'
-    ],
-    correctAnswer: 'Black Box Testing',
-    topic: 'Testing Methodologies',
-    type: 'multiple-choice',
-    explanation: 'Black box testing focuses on input-output behavior without considering internal implementation.'
+    text: 'You discover that a search feature returns incorrect results for certain keywords. Explain your testing strategy to identify the root cause and ensure comprehensive coverage.',
+    scenario: 'The e-commerce website search functionality is behaving inconsistently. Some product searches return relevant results while others return completely unrelated products or no results at all.',
+    difficulty: 'Medium',
+    topic: 'Defect Analysis',
+    type: 'text-input',
+    explanation: 'Should include systematic testing approach, data analysis, and validation techniques.',
+    expectedKeywords: ['test data', 'search algorithms', 'keyword variations', 'filters', 'sorting', 'database queries', 'regression testing']
   },
   {
     id: 'ft-003',
-    text: 'What is boundary value analysis?',
-    scenario: 'You need to design test cases for a login form that accepts passwords between 8-20 characters.',
+    text: 'Design a comprehensive test plan for testing a shopping cart functionality. Include different user scenarios and validation points.',
+    scenario: 'You need to test an online shopping cart that allows users to add items, modify quantities, apply discounts, calculate taxes, and proceed to checkout.',
     difficulty: 'Medium',
-    options: [
-      'Testing only the middle values of input ranges',
-      'Testing values at the boundaries and just beyond the boundaries of input domains',
-      'Testing random values within the input range',
-      'Testing the most commonly used values'
-    ],
-    correctAnswer: 'Testing values at the boundaries and just beyond the boundaries of input domains',
-    topic: 'Test Design Techniques',
-    type: 'multiple-choice',
-    explanation: 'Boundary value analysis tests values at boundaries (e.g., 7, 8, 20, 21 characters for 8-20 range).'
+    topic: 'Test Planning',
+    type: 'text-input',
+    explanation: 'Should cover all cart operations, edge cases, and integration with other systems.',
+    expectedKeywords: ['add items', 'remove items', 'quantity changes', 'pricing calculations', 'discounts', 'taxes', 'inventory validation', 'session management']
   },
   {
     id: 'ft-004',
-    text: 'In equivalence partitioning, what is the main principle?',
-    scenario: 'You are testing an age verification system that has different rules for ages 0-12, 13-17, 18-64, and 65+.',
-    difficulty: 'Medium',
-    options: [
-      'Test every possible input value',
-      'Divide input data into partitions where all values should behave similarly',
-      'Test only the maximum and minimum values',
-      'Focus on the most frequently used inputs'
-    ],
-    correctAnswer: 'Divide input data into partitions where all values should behave similarly',
-    topic: 'Test Design Techniques',
-    type: 'multiple-choice',
-    explanation: 'Equivalence partitioning groups inputs into classes where each member should produce similar results.'
+    text: 'Explain how you would test a file upload feature that accepts multiple file formats and has size limitations. What scenarios would you prioritize?',
+    scenario: 'A document management system allows users to upload files with restrictions: maximum 10MB per file, supports PDF, DOC, DOCX, JPG, PNG formats, and maximum 5 files per upload session.',
+    difficulty: 'Easy',
+    topic: 'File Upload Testing',
+    type: 'text-input',
+    explanation: 'Should cover file format validation, size limits, multiple uploads, and error handling.',
+    expectedKeywords: ['file formats', 'size limits', 'multiple files', 'unsupported formats', 'virus scanning', 'progress indicators', 'error messages']
   },
   {
     id: 'ft-005',
-    text: 'What is the difference between verification and validation in testing?',
-    scenario: 'Your project manager asks you to explain the V&V activities in your testing process.',
-    difficulty: 'Medium',
-    options: [
-      'Verification checks if we built the product right, validation checks if we built the right product',
-      'Verification is manual testing, validation is automated testing',
-      'Verification tests functionality, validation tests performance',
-      'There is no difference, they are synonymous'
-    ],
-    correctAnswer: 'Verification checks if we built the product right, validation checks if we built the right product',
-    topic: 'Testing Fundamentals',
-    type: 'multiple-choice',
-    explanation: 'Verification ensures the product meets specifications; validation ensures it meets user needs.'
+    text: 'Describe your approach to testing a payment gateway integration. What are the critical test scenarios and how would you handle sensitive data?',
+    scenario: 'An e-commerce platform integrates with multiple payment gateways (PayPal, Stripe, Square) to process customer payments. The system must handle various payment methods and ensure secure transactions.',
+    difficulty: 'Hard',
+    topic: 'Payment Testing',
+    type: 'text-input',
+    explanation: 'Should address security, different payment methods, error scenarios, and compliance requirements.',
+    expectedKeywords: ['payment methods', 'security', 'encryption', 'test environment', 'mock payments', 'failed transactions', 'refunds', 'PCI compliance']
   },
   {
     id: 'ft-006',
-    text: 'What is regression testing?',
-    scenario: 'After implementing a new feature, you need to ensure existing functionality still works correctly.',
-    difficulty: 'Easy',
-    options: [
-      'Testing new features for the first time',
-      'Testing to ensure existing functionality works after code changes',
-      'Testing the performance degradation over time',
-      'Testing user interface elements only'
-    ],
-    correctAnswer: 'Testing to ensure existing functionality works after code changes',
-    topic: 'Testing Types',
-    type: 'multiple-choice',
-    explanation: 'Regression testing verifies that existing features continue to work after modifications.'
+    text: 'How would you test a notification system that sends emails, SMS, and push notifications? Detail your testing strategy for each channel.',
+    scenario: 'A social media application sends notifications through multiple channels when users receive messages, friend requests, or content updates. Users can customize their notification preferences.',
+    difficulty: 'Medium',
+    topic: 'Notification Testing',
+    type: 'text-input',
+    explanation: 'Should cover different notification types, user preferences, delivery validation, and timing.',
+    expectedKeywords: ['email delivery', 'SMS gateway', 'push notifications', 'user preferences', 'notification timing', 'opt-out', 'delivery confirmation']
   },
   {
     id: 'ft-007',
-    text: 'Which of the following is NOT a characteristic of a good test case?',
-    scenario: 'You are reviewing test cases written by junior testers and need to provide feedback on quality.',
-    difficulty: 'Medium',
-    options: [
-      'Clear and concise steps',
-      'Expected results defined',
-      'Complex and tests multiple functionalities at once',
-      'Repeatable and consistent'
-    ],
-    correctAnswer: 'Complex and tests multiple functionalities at once',
-    topic: 'Test Case Design',
-    type: 'multiple-choice',
-    explanation: 'Good test cases should be simple, focused, and test one functionality at a time for easier debugging.'
+    text: 'Explain your testing approach for a form with complex validation rules including dependent fields and real-time validation.',
+    scenario: 'A job application form has 15 fields with interdependent validation rules. For example, if "Experience Level" is "Entry Level", then "Years of Experience" must be 0-2. The form provides real-time feedback as users type.',
+    difficulty: 'Hard',
+    topic: 'Form Validation Testing',
+    type: 'text-input',
+    explanation: 'Should cover field dependencies, real-time validation, error messaging, and user experience.',
+    expectedKeywords: ['field validation', 'dependent fields', 'real-time feedback', 'error messages', 'business rules', 'user experience', 'accessibility']
   },
   {
     id: 'ft-008',
-    text: 'What is the purpose of smoke testing?',
-    scenario: 'Your team receives a new build and needs to decide if it\'s stable enough for detailed testing.',
-    difficulty: 'Easy',
-    options: [
-      'To test all functionalities in detail',
-      'To perform a basic test to check if the basic functionalities work',
-      'To test the application under heavy load',
-      'To test security vulnerabilities'
-    ],
-    correctAnswer: 'To perform a basic test to check if the basic functionalities work',
-    topic: 'Testing Types',
-    type: 'multiple-choice',
-    explanation: 'Smoke testing is a preliminary test to check if the basic functions work before detailed testing.'
+    text: 'Describe how you would test a reporting feature that generates charts and graphs from database data. What aspects would you focus on?',
+    scenario: 'A business intelligence dashboard generates various reports with charts, graphs, and tables. Users can filter data by date ranges, departments, and custom parameters. Reports can be exported to PDF and Excel formats.',
+    difficulty: 'Medium',
+    topic: 'Reporting Testing',
+    type: 'text-input',
+    explanation: 'Should cover data accuracy, visualization correctness, filtering, and export functionality.',
+    expectedKeywords: ['data accuracy', 'chart rendering', 'filters', 'date ranges', 'export formats', 'performance', 'large datasets', 'user permissions']
   },
   {
     id: 'ft-009',
-    text: 'In the context of functional testing, what does API testing primarily focus on?',
-    scenario: 'Your application has a REST API that needs to be tested before the UI is ready.',
-    difficulty: 'Medium',
-    options: [
-      'Testing the user interface elements',
-      'Testing data exchange between software systems and validating API contracts',
-      'Testing database performance',
-      'Testing code coverage'
-    ],
-    correctAnswer: 'Testing data exchange between software systems and validating API contracts',
-    topic: 'API Testing',
-    type: 'multiple-choice',
-    explanation: 'API testing focuses on data exchange, request/response validation, and contract compliance.'
+    text: 'How would you approach testing a mobile app feature that works both online and offline? Detail your strategy for both modes.',
+    scenario: 'A note-taking mobile application allows users to create, edit, and sync notes. When offline, users should be able to continue working, and changes should sync automatically when connection is restored.',
+    difficulty: 'Hard',
+    topic: 'Mobile Testing',
+    type: 'text-input',
+    explanation: 'Should address offline functionality, data synchronization, conflict resolution, and network transitions.',
+    expectedKeywords: ['offline mode', 'data sync', 'conflict resolution', 'network transitions', 'local storage', 'background sync', 'user feedback']
   },
   {
     id: 'ft-010',
-    text: 'What is the main advantage of using test automation in functional testing?',
-    scenario: 'Your manager wants to understand the ROI of investing in test automation tools and frameworks.',
-    difficulty: 'Easy',
-    options: [
-      'It eliminates the need for manual testing completely',
-      'It can execute tests faster and more frequently with consistent results',
-      'It can test user experience better than manual testing',
-      'It requires no maintenance once implemented'
-    ],
-    correctAnswer: 'It can execute tests faster and more frequently with consistent results',
-    topic: 'Test Automation',
-    type: 'multiple-choice',
-    explanation: 'Test automation provides speed, repeatability, and consistency, especially for regression testing.'
-  },
-  {
-    id: 'ft-011',
-    text: 'What is data-driven testing?',
-    scenario: 'You need to test a login function with multiple sets of valid and invalid credentials.',
-    difficulty: 'Medium',
-    options: [
-      'Testing with randomly generated data',
-      'Testing where test data is separated from test scripts and stored externally',
-      'Testing that focuses only on database functionality',
-      'Testing performed only by data analysts'
-    ],
-    correctAnswer: 'Testing where test data is separated from test scripts and stored externally',
-    topic: 'Test Design Techniques',
-    type: 'multiple-choice',
-    explanation: 'Data-driven testing separates test logic from test data, allowing the same test to run with different data sets.'
-  },
-  {
-    id: 'ft-012',
-    text: 'What is the primary goal of usability testing?',
-    scenario: 'Your product team wants to ensure the application is user-friendly before release.',
+    text: 'Explain your testing strategy for an API that handles user authentication and authorization. What test cases would you prioritize?',
+    scenario: 'A REST API provides authentication endpoints (login, logout, refresh token) and protected resources that require different permission levels (user, admin, super admin). The API uses JWT tokens for session management.',
     difficulty: 'Hard',
-    options: [
-      'To test if the application functions correctly',
-      'To evaluate how easy and intuitive the application is for end users',
-      'To test the application\'s performance under load',
-      'To check for security vulnerabilities'
-    ],
-    correctAnswer: 'To evaluate how easy and intuitive the application is for end users',
-    topic: 'Usability Testing',
-    type: 'multiple-choice',
-    explanation: 'Usability testing focuses on user experience, ease of use, and intuitive design.'
-  },
-  {
-    id: 'ft-013',
-    text: 'Which testing approach would you use to test a critical payment processing feature?',
-    scenario: 'You are testing a financial application where payment failures could result in significant business loss.',
-    difficulty: 'Hard',
-    options: [
-      'Only positive test cases with valid inputs',
-      'Comprehensive testing including positive, negative, boundary, and error handling scenarios',
-      'Only automated testing to save time',
-      'Basic smoke testing is sufficient'
-    ],
-    correctAnswer: 'Comprehensive testing including positive, negative, boundary, and error handling scenarios',
-    topic: 'Critical System Testing',
-    type: 'multiple-choice',
-    explanation: 'Critical features require thorough testing including edge cases, error conditions, and boundary scenarios.'
-  },
-  {
-    id: 'ft-014',
-    text: 'What is exploratory testing?',
-    scenario: 'Your team has limited documentation and needs to understand how the application behaves in various scenarios.',
-    difficulty: 'Medium',
-    options: [
-      'Testing based on pre-written test cases only',
-      'Simultaneous learning, test design, and test execution',
-      'Testing performed only by senior testers',
-      'Automated testing with random inputs'
-    ],
-    correctAnswer: 'Simultaneous learning, test design, and test execution',
-    topic: 'Testing Approaches',
-    type: 'multiple-choice',
-    explanation: 'Exploratory testing involves simultaneous learning about the application while designing and executing tests.'
-  },
-  {
-    id: 'ft-015',
-    text: 'When should you stop testing a software application?',
-    scenario: 'Your project manager asks when the testing phase can be considered complete for the current release.',
-    difficulty: 'Hard',
-    options: [
-      'When no bugs are found',
-      'When all test cases pass',
-      'When exit criteria defined in the test plan are met',
-      'When the deadline is reached'
-    ],
-    correctAnswer: 'When exit criteria defined in the test plan are met',
-    topic: 'Test Management',
-    type: 'multiple-choice',
-    explanation: 'Testing should continue until predefined exit criteria (coverage, quality metrics, risk assessment) are satisfied.'
+    topic: 'API Testing',
+    type: 'text-input',
+    explanation: 'Should cover authentication flows, authorization levels, token management, and security testing.',
+    expectedKeywords: ['authentication', 'authorization', 'JWT tokens', 'permission levels', 'token expiry', 'refresh tokens', 'security headers', 'rate limiting']
   }
 ];

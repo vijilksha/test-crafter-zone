@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Clock, CheckCircle, AlertCircle, ArrowLeft, ArrowRight, Play } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CodeEditor } from "@/components/CodeEditor";
@@ -19,7 +20,7 @@ interface TestCaseResult {
 
 interface Answer {
   questionId: string;
-  type: 'multiple-choice' | 'code';
+  type: 'multiple-choice' | 'code' | 'text-input';
   value: string | { html: string; css: string } | { html: string; js: string };
   testResults?: TestCaseResult[];
 }
@@ -76,6 +77,17 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
       finishTest();
     }
   }, [timeRemaining]);
+
+  const handleTextAnswer = (questionId: string, text: string) => {
+    setAnswers(prev => ({ 
+      ...prev, 
+      [questionId]: {
+        questionId,
+        type: 'text-input',
+        value: text
+      }
+    }));
+  };
 
   const handleMultipleChoiceAnswer = (questionId: string, answerIndex: string) => {
     setAnswers(prev => ({ 
@@ -160,7 +172,12 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
         if (q.type === 'multiple-choice') {
           isCorrect = answer.value === q.correctAnswer;
           selectedAnswer = answer.value as string;
-          correctAnswer = q.correctAnswer;
+          correctAnswer = q.correctAnswer || '';
+        } else if (q.type === 'text-input') {
+          // For text input, we'll consider it correct if answered (manual review needed)
+          isCorrect = (answer.value as string).trim().length > 10; // Minimum 10 characters
+          selectedAnswer = answer.value as string;
+          correctAnswer = 'Detailed answer expected';
         } else {
           // For code questions, check if all test cases passed
           const testResults = answer.testResults || [];
@@ -170,7 +187,9 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
         }
       } else {
         if (q.type === 'multiple-choice') {
-          correctAnswer = q.correctAnswer;
+          correctAnswer = q.correctAnswer || '';
+        } else if (q.type === 'text-input') {
+          correctAnswer = 'Detailed answer expected';
         } else {
           correctAnswer = 'All test cases must pass';
         }
@@ -179,7 +198,7 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
       await saveTestResult(
         sessionId,
         q.id.toString(),
-        q.type === 'multiple-choice' ? q.text : q.title,
+        q.type === 'multiple-choice' || q.type === 'text-input' ? q.text : (q as any).title,
         q.topic,
         q.difficulty,
         selectedAnswer,
@@ -200,6 +219,13 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
         return {
           questionId: q.id,
           correct: answer.value === q.correctAnswer,
+          topic: q.topic,
+          difficulty: q.difficulty
+        };
+      } else if (q.type === 'text-input') {
+        return {
+          questionId: q.id,
+          correct: (answer.value as string).trim().length > 10,
           topic: q.topic,
           difficulty: q.difficulty
         };
@@ -261,8 +287,8 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
         <Card className="shadow-card mb-8">
           <CardHeader>
             <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">
-                {question.type === 'code' ? question.title : `Question ${currentQuestion + 1}`}
+              <CardTitle className="text-xl">
+                {question.type === 'code' ? (question as any).title : `Question ${currentQuestion + 1}`}
               </CardTitle>
               <div className="flex gap-2">
                 <Badge variant={question.difficulty === 'Hard' ? 'destructive' : question.difficulty === 'Medium' ? 'secondary' : 'default'}>
@@ -282,7 +308,20 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
             </div>
 
             {/* Question Content */}
-            {question.type === 'multiple-choice' ? (
+            {question.type === 'text-input' ? (
+              <div>
+                <h3 className="text-lg font-semibold mb-4">{question.text}</h3>
+                <Textarea
+                  placeholder="Please provide a detailed answer explaining your approach, strategies, and considerations..."
+                  value={(currentAnswer?.value as string) || ''}
+                  onChange={(e) => handleTextAnswer(question.id, e.target.value)}
+                  className="min-h-[200px] resize-y"
+                />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Minimum 10 characters required. Provide a comprehensive answer with specific details and examples.
+                </p>
+              </div>
+            ) : question.type === 'multiple-choice' ? (
               <div>
                 <h3 className="text-lg font-semibold mb-4">{question.text}</h3>
                 
@@ -290,7 +329,7 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
                   value={currentAnswer?.value?.toString()} 
                   onValueChange={(value) => handleMultipleChoiceAnswer(question.id, value)}
                 >
-                  {question.options.map((option, index) => (
+                  {question.options?.map((option, index) => (
                     <div key={index} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
                       <RadioGroupItem value={index.toString()} id={`option-${index}`} className="mt-1" />
                       <Label htmlFor={`option-${index}`} className="text-sm leading-relaxed cursor-pointer flex-1">
@@ -315,13 +354,13 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
                   </Button>
                 </div>
                 <div className="mb-6 p-4 bg-accent/10 rounded-lg">
-                  <pre className="whitespace-pre-wrap text-sm">{question.instructions}</pre>
+                  <pre className="whitespace-pre-wrap text-sm">{(question as any).instructions}</pre>
                 </div>
                 
                 <CodeEditor
-                  initialHtml={question.starterCode.html}
+                  initialHtml={(question as any).starterCode?.html || ''}
                   initialCss={''}
-                  initialJs={question.starterCode.js}
+                  initialJs={(question as any).starterCode?.js || ''}
                   onCodeChange={(html, css, js) => handleCodeAnswer(question.id, html, css, js)}
                   testResults={testResults[question.id] || []}
                   showJsTab={true}
