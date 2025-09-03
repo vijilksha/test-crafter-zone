@@ -443,7 +443,7 @@ const questions = getMixedQuestions();
 
           <Button 
             onClick={handleNext}
-            disabled={!hasAnswer && currentQuestion !== questions.length - 1}
+            disabled={currentQuestion !== questions.length - 1 && !hasAnswer}
             variant={currentQuestion === questions.length - 1 ? "default" : "default"}
           >
             {currentQuestion === questions.length - 1 ? (
