@@ -330,16 +330,16 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle>Mock Interim Assessment</CardTitle>
-            <CardDescription>Take scenario-based mock interim assessment with detailed questions</CardDescription>
+            <CardTitle>Mixed Assessment</CardTitle>
+            <CardDescription>Take comprehensive assessment with JavaScript, TypeScript, and interview questions</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
               <div className="mb-4">
-                <Badge variant="outline" className="mb-2">Scenario-Based Questions</Badge>
-                <h3 className="text-lg font-medium mb-2">Comprehensive Mock Interviews</h3>
+                <Badge variant="outline" className="mb-2">Mixed Question Types</Badge>
+                <h3 className="text-lg font-medium mb-2">Comprehensive Assessment</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  10 detailed questions requiring elaborate answers about testing strategies, approaches, and methodologies
+                  5 mixed questions covering JavaScript, TypeScript, and interview scenarios
                 </p>
               </div>
               <Button 

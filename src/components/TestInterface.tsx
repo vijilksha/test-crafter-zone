@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Clock, CheckCircle, AlertCircle, ArrowLeft, ArrowRight, Play } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CodeEditor } from "@/components/CodeEditor";
-import { allQuestions, getQuestionsByCategory, type Question } from "@/data/allQuestions";
+import { allQuestions, getQuestionsByCategory, getMixedQuestions, type Question } from "@/data/allQuestions";
 import { useTestSession } from "@/hooks/useTestSession";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,8 +44,8 @@ export const TestInterface = ({ onComplete, onBack, userName, userRole, category
   const { createTestSession, saveTestResult, completeTestSession, loading } = useTestSession();
   const { toast } = useToast();
 
-// Use category-specific questions when provided
-const questions = category ? getQuestionsByCategory(category) : allQuestions;
+// Use mixed questions (5 total from all categories)
+const questions = getMixedQuestions();
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
@@ -182,7 +182,7 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
           correctAnswer = 'Detailed answer expected';
           
           // Use AI evaluation for mock interim questions
-          if (category === 'mock-interim' && selectedAnswer.trim().length > 10) {
+          if (q.topic.toLowerCase().includes('mock') && selectedAnswer.trim().length > 10) {
             try {
               const { data, error } = await supabase.functions.invoke('evaluate-answer', {
                 body: {
