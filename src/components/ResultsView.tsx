@@ -5,10 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Award, Target, TrendingUp, ArrowLeft, Download } from "lucide-react";
 
 interface TestResult {
-  questionId: number;
+  questionId: string | number;
   correct: boolean;
   topic: string;
-  difficulty: 'intermediate' | 'advanced';
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'intermediate' | 'advanced';
 }
 
 interface ResultsViewProps {
@@ -17,8 +17,11 @@ interface ResultsViewProps {
 }
 
 export const ResultsView = ({ results, onBack }: ResultsViewProps) => {
+  console.log('ResultsView: Received results:', results);
+  
   // Ensure results is always an array to prevent filter errors
   const safeResults = Array.isArray(results) ? results : [];
+  console.log('ResultsView: Safe results:', safeResults);
   
   const totalQuestions = safeResults.length;
   const correctAnswers = safeResults.filter(r => r.correct).length;
@@ -155,11 +158,15 @@ export const ResultsView = ({ results, onBack }: ResultsViewProps) => {
                   return (
                     <div key={difficulty} className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <Badge variant={difficulty === 'advanced' ? 'destructive' : 'default'} className="capitalize">
-                            {difficulty}
-                          </Badge>
-                        </div>
+                         <div className="flex items-center gap-2">
+                           <Badge variant={
+                             difficulty === 'Hard' || difficulty === 'advanced' ? 'destructive' : 
+                             difficulty === 'Medium' || difficulty === 'intermediate' ? 'secondary' : 
+                             'default'
+                           } className="capitalize">
+                             {difficulty}
+                           </Badge>
+                         </div>
                         <div className="text-right">
                           <div className={`text-lg font-bold ${getScoreColor(difficultyScore)}`}>
                             {difficultyScore}%

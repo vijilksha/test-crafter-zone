@@ -29,7 +29,9 @@ const Index = () => {
   };
 
   const handleTestComplete = (data: any) => {
+    console.log('Index: Received test completion data:', data);
     setTestResults(data.results || data);
+    console.log('Index: Setting view to results');
     setCurrentView('results');
   };
 

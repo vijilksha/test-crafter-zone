@@ -291,6 +291,7 @@ const questions = getMixedQuestions();
       }
     });
 
+    console.log('TestInterface: Finishing test, results:', results);
     onComplete({ results, sessionId, userName });
   };
 
