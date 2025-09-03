@@ -13,7 +13,7 @@ type UserRole = 'student' | 'trainer';
 const Index = () => {
   const [currentView, setCurrentView] = useState<ViewType>('landing');
   const [testResults, setTestResults] = useState<any[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<'javascript' | 'functional-testing' | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<'javascript' | 'mock-interim' | null>(null);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [userName, setUserName] = useState<string>('');
 
@@ -23,7 +23,7 @@ const Index = () => {
     setCurrentView('dashboard');
   };
 
-  const handleStartTest = (category: 'javascript' | 'functional-testing') => {
+  const handleStartTest = (category: 'javascript' | 'mock-interim') => {
     setSelectedCategory(category);
     setCurrentView('test');
   };
@@ -68,7 +68,7 @@ const Index = () => {
           onBack={handleBackToDashboard}
           userName={userName}
           userRole={userRole}
-          category={selectedCategory ?? 'functional-testing'}
+          category={selectedCategory ?? 'mock-interim'}
         />
       )}
       

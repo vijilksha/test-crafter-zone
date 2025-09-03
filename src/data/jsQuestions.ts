@@ -73,48 +73,40 @@ const user = { name: 'John Doe', age: 30, email: 'john@example.com' };`
     ]
   },
   {
-    id: 'js-es6-002',
-    title: 'Destructuring & Spread Operator',
-    scenario: 'You need to extract data from API responses and merge user preferences efficiently.',
+    id: 'js-promises-001',
+    title: 'Promise Chain & Error Handling',
+    scenario: 'You need to fetch user data from an API and handle the async operations properly.',
     difficulty: 'Medium',
-    topic: 'ES6 Features',
+    topic: 'Promises & Async',
     type: 'code',
-    instructions: `Create a function called 'processUserData' that:
-1. Uses destructuring to extract name, email from the user parameter
-2. Uses destructuring to extract theme, notifications from the settings parameter  
-3. Uses spread operator to merge defaultSettings with settings
-4. Returns an object with { name, email, preferences: mergedSettings }`,
+    instructions: `Create a function called 'fetchUserData' that:
+1. Returns a Promise that resolves with user data after 1 second
+2. Create another function 'processUser' that chains the promise
+3. Handle errors using .catch()
+4. The function should return "User: [name], Age: [age]" format`,
     starterCode: {
-      html: `<div id="userData"></div>`,
-      js: `const defaultSettings = { theme: 'light', notifications: true, language: 'en' };
+      html: `<div id="result"></div>`,
+      js: `// Simulate API call
+const fetchUserData = () => {
+  // Your promise implementation here
+};
 
-function processUserData(user, settings) {
-  // Your code here using destructuring and spread operator
-}
+const processUser = () => {
+  // Chain the promise and handle errors
+};
 
-// Test data
-const testUser = { name: 'Alice', email: 'alice@test.com', id: 1 };
-const userSettings = { theme: 'dark', notifications: false };`
+// Test data to return
+const userData = { name: 'Sarah', age: 28 };`
     },
     testCases: [
       {
-        name: 'Should use destructuring and spread operator correctly',
+        name: 'Should handle promises and return formatted user data',
         test: async (code) => {
           try {
-            // Evaluate code and extract the function
-            const testFunction = new Function('', code + '; return processUserData;');
-            const processUserData = testFunction();
-            const testUser = { name: 'Alice', email: 'alice@test.com', id: 1 };
-            const userSettings = { theme: 'dark', notifications: false };
-            const result = processUserData(testUser, userSettings);
-            
-            return result && 
-                   result.name === 'Alice' &&
-                   result.email === 'alice@test.com' &&
-                   result.preferences &&
-                   result.preferences.theme === 'dark' &&
-                   result.preferences.notifications === false &&
-                   result.preferences.language === 'en';
+            const testFunction = new Function('', code + '; return { fetchUserData, processUser };');
+            const { fetchUserData, processUser } = testFunction();
+            const result = await processUser();
+            return result === "User: Sarah, Age: 28";
           } catch (error) {
             console.error('Test error:', error);
             return false;
@@ -124,52 +116,39 @@ const userSettings = { theme: 'dark', notifications: false };`
     ]
   },
   {
-    id: 'js-es6-003',
-    title: 'Classes & Modules with Modern Syntax',
-    scenario: 'You are creating a shopping cart system using ES6 classes with modern features like private fields and getters.',
-    difficulty: 'Hard',
-    topic: 'ES6 Features',
+    id: 'js-async-await-001',
+    title: 'Async/Await with Error Handling',
+    scenario: 'Convert promise-based code to use async/await syntax with proper error handling.',
+    difficulty: 'Medium',
+    topic: 'Promises & Async',
     type: 'code',
-    instructions: `Create a class called 'ShoppingCart' that:
-1. Has a private field #items (array)
-2. Constructor initializes empty items array
-3. Method addItem(item) - adds item to cart
-4. Method removeItem(itemId) - removes item by id
-5. Getter totalPrice - calculates sum of all item prices
-6. Getter itemCount - returns number of items`,
+    instructions: `Create an async function called 'getUserProfile' that:
+1. Uses async/await syntax
+2. Simulates fetching user data (resolve after 500ms)
+3. Simulates fetching user preferences (resolve after 300ms)
+4. Combines both results and returns { user, preferences }
+5. Uses try/catch for error handling`,
     starterCode: {
-      html: `<div id="cart"></div>`,
-      js: `class ShoppingCart {
-  // Your code here
-}
+      html: `<div id="profile"></div>`,
+      js: `// Mock API functions (already implemented)
+const fetchUser = () => Promise.resolve({ id: 1, name: 'John' });
+const fetchPreferences = () => Promise.resolve({ theme: 'dark', lang: 'en' });
 
-// Test items
-const item1 = { id: 1, name: 'Book', price: 15.99 };
-const item2 = { id: 2, name: 'Pen', price: 2.50 };`
+async function getUserProfile() {
+  // Your async/await implementation here
+}`
     },
     testCases: [
       {
-        name: 'Should implement ES6 class with private fields and getters',
+        name: 'Should use async/await and combine results',
         test: async (code) => {
           try {
-            // Create a more isolated evaluation context
-            const testFunction = new Function('', code + '; return ShoppingCart;');
-            const ShoppingCart = testFunction();
-            const cart = new ShoppingCart();
-            const item1 = { id: 1, name: 'Book', price: 15.99 };
-            const item2 = { id: 2, name: 'Pen', price: 2.50 };
-            
-            cart.addItem(item1);
-            cart.addItem(item2);
-            
-            const hasCorrectCount = cart.itemCount === 2;
-            const hasCorrectTotal = Math.abs(cart.totalPrice - 18.49) < 0.01;
-            
-            cart.removeItem(1);
-            const hasCorrectCountAfterRemoval = cart.itemCount === 1;
-            const hasCorrectTotalAfterRemoval = Math.abs(cart.totalPrice - 2.50) < 0.01;
-            
-            return hasCorrectCount && hasCorrectTotal && hasCorrectCountAfterRemoval && hasCorrectTotalAfterRemoval;
+            const testFunction = new Function('', code + '; return getUserProfile;');
+            const getUserProfile = testFunction();
+            const result = await getUserProfile();
+            return result && 
+                   result.user && result.user.name === 'John' &&
+                   result.preferences && result.preferences.theme === 'dark';
           } catch (error) {
             console.error('Test error:', error);
             return false;
@@ -177,5 +156,224 @@ const item2 = { id: 2, name: 'Pen', price: 2.50 };`
         }
       }
     ]
+  },
+  {
+    id: 'ts-interfaces-001',
+    text: 'What is the difference between interface and type in TypeScript? When would you use one over the other?',
+    scenario: 'You are designing a TypeScript application and need to decide between using interfaces and type aliases for your data structures.',
+    difficulty: 'Medium',
+    options: [
+      'Interfaces can be extended, types cannot be extended at all',
+      'Interfaces support declaration merging, types support union types more naturally',
+      'Types are only for primitive values, interfaces are for objects',
+      'There is no difference, they are completely interchangeable'
+    ],
+    correctAnswer: 'Interfaces support declaration merging, types support union types more naturally',
+    topic: 'TypeScript Interfaces',
+    type: 'multiple-choice'
+  },
+  {
+    id: 'ts-generics-001',
+    text: 'What will be the return type of this TypeScript function: `function identity<T>(arg: T): T { return arg; }`?',
+    scenario: 'You are reviewing TypeScript code that uses generics and need to understand the type inference.',
+    difficulty: 'Medium',
+    options: [
+      'Always returns type T',
+      'Returns the same type as the input argument',
+      'Returns any type',
+      'Returns unknown type'
+    ],
+    correctAnswer: 'Returns the same type as the input argument',
+    topic: 'TypeScript Generics',
+    type: 'multiple-choice'
+  },
+  {
+    id: 'ts-utility-types-001',
+    text: 'What does `Partial<User>` do in TypeScript?',
+    scenario: 'You need to create a function that accepts a partial user object for updating user information.',
+    difficulty: 'Easy',
+    options: [
+      'Makes all properties of User required',
+      'Makes all properties of User optional',
+      'Removes all properties from User',
+      'Creates a union type with User'
+    ],
+    correctAnswer: 'Makes all properties of User optional',
+    topic: 'TypeScript Utility Types',
+    type: 'multiple-choice'
+  },
+  {
+    id: 'ts-union-types-001',
+    text: 'How do you narrow a union type `string | number` to just `string` in TypeScript?',
+    scenario: 'You have a function parameter that can be either string or number, but you need to handle the string case specifically.',
+    difficulty: 'Medium',
+    options: [
+      'Use instanceof operator',
+      'Use typeof operator to check if it equals "string"',
+      'Use Array.isArray() method',
+      'Use Object.prototype.toString.call()'
+    ],
+    correctAnswer: 'Use typeof operator to check if it equals "string"',
+    topic: 'TypeScript Union Types',
+    type: 'multiple-choice'
+  },
+  {
+    id: 'js-destructuring-002',
+    title: 'Advanced Destructuring with Default Values',
+    scenario: 'You need to extract data from nested objects with fallback values for missing properties.',
+    difficulty: 'Medium',
+    topic: 'ES6 Features',
+    type: 'code',
+    instructions: `Create a function called 'extractUserInfo' that:
+1. Uses destructuring with default values
+2. Extracts name (default: 'Anonymous'), age (default: 0)
+3. Extracts address.city (default: 'Unknown') from nested object
+4. Returns object with extracted values`,
+    starterCode: {
+      html: `<div id="userInfo"></div>`,
+      js: `function extractUserInfo(user) {
+  // Your destructuring code here with defaults
+}
+
+// Test with incomplete data
+const testUser = { 
+  name: 'Mike', 
+  address: { street: '123 Main St' } 
+  // Note: age and address.city are missing
+};`
+    },
+    testCases: [
+      {
+        name: 'Should extract with default values for missing properties',
+        test: async (code) => {
+          try {
+            const testFunction = new Function('', code + '; return extractUserInfo;');
+            const extractUserInfo = testFunction();
+            const testUser = { 
+              name: 'Mike', 
+              address: { street: '123 Main St' } 
+            };
+            const result = extractUserInfo(testUser);
+            
+            return result && 
+                   result.name === 'Mike' &&
+                   result.age === 0 &&
+                   result.city === 'Unknown';
+          } catch (error) {
+            console.error('Test error:', error);
+            return false;
+          }
+        }
+      }
+    ]
+  },
+  {
+    id: 'js-map-filter-001',
+    title: 'Array Methods: Map, Filter, Reduce',
+    scenario: 'Process a list of products to calculate total value and filter by category.',
+    difficulty: 'Medium',
+    topic: 'ES6 Features',
+    type: 'code',
+    instructions: `Create a function called 'processProducts' that:
+1. Takes an array of products and a category filter
+2. Filters products by category using filter()
+3. Maps to add 20% tax to each price using map()
+4. Uses reduce() to calculate total value
+5. Returns the total value rounded to 2 decimal places`,
+    starterCode: {
+      html: `<div id="products"></div>`,
+      js: `function processProducts(products, category) {
+  // Your code using map, filter, reduce
+}
+
+// Test data
+const products = [
+  { name: 'Laptop', price: 1000, category: 'electronics' },
+  { name: 'Book', price: 20, category: 'books' },
+  { name: 'Phone', price: 800, category: 'electronics' }
+];`
+    },
+    testCases: [
+      {
+        name: 'Should filter electronics and calculate total with tax',
+        test: async (code) => {
+          try {
+            const testFunction = new Function('', code + '; return processProducts;');
+            const processProducts = testFunction();
+            const products = [
+              { name: 'Laptop', price: 1000, category: 'electronics' },
+              { name: 'Book', price: 20, category: 'books' },
+              { name: 'Phone', price: 800, category: 'electronics' }
+            ];
+            const result = processProducts(products, 'electronics');
+            // Should be (1000 + 800) * 1.2 = 2160
+            return Math.abs(result - 2160) < 0.01;
+          } catch (error) {
+            console.error('Test error:', error);
+            return false;
+          }
+        }
+      }
+    ]
+  },
+  {
+    id: 'ts-conditional-types-001',
+    text: 'What does the TypeScript conditional type `T extends string ? string[] : T[]` mean?',
+    scenario: 'You are working with advanced TypeScript types and need to understand conditional type syntax.',
+    difficulty: 'Hard',
+    options: [
+      'If T is a string, return string[], otherwise return T[]',
+      'If T extends from string class, return string array',
+      'Always returns string[] regardless of T',
+      'Creates a union type of T and string[]'
+    ],
+    correctAnswer: 'If T is a string, return string[], otherwise return T[]',
+    topic: 'TypeScript Advanced Types',
+    type: 'multiple-choice'
+  },
+  {
+    id: 'ts-mapped-types-001',
+    text: 'What does `{ [K in keyof T]: T[K] }` create in TypeScript?',
+    scenario: 'You encounter this TypeScript syntax in a codebase and need to understand what it does.',
+    difficulty: 'Hard',
+    options: [
+      'Creates a partial version of T',
+      'Creates an exact copy of type T',
+      'Creates a readonly version of T',
+      'Creates a required version of T'
+    ],
+    correctAnswer: 'Creates an exact copy of type T',
+    topic: 'TypeScript Mapped Types',
+    type: 'multiple-choice'
+  },
+  {
+    id: 'js-modules-001',
+    text: 'What is the difference between `export default` and `export` in ES6 modules?',
+    scenario: 'You are setting up a module system and need to decide how to export your functions and classes.',
+    difficulty: 'Easy',
+    options: [
+      'export default can only be used once per module, export can be used multiple times',
+      'export default is for functions, export is for variables',
+      'No difference, they work the same way',
+      'export default is deprecated, only use export'
+    ],
+    correctAnswer: 'export default can only be used once per module, export can be used multiple times',
+    topic: 'ES6 Modules',
+    type: 'multiple-choice'
+  },
+  {
+    id: 'js-closures-001',
+    text: 'What will this code output? `function outer() { let x = 1; return function inner() { console.log(x++); }; } const fn = outer(); fn(); fn();`',
+    scenario: 'You are debugging JavaScript code that involves closures and need to predict the output.',
+    difficulty: 'Medium',
+    options: [
+      '1, 1',
+      '1, 2',
+      'undefined, undefined',
+      'Error: x is not defined'
+    ],
+    correctAnswer: '1, 2',
+    topic: 'JavaScript Closures',
+    type: 'multiple-choice'
   }
 ];

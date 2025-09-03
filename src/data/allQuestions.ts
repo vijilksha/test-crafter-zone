@@ -1,22 +1,22 @@
 import { jsQuestions, type JSQuestion } from './jsQuestions';
-import { functionalTestingQuestions, type FunctionalTestingQuestion } from './functionalTestingQuestions';
+import { mockInterimQuestions, type MockInterimQuestion } from './mockInterimQuestions';
 
 // Combined question types
-export type Question = JSQuestion | FunctionalTestingQuestion;
+export type Question = JSQuestion | MockInterimQuestion;
 
 // Export separate question categories
-export { jsQuestions, functionalTestingQuestions };
+export { jsQuestions, mockInterimQuestions };
 
 // Combined questions from all categories (for backward compatibility)
-export const allQuestions: Question[] = [...jsQuestions, ...functionalTestingQuestions];
+export const allQuestions: Question[] = [...jsQuestions, ...mockInterimQuestions];
 
 // Helper function to get questions by category
-export const getQuestionsByCategory = (category: 'javascript' | 'functional-testing'): Question[] => {
+export const getQuestionsByCategory = (category: 'javascript' | 'mock-interim'): Question[] => {
   switch (category) {
     case 'javascript':
       return jsQuestions;
-    case 'functional-testing':
-      return functionalTestingQuestions;
+    case 'mock-interim':
+      return mockInterimQuestions;
     default:
       return allQuestions;
   }

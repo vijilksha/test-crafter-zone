@@ -31,7 +31,7 @@ interface TestInterfaceProps {
   onBack: () => void;
   userName: string;
   userRole: 'student' | 'trainer';
-  category?: 'javascript' | 'functional-testing';
+  category?: 'javascript' | 'mock-interim';
 }
 
 export const TestInterface = ({ onComplete, onBack, userName, userRole, category }: TestInterfaceProps) => {
@@ -181,8 +181,8 @@ const questions = category ? getQuestionsByCategory(category) : allQuestions;
           selectedAnswer = answer.value as string;
           correctAnswer = 'Detailed answer expected';
           
-          // Use AI evaluation for functional testing questions
-          if (category === 'functional-testing' && selectedAnswer.trim().length > 10) {
+          // Use AI evaluation for mock interim questions
+          if (category === 'mock-interim' && selectedAnswer.trim().length > 10) {
             try {
               const { data, error } = await supabase.functions.invoke('evaluate-answer', {
                 body: {

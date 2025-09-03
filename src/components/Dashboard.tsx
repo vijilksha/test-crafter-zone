@@ -9,7 +9,7 @@ import { TestResult } from "@/types/database";
 
 interface DashboardProps {
   userRole: 'trainer' | 'student';
-  onStartTest?: (category: 'javascript' | 'functional-testing') => void;
+  onStartTest?: (category: 'javascript' | 'mock-interim') => void;
   onViewScores?: () => void;
   onCreateTest?: () => void;
 }
@@ -192,7 +192,7 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
                   All Student Answers
                 </CardTitle>
                 <CardDescription>
-                  Detailed answers from functional testing assessments
+                  Detailed answers from mock interim assessments
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -330,14 +330,14 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle>Functional Testing Assessment</CardTitle>
-            <CardDescription>Take scenario-based functional testing assessment with detailed questions</CardDescription>
+            <CardTitle>Mock Interim Assessment</CardTitle>
+            <CardDescription>Take scenario-based mock interim assessment with detailed questions</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
               <div className="mb-4">
                 <Badge variant="outline" className="mb-2">Scenario-Based Questions</Badge>
-                <h3 className="text-lg font-medium mb-2">Comprehensive Functional Testing</h3>
+                <h3 className="text-lg font-medium mb-2">Comprehensive Mock Interviews</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   10 detailed questions requiring elaborate answers about testing strategies, approaches, and methodologies
                 </p>
@@ -345,7 +345,7 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
               <Button 
                 variant="default" 
                 size="lg"
-                onClick={() => onStartTest?.('functional-testing')}
+                onClick={() => onStartTest?.('mock-interim')}
                 className="w-full max-w-xs"
               >
                 Start Assessment

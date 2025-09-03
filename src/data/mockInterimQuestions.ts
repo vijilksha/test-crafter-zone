@@ -1,10 +1,10 @@
-export interface FunctionalTestCase {
+export interface MockInterimTestCase {
   input: string;
   expected: string;
   description: string;
 }
 
-export interface FunctionalTestingQuestion {
+export interface MockInterimQuestion {
   id: string;
   text: string;
   scenario: string;
@@ -17,13 +17,13 @@ export interface FunctionalTestingQuestion {
   expectedKeywords?: string[];
 }
 
-export const functionalTestingQuestions: FunctionalTestingQuestion[] = [
+export const mockInterimQuestions: MockInterimQuestion[] = [
   {
     id: 'ft-001',
     text: 'Describe your approach to testing a user login functionality. What test scenarios would you create and what edge cases would you consider?',
     scenario: 'You are assigned to test a web application login feature that accepts email and password. The system should authenticate users and redirect them to their dashboard upon successful login.',
     difficulty: 'Easy',
-    topic: 'Basic Functional Testing',
+    topic: 'Basic Mock Interview',
     type: 'text-input',
     explanation: 'A comprehensive answer should cover positive scenarios, negative scenarios, boundary conditions, and security considerations.',
     expectedKeywords: ['valid credentials', 'invalid credentials', 'empty fields', 'password security', 'account lockout', 'error messages']
