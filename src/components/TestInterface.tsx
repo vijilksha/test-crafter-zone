@@ -153,13 +153,13 @@ const questions = getMixedQuestions();
   };
 
   const finishTest = async () => {
+    const canPersist = !!sessionId;
     if (!sessionId) {
       toast({
-        title: "Error",
-        description: "No active test session",
-        variant: "destructive"
+        title: "Notice",
+        description: "Results will be shown but not saved (not signed in)",
+        variant: "default"
       });
-      return;
     }
 
     // Save all answers to database
@@ -230,30 +230,34 @@ const questions = getMixedQuestions();
         }
       }
 
-      // Save using the useTestSession hook method
-      try {
-        await saveTestResult(
-          sessionId,
-          q.id.toString(),
-          q.type === 'multiple-choice' || q.type === 'text-input' ? q.text : (q as any).title,
-          q.topic,
-          q.difficulty,
-          selectedAnswer,
-          correctAnswer,
-          isCorrect
-        );
-      } catch (error) {
-        console.error('Failed to save test result:', error);
-        toast({
-          title: "Error",
-          description: "Failed to save some answers. Please try again.",
-          variant: "destructive"
-        });
+      // Save using the useTestSession hook method (only if signed in)
+      if (canPersist) {
+        try {
+          await saveTestResult(
+            sessionId!,
+            q.id.toString(),
+            q.type === 'multiple-choice' || q.type === 'text-input' ? q.text : (q as any).title,
+            q.topic,
+            q.difficulty,
+            selectedAnswer,
+            correctAnswer,
+            isCorrect
+          );
+        } catch (error) {
+          console.error('Failed to save test result:', error);
+          toast({
+            title: "Error",
+            description: "Failed to save some answers. Please try again.",
+            variant: "destructive"
+          });
+        }
       }
     }
 
     // Complete the session
-    await completeTestSession(sessionId);
+    if (canPersist) {
+      await completeTestSession(sessionId!);
+    }
 
     // Calculate results for UI
     const results = questions.map(q => {
