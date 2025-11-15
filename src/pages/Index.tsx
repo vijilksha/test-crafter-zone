@@ -1,27 +1,32 @@
-import { useState } from "react";
-import { Header } from "@/components/Header";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { HeroSection } from "@/components/HeroSection";
 import { Dashboard } from "@/components/Dashboard";
 import { TestInterface } from "@/components/TestInterface";
 import { ResultsView } from "@/components/ResultsView";
 import { ScoreViewer } from "@/components/ScoreViewer";
 import { TestCreator } from "@/components/TestCreator";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 type ViewType = 'landing' | 'dashboard' | 'test' | 'results' | 'scores' | 'create-test';
 type UserRole = 'student' | 'trainer';
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { user, userRole, loading } = useAuth();
   const [currentView, setCurrentView] = useState<ViewType>('landing');
   const [testResults, setTestResults] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'javascript' | 'mock-interim' | null>(null);
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
-  const [userName, setUserName] = useState<string>('');
 
-  const handleRoleSelect = (role: UserRole, name?: string) => {
-    setUserRole(role);
-    setUserName(name || 'Anonymous User');
-    setCurrentView('dashboard');
-  };
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    } else if (!loading && user && currentView === 'landing') {
+      setCurrentView('dashboard');
+    }
+  }, [user, loading, navigate, currentView]);
+
 
   const handleStartTest = (category: 'javascript' | 'mock-interim') => {
     setSelectedCategory(category);
@@ -47,14 +52,20 @@ const Index = () => {
     setCurrentView('create-test');
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      {currentView === 'landing' && (
-        <HeroSection onRoleSelect={handleRoleSelect} />
-      )}
-      
-      {currentView !== 'landing' && <Header />}
-      
       {currentView === 'dashboard' && userRole && (
         <Dashboard 
           userRole={userRole} 
@@ -68,7 +79,7 @@ const Index = () => {
         <TestInterface 
           onComplete={handleTestComplete}
           onBack={handleBackToDashboard}
-          userName={userName}
+          userName={user.user_metadata?.name || user.email || 'User'}
           userRole={userRole}
           category={selectedCategory ?? 'mock-interim'}
         />
