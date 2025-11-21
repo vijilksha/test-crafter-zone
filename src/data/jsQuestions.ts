@@ -32,6 +32,366 @@ interface MultipleChoiceQuestion {
 export type JSQuestion = JSCodeQuestion | MultipleChoiceQuestion;
 
 export const jsQuestions: JSQuestion[] = [
+  // ========== ARROW FUNCTIONS SECTION ==========
+  {
+    id: 'js-arrow-001',
+    title: 'Arrow Function Basics - Event Handler',
+    scenario: 'You are building a button click counter for a web app. The counter needs to increment and display the count using arrow functions.',
+    difficulty: 'Easy',
+    topic: 'Arrow Functions',
+    type: 'code',
+    instructions: `Create a counter system using arrow functions:
+1. Create an arrow function 'createCounter' that returns an object
+2. The object should have a 'count' property starting at 0
+3. Include an arrow function method 'increment' that increases count
+4. Include an arrow function 'getCount' that returns the current count
+Best Practice: Use arrow functions for simple, concise function expressions`,
+    starterCode: {
+      html: `<button id="btn">Click Me</button>
+<div id="count"></div>`,
+      js: `// Create your counter using arrow functions
+const createCounter = () => {
+  // Your code here
+};
+
+const counter = createCounter();`
+    },
+    testCases: [
+      {
+        name: 'Should create counter with arrow function methods',
+        test: async (code) => {
+          try {
+            const testFunction = new Function('', code + '; return createCounter;');
+            const createCounter = testFunction();
+            const counter = createCounter();
+            
+            const initialCount = counter.getCount();
+            counter.increment();
+            counter.increment();
+            const finalCount = counter.getCount();
+            
+            return initialCount === 0 && finalCount === 2;
+          } catch (error) {
+            console.error('Test error:', error);
+            return false;
+          }
+        }
+      }
+    ]
+  },
+  {
+    id: 'js-arrow-002',
+    title: 'Lexical This Binding - Timer Component',
+    scenario: 'You are building a timer component that needs to maintain proper context. Regular functions lose `this` context in setTimeout, but arrow functions preserve it.',
+    difficulty: 'Medium',
+    topic: 'Arrow Functions',
+    type: 'code',
+    instructions: `Create a Timer class that demonstrates arrow functions' lexical this:
+1. Create a class 'Timer' with a 'seconds' property (default: 0)
+2. Add a method 'start()' that uses setTimeout with an ARROW FUNCTION
+3. The arrow function should increment this.seconds after 100ms
+4. Add a 'getSeconds()' method that returns the current seconds
+Best Practice: Arrow functions inherit 'this' from the enclosing scope, perfect for callbacks!`,
+    starterCode: {
+      html: `<div id="timer"></div>`,
+      js: `class Timer {
+  constructor() {
+    this.seconds = 0;
+  }
+  
+  start() {
+    // Use arrow function in setTimeout to preserve 'this'
+    // Your code here
+  }
+  
+  getSeconds() {
+    return this.seconds;
+  }
+}
+
+const timer = new Timer();`
+    },
+    testCases: [
+      {
+        name: 'Should preserve this context using arrow function',
+        test: async (code) => {
+          try {
+            const testFunction = new Function('', code + '; return Timer;');
+            const Timer = testFunction();
+            const timer = new Timer();
+            
+            const initialSeconds = timer.getSeconds();
+            timer.start();
+            
+            // Wait for setTimeout to execute
+            await new Promise(resolve => setTimeout(resolve, 150));
+            const finalSeconds = timer.getSeconds();
+            
+            return initialSeconds === 0 && finalSeconds === 1;
+          } catch (error) {
+            console.error('Test error:', error);
+            return false;
+          }
+        }
+      }
+    ]
+  },
+  {
+    id: 'js-arrow-003',
+    title: 'Implicit Returns - Data Transformation',
+    scenario: 'You need to transform an array of user objects for an API response. Arrow functions with implicit returns make this concise and readable.',
+    difficulty: 'Easy',
+    topic: 'Arrow Functions',
+    type: 'code',
+    instructions: `Transform user data using arrow functions with implicit returns:
+1. Create arrow function 'getFullNames' that takes an array of users
+2. Use map() with an arrow function (implicit return)
+3. Return array of full names in format: "FirstName LastName"
+4. Create arrow function 'getAdults' that filters users age >= 18 (implicit return)
+Best Practice: Use implicit returns for single-expression functions - no curly braces or return keyword needed!`,
+    starterCode: {
+      html: `<div id="users"></div>`,
+      js: `// Use arrow functions with implicit returns (no curly braces)
+const getFullNames = // Your code here
+
+const getAdults = // Your code here
+
+// Test data
+const users = [
+  { firstName: 'John', lastName: 'Doe', age: 25 },
+  { firstName: 'Jane', lastName: 'Smith', age: 17 },
+  { firstName: 'Bob', lastName: 'Wilson', age: 30 }
+];`
+    },
+    testCases: [
+      {
+        name: 'Should use implicit returns to transform data',
+        test: async (code) => {
+          try {
+            const testFunction = new Function('', code + '; return { getFullNames, getAdults };');
+            const { getFullNames, getAdults } = testFunction();
+            const users = [
+              { firstName: 'John', lastName: 'Doe', age: 25 },
+              { firstName: 'Jane', lastName: 'Smith', age: 17 },
+              { firstName: 'Bob', lastName: 'Wilson', age: 30 }
+            ];
+            
+            const names = getFullNames(users);
+            const adults = getAdults(users);
+            
+            return names.length === 3 && 
+                   names[0] === 'John Doe' &&
+                   adults.length === 2 &&
+                   adults.every(u => u.age >= 18);
+          } catch (error) {
+            console.error('Test error:', error);
+            return false;
+          }
+        }
+      }
+    ]
+  },
+  {
+    id: 'js-arrow-004',
+    title: 'Arrow Functions with Array Methods - E-commerce Cart',
+    scenario: 'You are building a shopping cart system that calculates totals, applies discounts, and filters products. Chain array methods with arrow functions for clean, functional code.',
+    difficulty: 'Medium',
+    topic: 'Arrow Functions',
+    type: 'code',
+    instructions: `Build shopping cart functions using arrow functions:
+1. Create 'calculateTotal' that uses reduce with arrow function to sum prices
+2. Create 'applyDiscount' that uses map with arrow function to reduce prices by given percentage
+3. Create 'getExpensiveItems' that filters items above a price threshold
+4. All functions should use arrow function syntax with array methods
+Best Practice: Arrow functions are perfect for array method callbacks - they're concise and readable!`,
+    starterCode: {
+      html: `<div id="cart"></div>`,
+      js: `// Create arrow functions for cart operations
+const calculateTotal = (items) => // Your code here
+
+const applyDiscount = (items, discountPercent) => // Your code here
+
+const getExpensiveItems = (items, threshold) => // Your code here
+
+// Test data
+const cartItems = [
+  { name: 'Laptop', price: 1000 },
+  { name: 'Mouse', price: 50 },
+  { name: 'Keyboard', price: 150 }
+];`
+    },
+    testCases: [
+      {
+        name: 'Should use arrow functions with array methods',
+        test: async (code) => {
+          try {
+            const testFunction = new Function('', code + '; return { calculateTotal, applyDiscount, getExpensiveItems };');
+            const { calculateTotal, applyDiscount, getExpensiveItems } = testFunction();
+            const cartItems = [
+              { name: 'Laptop', price: 1000 },
+              { name: 'Mouse', price: 50 },
+              { name: 'Keyboard', price: 150 }
+            ];
+            
+            const total = calculateTotal(cartItems);
+            const discounted = applyDiscount(cartItems, 10);
+            const expensive = getExpensiveItems(cartItems, 100);
+            
+            return total === 1200 && 
+                   discounted[0].price === 900 &&
+                   expensive.length === 2;
+          } catch (error) {
+            console.error('Test error:', error);
+            return false;
+          }
+        }
+      }
+    ]
+  },
+  {
+    id: 'js-arrow-005',
+    title: 'Higher-Order Functions - Function Composition',
+    scenario: 'You need to create reusable utility functions that return other functions. Arrow functions make function composition elegant and powerful.',
+    difficulty: 'Medium',
+    topic: 'Arrow Functions',
+    type: 'code',
+    instructions: `Create higher-order functions using arrow functions:
+1. Create 'multiplyBy' that takes a number and returns an arrow function
+2. The returned function should multiply its input by the original number
+3. Create 'compose' that takes two functions and returns their composition
+4. Test: const double = multiplyBy(2); const addTen = x => x + 10;
+Best Practice: Arrow functions are ideal for returning functions - clean syntax for functional programming!`,
+    starterCode: {
+      html: `<div id="result"></div>`,
+      js: `// Create higher-order arrow functions
+const multiplyBy = // Your code here
+
+const compose = // Your code here
+
+// Test your functions
+const double = multiplyBy(2);
+const addTen = x => x + 10;
+const doubleThenAddTen = compose(addTen, double);`
+    },
+    testCases: [
+      {
+        name: 'Should create and compose higher-order functions',
+        test: async (code) => {
+          try {
+            const testFunction = new Function('', code + '; return { multiplyBy, compose };');
+            const { multiplyBy, compose } = testFunction();
+            
+            const triple = multiplyBy(3);
+            const addFive = x => x + 5;
+            const tripleThenAddFive = compose(addFive, triple);
+            
+            return triple(4) === 12 && tripleThenAddFive(4) === 17;
+          } catch (error) {
+            console.error('Test error:', error);
+            return false;
+          }
+        }
+      }
+    ]
+  },
+  {
+    id: 'js-arrow-006',
+    title: 'Async Arrow Functions - API Data Fetching',
+    scenario: 'You are building an async data fetching utility. Arrow functions work seamlessly with async/await for clean asynchronous code.',
+    difficulty: 'Medium',
+    topic: 'Arrow Functions',
+    type: 'code',
+    instructions: `Create async utilities with arrow functions:
+1. Create 'fetchUserData' as an async arrow function
+2. It should return a Promise that resolves with user data after 200ms
+3. Create 'processUsers' as async arrow function that calls fetchUserData
+4. Use Promise.all with arrow functions to fetch multiple users
+5. Return array of processed users
+Best Practice: Async arrow functions (async () => {}) are perfect for modern async operations!`,
+    starterCode: {
+      html: `<div id="users"></div>`,
+      js: `// Create async arrow functions
+const fetchUserData = async (userId) => {
+  // Simulate API call - return user data after 200ms
+  // Your code here
+};
+
+const processUsers = async (userIds) => {
+  // Use Promise.all with arrow functions
+  // Your code here
+};
+
+// Test data - should return array of users with these IDs
+const testIds = [1, 2, 3];`
+    },
+    testCases: [
+      {
+        name: 'Should use async arrow functions with Promise.all',
+        test: async (code) => {
+          try {
+            const testFunction = new Function('', code + '; return { fetchUserData, processUsers };');
+            const { fetchUserData, processUsers } = testFunction();
+            
+            const user = await fetchUserData(1);
+            const users = await processUsers([1, 2]);
+            
+            return user && user.id === 1 && 
+                   users && users.length === 2 &&
+                   users[0].id === 1 && users[1].id === 2;
+          } catch (error) {
+            console.error('Test error:', error);
+            return false;
+          }
+        }
+      }
+    ]
+  },
+  {
+    id: 'js-arrow-mc-001',
+    text: 'When should you NOT use arrow functions?',
+    scenario: 'You are reviewing code and need to identify situations where arrow functions are not appropriate.',
+    difficulty: 'Medium',
+    options: [
+      'As object methods that need to access this',
+      'In array map() and filter() callbacks',
+      'For event handlers in React components',
+      'For simple utility functions'
+    ],
+    correctAnswer: 'As object methods that need to access this',
+    topic: 'Arrow Functions',
+    type: 'multiple-choice'
+  },
+  {
+    id: 'js-arrow-mc-002',
+    text: 'What is the main difference between arrow functions and regular functions regarding the this keyword?',
+    scenario: 'You need to explain to a junior developer when to use arrow vs regular functions.',
+    difficulty: 'Easy',
+    options: [
+      'Arrow functions create their own this binding',
+      'Arrow functions inherit this from the enclosing scope (lexical this)',
+      'Arrow functions have no access to this',
+      'There is no difference'
+    ],
+    correctAnswer: 'Arrow functions inherit this from the enclosing scope (lexical this)',
+    topic: 'Arrow Functions',
+    type: 'multiple-choice'
+  },
+  {
+    id: 'js-arrow-mc-003',
+    text: 'Which syntax shows an implicit return in an arrow function?',
+    scenario: 'You want to write the most concise arrow function possible for a simple operation.',
+    difficulty: 'Easy',
+    options: [
+      'const add = (a, b) => { return a + b; }',
+      'const add = (a, b) => a + b',
+      'const add = function(a, b) { return a + b; }',
+      'const add = (a, b) => { a + b }'
+    ],
+    correctAnswer: 'const add = (a, b) => a + b',
+    topic: 'Arrow Functions',
+    type: 'multiple-choice'
+  },
+  // ========== ORIGINAL QUESTIONS ==========
   {
     id: 'js-es6-001',
     title: 'ES6 Arrow Functions & Template Literals',
