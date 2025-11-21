@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userRole, setUserRoleState] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserRole = async (userId: string) => {
+  const fetchUserRole = async (userId: string, userMetadata?: any) => {
     try {
       const { data, error } = await supabase
         .from('user_roles')
@@ -41,13 +41,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching user role:', error);
-        return null;
+        // Fallback to user_metadata role if database query fails
+        return userMetadata?.role || null;
       }
 
-      return data?.role || null;
+      // If no role in database, check user_metadata
+      return data?.role || userMetadata?.role || null;
     } catch (error) {
       console.error('Error fetching user role:', error);
-      return null;
+      // Fallback to user_metadata role on error
+      return userMetadata?.role || null;
     }
   };
 
@@ -82,7 +85,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchUserRole(session.user.id).then(role => {
+        fetchUserRole(session.user.id, session.user.user_metadata).then(role => {
           setUserRoleState(role);
           setLoading(false);
         });
@@ -98,7 +101,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          const role = await fetchUserRole(session.user.id);
+          const role = await fetchUserRole(session.user.id, session.user.user_metadata);
           setUserRoleState(role);
         } else {
           setUserRoleState(null);
