@@ -85,13 +85,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchUserRole(session.user.id, session.user.user_metadata).then(role => {
-          setUserRoleState(role);
-          setLoading(false);
-        });
+        fetchUserRole(session.user.id, session.user.user_metadata)
+          .then(role => {
+            setUserRoleState(role);
+          })
+          .catch(error => {
+            console.error('Error in fetchUserRole:', error);
+            // Fallback to user_metadata role
+            setUserRoleState(session.user.user_metadata?.role || null);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
       } else {
         setLoading(false);
       }
+    }).catch(error => {
+      console.error('Error getting session:', error);
+      setLoading(false);
     });
 
     // Listen for auth changes
@@ -101,8 +112,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          const role = await fetchUserRole(session.user.id, session.user.user_metadata);
-          setUserRoleState(role);
+          try {
+            const role = await fetchUserRole(session.user.id, session.user.user_metadata);
+            setUserRoleState(role);
+          } catch (error) {
+            console.error('Error fetching role on auth change:', error);
+            // Fallback to user_metadata role
+            setUserRoleState(session.user.user_metadata?.role || null);
+          }
         } else {
           setUserRoleState(null);
         }
