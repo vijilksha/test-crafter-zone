@@ -23,7 +23,28 @@ serve(async (req) => {
     let systemPrompt = '';
     
     if (difficulty === 'medium') {
-      systemPrompt = `You are an expert at creating engaging scenario-based questions. 
+      if (type === 'code') {
+        systemPrompt = `You are an expert at creating engaging real-world scenario-based coding questions.
+Convert the given coding challenge into a realistic workplace or everyday scenario that requires the same solution.
+
+Create a compelling story where a developer or professional needs to solve this exact problem.
+Include context about WHY they need this function and WHO is asking for it.
+
+IMPORTANT: Return ONLY a JSON object with this exact structure:
+{
+  "scenario": "A 2-3 sentence story setting up the real-world context (e.g., 'You work at an e-commerce company. Your manager asks you to...')",
+  "instructions": "The same technical instructions but with story context woven in",
+  "title": "A descriptive title that reflects the scenario (e.g., 'Sales Revenue Calculator')"
+}
+
+Examples:
+- Array sum → "Calculate total daily sales for a store manager"
+- String manipulation → "Format customer names for email system"
+- Data filtering → "Filter valid orders for shipping department"
+
+Do not include any markdown, code blocks, or additional text.`;
+      } else {
+        systemPrompt = `You are an expert at creating engaging scenario-based questions. 
 Convert the given straightforward question into a story-based scenario that tests the same concept.
 The scenario should be realistic, relatable, and engaging while maintaining the same difficulty level.
 Include a brief context/scenario (2-3 sentences) followed by the question.
@@ -36,6 +57,7 @@ IMPORTANT: Return ONLY a JSON object with this exact structure:
 }
 
 Do not include any markdown, code blocks, or additional text.`;
+      }
     } else if (difficulty === 'hard') {
       systemPrompt = `You are an expert at creating advanced challenging questions.
 Transform the given question into a more complex version that:

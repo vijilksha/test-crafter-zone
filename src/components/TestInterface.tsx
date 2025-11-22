@@ -76,12 +76,6 @@ const questions = transformedQuestions.length > 0 ? transformedQuestions : baseQ
         const transformed = await Promise.all(
           baseQuestions.map(async (q, index) => {
             try {
-              // Only transform multiple-choice and text-input questions
-              if (q.type !== 'multiple-choice' && q.type !== 'text-input') {
-                console.log(`Question ${index + 1}: Skipping code question`);
-                return q; // Keep code questions as-is
-              }
-
               console.log(`Question ${index + 1}: Transforming ${q.type} question`);
 
               const questionData: any = {
@@ -89,8 +83,11 @@ const questions = transformedQuestions.length > 0 ? transformedQuestions : baseQ
                 type: q.type
               };
 
+              // Add question-specific data
               if ('text' in q) questionData.text = q.text;
               if ('options' in q) questionData.options = q.options;
+              if ('title' in q) questionData.title = (q as any).title;
+              if ('instructions' in q) questionData.instructions = (q as any).instructions;
 
               const { data, error } = await supabase.functions.invoke('transform-question', {
                 body: {
@@ -117,14 +114,28 @@ const questions = transformedQuestions.length > 0 ? transformedQuestions : baseQ
               });
 
               const result: any = { ...q };
-              if (data.transformedQuestion.question && 'text' in result) {
-                result.text = data.transformedQuestion.question;
-              }
-              if (data.transformedQuestion.scenario) {
-                result.scenario = data.transformedQuestion.scenario;
-              }
-              if (data.transformedQuestion.options && 'options' in result) {
-                result.options = data.transformedQuestion.options;
+              
+              // Update based on question type
+              if (q.type === 'code') {
+                if (data.transformedQuestion.scenario) {
+                  result.scenario = data.transformedQuestion.scenario;
+                }
+                if (data.transformedQuestion.instructions) {
+                  (result as any).instructions = data.transformedQuestion.instructions;
+                }
+                if (data.transformedQuestion.title) {
+                  (result as any).title = data.transformedQuestion.title;
+                }
+              } else {
+                if (data.transformedQuestion.question && 'text' in result) {
+                  result.text = data.transformedQuestion.question;
+                }
+                if (data.transformedQuestion.scenario) {
+                  result.scenario = data.transformedQuestion.scenario;
+                }
+                if (data.transformedQuestion.options && 'options' in result) {
+                  result.options = data.transformedQuestion.options;
+                }
               }
 
               return result;
