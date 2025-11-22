@@ -120,11 +120,25 @@ const questions = getMixedQuestions();
     if (!answer || answer.type !== 'code') return;
 
     const { html, js } = answer.value as { html: string; js: string };
-    const results = await Promise.all(question.testCases.map(async testCase => ({
-      name: testCase.name,
-      passed: await testCase.test(js),
-      message: 'Test completed'
-    })));
+    
+    const results = await Promise.all(question.testCases.map(async testCase => {
+      try {
+        const passed = await testCase.test(js);
+        return {
+          name: testCase.name,
+          passed,
+          message: passed 
+            ? '✓ Test passed successfully' 
+            : `✗ Test failed: Expected behavior not found. Check your code logic and make sure all requirements are met.`
+        };
+      } catch (error) {
+        return {
+          name: testCase.name,
+          passed: false,
+          message: `✗ Error executing test: ${error instanceof Error ? error.message : 'Unknown error'}. Check your code for syntax errors.`
+        };
+      }
+    }));
 
     setTestResults(prev => ({ ...prev, [question.id]: results }));
     
@@ -136,6 +150,15 @@ const questions = getMixedQuestions();
         testResults: results
       }
     }));
+    
+    // Show toast with summary
+    const passedCount = results.filter(r => r.passed).length;
+    const totalCount = results.length;
+    toast({
+      title: passedCount === totalCount ? "All Tests Passed! 🎉" : "Tests Completed",
+      description: `${passedCount} of ${totalCount} tests passed`,
+      variant: passedCount === totalCount ? "default" : "destructive"
+    });
   };
 
   const handleNext = () => {
