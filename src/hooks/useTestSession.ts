@@ -11,18 +11,13 @@ export const useTestSession = () => {
       setLoading(true);
       setError(null);
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
       const { data, error } = await supabase
         .from('test_sessions')
         .insert([
           {
             user_name: userName,
             user_role: userRole,
-            user_id: user.id,
+            user_id: null,
             total_questions: 0,
             correct_answers: 0,
             total_score: 0
