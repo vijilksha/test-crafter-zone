@@ -61,7 +61,7 @@ const TrainerPage = () => {
             backgroundImage: "url('/src/assets/hero-education.jpg')",
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-primary-glow/30 to-background/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-secondary/30 to-background/60"></div>
         </div>
         
         {/* Content */}
@@ -70,7 +70,7 @@ const TrainerPage = () => {
           <div className="flex-1 flex items-center justify-center px-4 py-16">
             <div className="max-w-4xl w-full text-center space-y-8">
               <div className="animate-fade-in">
-                <div className="mx-auto w-24 h-24 bg-gradient-primary rounded-full flex items-center justify-center shadow-glow mb-6">
+                <div className="mx-auto w-24 h-24 bg-gradient-hero rounded-full flex items-center justify-center shadow-glow mb-6">
                   <UserCircle className="h-12 w-12 text-white" />
                 </div>
                 <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
@@ -84,7 +84,7 @@ const TrainerPage = () => {
               {/* Login Card */}
               <Card className="max-w-md mx-auto shadow-2xl border-primary/20 bg-background/95 backdrop-blur-lg animate-scale-in" style={{ animationDelay: '0.2s' }}>
                 <CardHeader className="text-center">
-                  <CardTitle className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                  <CardTitle className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
                     Enter Your Name
                   </CardTitle>
                   <CardDescription className="text-base">
@@ -108,7 +108,7 @@ const TrainerPage = () => {
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full h-14 text-lg bg-gradient-primary hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl" 
+                      className="w-full h-14 text-lg bg-gradient-hero hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-xl" 
                       size="lg"
                     >
                       Continue to Dashboard
@@ -148,14 +148,14 @@ const TrainerPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-primary/20 bg-gradient-to-r from-primary/5 to-primary-glow/5 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 shadow-sm">
+      <header className="border-b border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3 animate-fade-in">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 bg-gradient-hero rounded-lg flex items-center justify-center shadow-md">
               <UserCircle className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">Trainer Dashboard</h1>
+              <h1 className="text-lg font-bold bg-gradient-hero bg-clip-text text-transparent">Trainer Dashboard</h1>
               <p className="text-xs text-muted-foreground">Welcome, {trainerName}</p>
             </div>
           </div>
