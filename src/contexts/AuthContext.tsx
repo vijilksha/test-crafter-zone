@@ -107,23 +107,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          try {
-            const role = await fetchUserRole(session.user.id, session.user.user_metadata);
-            setUserRoleState(role);
-          } catch (error) {
-            console.error('Error fetching role on auth change:', error);
-            // Fallback to user_metadata role
-            setUserRoleState(session.user.user_metadata?.role || null);
-          }
+          // Defer Supabase calls to prevent deadlock
+          setTimeout(() => {
+            fetchUserRole(session.user.id, session.user.user_metadata)
+              .then(role => {
+                setUserRoleState(role);
+              })
+              .catch(error => {
+                console.error('Error fetching role on auth change:', error);
+                // Fallback to user_metadata role
+                setUserRoleState(session.user.user_metadata?.role || null);
+              });
+          }, 0);
         } else {
           setUserRoleState(null);
         }
-        setLoading(false);
       }
     );
 
