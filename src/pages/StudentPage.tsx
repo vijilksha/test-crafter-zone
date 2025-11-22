@@ -57,14 +57,19 @@ const StudentPage = () => {
 
   if (currentView === 'name-entry') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-elegant border-border/50">
+      <div className="min-h-screen bg-gradient-to-br from-success/10 via-secondary/5 to-background flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-30"></div>
+        <div className="absolute top-20 left-20 w-72 h-72 bg-success/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        
+        <Card className="w-full max-w-md shadow-elegant border-success/20 relative z-10 animate-scale-in">
           <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center shadow-glow">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-success to-secondary rounded-full flex items-center justify-center shadow-glow animate-fade-in">
               <GraduationCap className="h-10 w-10 text-white" />
             </div>
-            <div>
-              <CardTitle className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-success to-secondary bg-clip-text text-transparent">
                 Student Access
               </CardTitle>
               <CardDescription className="text-base mt-2">
@@ -74,7 +79,7 @@ const StudentPage = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleNameSubmit} className="space-y-4">
-              <div className="space-y-2">
+              <div className="space-y-2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
                 <Label htmlFor="name" className="text-sm font-medium">Your Name</Label>
                 <Input
                   id="name"
@@ -84,10 +89,15 @@ const StudentPage = () => {
                   onChange={(e) => setInputName(e.target.value)}
                   required
                   autoFocus
-                  className="h-12"
+                  className="h-12 border-success/20 focus:ring-success"
                 />
               </div>
-              <Button type="submit" className="w-full h-12" size="lg">
+              <Button 
+                type="submit" 
+                className="w-full h-12 bg-gradient-to-r from-success to-secondary hover:from-success/90 hover:to-secondary/90 transition-all duration-300 shadow-lg hover:shadow-xl animate-fade-in" 
+                style={{ animationDelay: '0.3s' }}
+                size="lg"
+              >
                 Continue to Dashboard
               </Button>
             </form>
@@ -100,18 +110,18 @@ const StudentPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+      <header className="border-b border-success/20 bg-gradient-to-r from-success/5 to-secondary/5 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+          <div className="flex items-center gap-3 animate-fade-in">
+            <div className="w-10 h-10 bg-gradient-to-br from-success to-secondary rounded-lg flex items-center justify-center shadow-md">
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold">Student Dashboard</h1>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-success to-secondary bg-clip-text text-transparent">Student Dashboard</h1>
               <p className="text-xs text-muted-foreground">Welcome, {studentName}</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
+          <Button variant="outline" size="sm" onClick={handleLogout} className="border-success/30 hover:bg-success/10 hover:border-success/50 transition-all duration-300">
             <LogOut className="h-4 w-4 mr-2" />
             Logout
           </Button>
