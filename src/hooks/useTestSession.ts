@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { TestSession, TestResult, StudentScore } from '@/types/database';
 
@@ -6,7 +6,7 @@ export const useTestSession = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const createTestSession = async (userName: string, userRole: 'student' | 'trainer'): Promise<string | null> => {
+  const createTestSession = useCallback(async (userName: string, userRole: 'student' | 'trainer'): Promise<string | null> => {
     try {
       setLoading(true);
       setError(null);
@@ -35,7 +35,7 @@ export const useTestSession = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const saveTestResult = async (
     sessionId: string,
