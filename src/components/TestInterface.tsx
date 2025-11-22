@@ -14,6 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { StudentInfoDialog } from "@/components/StudentInfoDialog";
 
+export type DifficultyLevel = 'easy' | 'medium' | 'hard';
+
 interface TestCaseResult {
   name: string;
   passed: boolean;
@@ -33,9 +35,10 @@ interface TestInterfaceProps {
   userName: string;
   userRole: 'student' | 'trainer';
   category?: 'javascript' | 'mock-interim';
+  difficulty?: DifficultyLevel;
 }
 
-export const TestInterface = ({ onComplete, onBack, userName, userRole, category }: TestInterfaceProps) => {
+export const TestInterface = ({ onComplete, onBack, userName, userRole, category, difficulty = 'easy' }: TestInterfaceProps) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [timeRemaining, setTimeRemaining] = useState(2400); // 40 minutes for coding questions
@@ -44,14 +47,95 @@ export const TestInterface = ({ onComplete, onBack, userName, userRole, category
   const [showStudentDialog, setShowStudentDialog] = useState(userRole === 'student');
   const [studentInfo, setStudentInfo] = useState<{ studentId: string; name: string; cohortCode: string } | null>(null);
   const [testStarted, setTestStarted] = useState(false);
+  const [transformedQuestions, setTransformedQuestions] = useState<Question[]>([]);
+  const [isTransforming, setIsTransforming] = useState(difficulty !== 'easy');
   
   const { createTestSession, saveTestResult, completeTestSession, loading } = useTestSession();
   const { toast } = useToast();
 
 // Use mixed questions (5 total from all categories)
-const questions = getMixedQuestions();
+const baseQuestions = getMixedQuestions();
+const questions = transformedQuestions.length > 0 ? transformedQuestions : baseQuestions;
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
+
+  // Transform questions based on difficulty
+  useEffect(() => {
+    const transformQuestions = async () => {
+      if (difficulty === 'easy') {
+        setTransformedQuestions(baseQuestions);
+        setIsTransforming(false);
+        return;
+      }
+
+      setIsTransforming(true);
+      try {
+        const transformed = await Promise.all(
+          baseQuestions.map(async (q) => {
+            try {
+              // Only transform multiple-choice and text-input questions
+              if (q.type !== 'multiple-choice' && q.type !== 'text-input') {
+                return q; // Keep code questions as-is
+              }
+
+              const questionData: any = {
+                scenario: q.scenario,
+                type: q.type
+              };
+
+              if ('text' in q) questionData.text = q.text;
+              if ('options' in q) questionData.options = q.options;
+
+              const { data, error } = await supabase.functions.invoke('transform-question', {
+                body: {
+                  question: questionData,
+                  difficulty,
+                  type: q.type
+                }
+              });
+
+              if (error || !data?.transformedQuestion) {
+                console.error('Transform error for question:', q.id, error);
+                return q; // Return original on error
+              }
+
+              const result: any = { ...q };
+              if (data.transformedQuestion.question && 'text' in result) {
+                result.text = data.transformedQuestion.question;
+              }
+              if (data.transformedQuestion.scenario) {
+                result.scenario = data.transformedQuestion.scenario;
+              }
+              if (data.transformedQuestion.options && 'options' in result) {
+                result.options = data.transformedQuestion.options;
+              }
+
+              return result;
+            } catch (err) {
+              console.error('Error transforming question:', err);
+              return q; // Return original on error
+            }
+          })
+        );
+
+        setTransformedQuestions(transformed);
+      } catch (error) {
+        console.error('Failed to transform questions:', error);
+        toast({
+          title: "Notice",
+          description: "Using original questions due to transformation error",
+          variant: "default"
+        });
+        setTransformedQuestions(baseQuestions);
+      } finally {
+        setIsTransforming(false);
+      }
+    };
+
+    if (testStarted) {
+      transformQuestions();
+    }
+  }, [difficulty, testStarted]);
 
   const handleStudentInfoSubmit = async (studentId: string, name: string, cohortCode: string) => {
     setStudentInfo({ studentId, name, cohortCode });
@@ -371,6 +455,23 @@ const questions = getMixedQuestions();
       />
     );
   }
+
+  // Show loading while transforming questions
+  if (isTransforming) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto text-center py-16">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+          <h3 className="text-xl font-semibold mb-2">Preparing Your Questions...</h3>
+          <p className="text-muted-foreground">
+            {difficulty === 'medium' 
+              ? 'Generating engaging scenario-based questions...' 
+              : 'Creating advanced challenge questions...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -382,6 +483,12 @@ const questions = getMixedQuestions();
             Back to Dashboard
           </Button>
           <div className="flex items-center gap-4">
+            <Badge 
+              variant={difficulty === 'easy' ? 'secondary' : difficulty === 'medium' ? 'default' : 'destructive'}
+              className="text-sm"
+            >
+              {difficulty.toUpperCase()} Mode
+            </Badge>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-4 w-4" />
               <span className="font-mono text-lg">{formatTime(timeRemaining)}</span>
