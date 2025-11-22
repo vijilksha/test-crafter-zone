@@ -2,6 +2,8 @@ export interface TestSession {
   id: string;
   user_name: string;
   user_role: 'student' | 'trainer';
+  student_id?: string;
+  cohort_code?: string;
   total_questions: number;
   correct_answers: number;
   total_score: number;
@@ -35,6 +37,8 @@ export interface TestResultWithSession extends TestResult {
 
 export interface StudentScore {
   user_name: string;
+  student_id?: string;
+  cohort_code?: string;
   total_score: number;
   total_questions: number;
   correct_answers: number;
