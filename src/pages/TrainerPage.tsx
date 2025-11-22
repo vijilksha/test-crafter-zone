@@ -53,13 +53,21 @@ const TrainerPage = () => {
 
   if (currentView === 'name-entry') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-secondary/10 via-success/5 to-background flex items-center justify-center p-4 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-30"></div>
-        <div className="absolute top-20 right-20 w-72 h-72 bg-secondary/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-success/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
+        {/* Hero Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: "url('/src/assets/hero-education.jpg')",
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 via-success/20 to-background/50 backdrop-blur-sm"></div>
+        </div>
         
-        <Card className="w-full max-w-md shadow-elegant border-secondary/20 relative z-10 animate-scale-in">
+        {/* Animated overlay elements */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
+        
+        <Card className="w-full max-w-md shadow-2xl border-secondary/20 relative z-10 animate-scale-in bg-background/95 backdrop-blur-md">
           <CardHeader className="text-center space-y-4">
             <div className="mx-auto w-20 h-20 bg-gradient-to-br from-secondary to-success rounded-full flex items-center justify-center shadow-glow animate-fade-in">
               <UserCircle className="h-10 w-10 text-white" />
@@ -85,7 +93,7 @@ const TrainerPage = () => {
                   onChange={(e) => setInputName(e.target.value)}
                   required
                   autoFocus
-                  className="h-12 border-secondary/20 focus:ring-secondary"
+                  className="h-12 border-secondary/20 focus:ring-secondary bg-background"
                 />
               </div>
               <Button 
