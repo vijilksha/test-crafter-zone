@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Dashboard } from "@/components/Dashboard";
-import { TestInterface } from "@/components/TestInterface";
+import { TestInterface, DifficultyLevel } from "@/components/TestInterface";
 import { ResultsView } from "@/components/ResultsView";
+import { DifficultySelector } from "@/components/DifficultySelector";
 import { GraduationCap, LogOut } from "lucide-react";
 
-type ViewType = 'name-entry' | 'dashboard' | 'test' | 'results';
+type ViewType = 'name-entry' | 'dashboard' | 'difficulty-select' | 'test' | 'results';
 
 const StudentPage = () => {
   const [currentView, setCurrentView] = useState<ViewType>('name-entry');
@@ -16,6 +17,7 @@ const StudentPage = () => {
   const [inputName, setInputName] = useState('');
   const [testResults, setTestResults] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<'javascript' | 'mock-interim'>('mock-interim');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel>('easy');
 
   useEffect(() => {
     const savedName = localStorage.getItem('student-name');
@@ -43,6 +45,11 @@ const StudentPage = () => {
 
   const handleStartTest = (category: 'javascript' | 'mock-interim') => {
     setSelectedCategory(category);
+    setCurrentView('difficulty-select');
+  };
+
+  const handleDifficultySelect = (difficulty: DifficultyLevel) => {
+    setSelectedDifficulty(difficulty);
     setCurrentView('test');
   };
 
@@ -176,6 +183,13 @@ const StudentPage = () => {
           onStartTest={handleStartTest}
         />
       )}
+
+      {currentView === 'difficulty-select' && (
+        <DifficultySelector
+          onSelect={handleDifficultySelect}
+          onBack={handleBackToDashboard}
+        />
+      )}
       
       {currentView === 'test' && (
         <TestInterface 
@@ -184,6 +198,7 @@ const StudentPage = () => {
           userName={studentName}
           userRole="student"
           category={selectedCategory}
+          difficulty={selectedDifficulty}
         />
       )}
       
