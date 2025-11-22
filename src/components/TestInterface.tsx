@@ -431,6 +431,7 @@ const questions = getMixedQuestions();
                 </div>
                 
                 <CodeEditor
+                  key={question.id}
                   initialHtml={(question as any).starterCode?.html || ''}
                   initialCss={''}
                   initialJs={(question as any).starterCode?.js || ''}

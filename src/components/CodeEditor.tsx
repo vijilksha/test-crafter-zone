@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +32,13 @@ export const CodeEditor = ({
   const [css, setCss] = useState(initialCss);
   const [js, setJs] = useState(initialJs);
   const [showPreview, setShowPreview] = useState(true);
+
+  // Reset code when initial values change (when question changes)
+  useEffect(() => {
+    setHtml(initialHtml);
+    setCss(initialCss);
+    setJs(initialJs);
+  }, [initialHtml, initialCss, initialJs]);
 
   const handleHtmlChange = (value: string) => {
     setHtml(value);
