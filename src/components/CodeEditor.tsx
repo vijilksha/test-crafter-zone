@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, XCircle, Play, Code } from "lucide-react";
+import { CheckCircle, XCircle, Play, Code, Terminal } from "lucide-react";
 
 interface CodeEditorProps {
   initialHtml?: string;
@@ -12,6 +12,7 @@ interface CodeEditorProps {
   onCodeChange: (html: string, css: string, js?: string) => void;
   testResults?: TestCaseResult[];
   showJsTab?: boolean;
+  jsOnly?: boolean;
 }
 
 interface TestCaseResult {
@@ -26,12 +27,15 @@ export const CodeEditor = ({
   initialJs = "",
   onCodeChange,
   testResults = [],
-  showJsTab = false
+  showJsTab = false,
+  jsOnly = false
 }: CodeEditorProps) => {
   const [html, setHtml] = useState(initialHtml);
   const [css, setCss] = useState(initialCss);
   const [js, setJs] = useState(initialJs);
-  const [showPreview, setShowPreview] = useState(true);
+  const [showPreview, setShowPreview] = useState(!jsOnly);
+  const [output, setOutput] = useState<string[]>([]);
+  const [showOutput, setShowOutput] = useState(jsOnly);
 
   // Reset code when initial values change (when question changes)
   useEffect(() => {
@@ -53,6 +57,31 @@ export const CodeEditor = ({
   const handleJsChange = (value: string) => {
     setJs(value);
     onCodeChange(html, css, value);
+  };
+
+  const executeCode = () => {
+    setOutput([]);
+    const logs: string[] = [];
+    
+    // Override console.log to capture output
+    const originalLog = console.log;
+    console.log = (...args) => {
+      logs.push(args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+      ).join(' '));
+      originalLog(...args);
+    };
+
+    try {
+      // Execute the code
+      new Function(js)();
+      setOutput(logs.length > 0 ? logs : ['Code executed successfully. No output.']);
+    } catch (error) {
+      setOutput([`Error: ${error instanceof Error ? error.message : String(error)}`]);
+    } finally {
+      // Restore original console.log
+      console.log = originalLog;
+    }
   };
 
   const generatePreviewCode = () => {
@@ -90,24 +119,52 @@ export const CodeEditor = ({
           <Code className="h-5 w-5 text-primary" />
           Code Editor
         </h3>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowPreview(!showPreview)}
-        >
-          {showPreview ? "Hide Preview" : "Show Preview"}
-        </Button>
+        <div className="flex gap-2">
+          {jsOnly && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={executeCode}
+              className="bg-gradient-hero"
+            >
+              <Play className="h-4 w-4 mr-2" />
+              Execute Code
+            </Button>
+          )}
+          {!jsOnly && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+            >
+              {showPreview ? "Hide Preview" : "Show Preview"}
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-96">
         {/* Code Editors */}
         <div className="space-y-4">
-          <Tabs defaultValue="html" className="h-full flex flex-col">
-            <TabsList className={`grid w-full ${showJsTab ? 'grid-cols-3' : 'grid-cols-2'}`}>
-              <TabsTrigger value="html">HTML</TabsTrigger>
-              <TabsTrigger value="css">CSS</TabsTrigger>
-              {showJsTab && <TabsTrigger value="js">JavaScript</TabsTrigger>}
-            </TabsList>
+          {jsOnly ? (
+            // JavaScript only editor
+            <div className="h-full">
+              <textarea
+                value={js}
+                onChange={(e) => handleJsChange(e.target.value)}
+                className="w-full h-full p-3 border rounded-md font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary bg-muted/30"
+                placeholder="Write your JavaScript code here..."
+                spellCheck={false}
+              />
+            </div>
+          ) : (
+            // HTML/CSS/JS tabs
+            <Tabs defaultValue="html" className="h-full flex flex-col">
+              <TabsList className={`grid w-full ${showJsTab ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                <TabsTrigger value="html">HTML</TabsTrigger>
+                <TabsTrigger value="css">CSS</TabsTrigger>
+                {showJsTab && <TabsTrigger value="js">JavaScript</TabsTrigger>}
+              </TabsList>
             
             <TabsContent value="html" className="flex-1">
               <textarea
@@ -140,22 +197,49 @@ export const CodeEditor = ({
                 />
               </TabsContent>
             )}
-          </Tabs>
+            </Tabs>
+          )}
         </div>
 
-        {/* Preview */}
-        {showPreview && (
-          <div className="border rounded-md overflow-hidden">
-            <div className="bg-muted px-3 py-2 text-sm font-medium border-b">
-              Preview
+        {/* Output / Preview */}
+        {jsOnly ? (
+          showOutput && (
+            <Card className="border rounded-md overflow-hidden">
+              <CardHeader className="bg-muted px-3 py-2 border-b">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Terminal className="h-4 w-4" />
+                  Output
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3 font-mono text-sm bg-muted/30 h-full overflow-auto">
+                {output.length > 0 ? (
+                  output.map((line, index) => (
+                    <div key={index} className={line.startsWith('Error:') ? 'text-destructive' : 'text-foreground'}>
+                      {line}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-muted-foreground italic">
+                    Click "Execute Code" to run your code and see the output here.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )
+        ) : (
+          showPreview && (
+            <div className="border rounded-md overflow-hidden">
+              <div className="bg-muted px-3 py-2 text-sm font-medium border-b">
+                Preview
+              </div>
+              <iframe
+                srcDoc={generatePreviewCode()}
+                className="w-full h-full border-0"
+                sandbox="allow-scripts"
+                title="Code Preview"
+              />
             </div>
-            <iframe
-              srcDoc={generatePreviewCode()}
-              className="w-full h-full border-0"
-              sandbox="allow-scripts"
-              title="Code Preview"
-            />
-          </div>
+          )
         )}
       </div>
 
