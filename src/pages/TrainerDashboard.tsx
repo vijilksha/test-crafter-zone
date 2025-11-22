@@ -30,57 +30,68 @@ export default function TrainerDashboard() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      setLoading(true);
-      const scores = await getStudentScores();
-      setStudentCount(scores.length);
-      
-      const recent = scores
-        .slice(0, 5)
-        .map(score => ({
-          studentName: score.user_name,
-          score: Math.round(score.total_score),
-          questions: `${score.correct_answers}/${score.total_questions}`,
-          completedAt: new Date(score.completed_at).toLocaleDateString(),
-          time: new Date(score.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          sessionId: score.session_id
-        }));
+      try {
+        setLoading(true);
+        const scores = await getStudentScores();
+        setStudentCount(scores.length);
         
-      setRecentTests(recent);
+        const recent = scores
+          .slice(0, 5)
+          .map(score => ({
+            studentName: score.user_name,
+            score: Math.round(score.total_score),
+            questions: `${score.correct_answers}/${score.total_questions}`,
+            completedAt: new Date(score.completed_at).toLocaleDateString(),
+            time: new Date(score.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            sessionId: score.session_id
+          }));
+          
+        setRecentTests(recent);
 
-      const allDetailedAnswers: TestResult[] = [];
-      for (const score of scores) {
-        const sessionResults = await getTestResults(score.session_id);
-        allDetailedAnswers.push(...sessionResults);
-      }
-      setAllAnswers(allDetailedAnswers);
-      
-      // Calculate topic performance
-      const topicStats: any = {};
-      allDetailedAnswers.forEach(answer => {
-        if (!topicStats[answer.topic]) {
-          topicStats[answer.topic] = { correct: 0, total: 0 };
+        // Create a map of session_id to student info
+        const sessionToStudent = new Map();
+        scores.forEach(score => {
+          sessionToStudent.set(score.session_id, {
+            studentId: score.student_id || 'unknown',
+            studentName: score.user_name,
+            cohortCode: score.cohort_code || 'N/A'
+          });
+        });
+
+        // Fetch all detailed answers
+        const allDetailedAnswers: TestResult[] = [];
+        for (const score of scores) {
+          const sessionResults = await getTestResults(score.session_id);
+          allDetailedAnswers.push(...sessionResults);
         }
-        topicStats[answer.topic].total++;
-        if (answer.is_correct) topicStats[answer.topic].correct++;
-      });
-      
-      const topicPerf = Object.entries(topicStats).map(([topic, stats]: [string, any]) => ({
-        topic,
-        score: Math.round((stats.correct / stats.total) * 100),
-        correct: stats.correct,
-        total: stats.total
-      }));
-      setTopicPerformance(topicPerf);
-      
-      // Calculate student topic performance
-      const studentTopicPerf: any[] = [];
-      const studentTopicMap = new Map<string, Map<string, { correct: number; total: number }>>();
-      
-      for (const score of scores) {
-        const sessionResults = await getTestResults(score.session_id);
+        setAllAnswers(allDetailedAnswers);
         
-        for (const result of sessionResults) {
-          const studentKey = `${score.student_id || 'unknown'}_${score.user_name}_${score.cohort_code || 'N/A'}`;
+        // Calculate batch topic performance
+        const topicStats: any = {};
+        allDetailedAnswers.forEach(answer => {
+          if (!topicStats[answer.topic]) {
+            topicStats[answer.topic] = { correct: 0, total: 0 };
+          }
+          topicStats[answer.topic].total++;
+          if (answer.is_correct) topicStats[answer.topic].correct++;
+        });
+        
+        const topicPerf = Object.entries(topicStats).map(([topic, stats]: [string, any]) => ({
+          topic,
+          score: Math.round((stats.correct / stats.total) * 100),
+          correct: stats.correct,
+          total: stats.total
+        }));
+        setTopicPerformance(topicPerf);
+        
+        // Calculate student topic performance using the same data
+        const studentTopicMap = new Map<string, Map<string, { correct: number; total: number }>>();
+        
+        allDetailedAnswers.forEach(result => {
+          const studentInfo = sessionToStudent.get(result.session_id);
+          if (!studentInfo) return;
+          
+          const studentKey = `${studentInfo.studentId}_${studentInfo.studentName}_${studentInfo.cohortCode}`;
           
           if (!studentTopicMap.has(studentKey)) {
             studentTopicMap.set(studentKey, new Map());
@@ -94,30 +105,34 @@ export default function TrainerDashboard() {
           const topicStats = topicMap.get(result.topic)!;
           topicStats.total++;
           if (result.is_correct) topicStats.correct++;
-        }
-      }
-      
-      studentTopicMap.forEach((topicMap, studentKey) => {
-        const [studentId, studentName, cohortCode] = studentKey.split('_');
+        });
         
-        topicMap.forEach((stats, topic) => {
-          const score = Math.round((stats.correct / stats.total) * 100);
+        const studentTopicPerf: any[] = [];
+        studentTopicMap.forEach((topicMap, studentKey) => {
+          const [studentId, studentName, cohortCode] = studentKey.split('_');
           
-          studentTopicPerf.push({
-            studentId,
-            studentName,
-            cohortCode,
-            topic,
-            correct: stats.correct,
-            total: stats.total,
-            score,
-            feedback: generateFeedback(score, topic)
+          topicMap.forEach((stats, topic) => {
+            const score = Math.round((stats.correct / stats.total) * 100);
+            
+            studentTopicPerf.push({
+              studentId,
+              studentName,
+              cohortCode,
+              topic,
+              correct: stats.correct,
+              total: stats.total,
+              score,
+              feedback: generateFeedback(score, topic)
+            });
           });
         });
-      });
-      
-      setStudentTopicPerformance(studentTopicPerf);
-      setLoading(false);
+        
+        setStudentTopicPerformance(studentTopicPerf);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchDashboardData();
