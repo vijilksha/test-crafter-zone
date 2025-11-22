@@ -1,109 +1,61 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { HeroSection } from "@/components/HeroSection";
-import { Dashboard } from "@/components/Dashboard";
-import { TestInterface } from "@/components/TestInterface";
-import { ResultsView } from "@/components/ResultsView";
-import { ScoreViewer } from "@/components/ScoreViewer";
-import { TestCreator } from "@/components/TestCreator";
-import { useAuth } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
-
-type ViewType = 'landing' | 'dashboard' | 'test' | 'results' | 'scores' | 'create-test';
-type UserRole = 'student' | 'trainer';
+import { Link } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { GraduationCap, UserCircle } from "lucide-react";
 
 const Index = () => {
-  const navigate = useNavigate();
-  const { user, userRole, loading } = useAuth();
-  const [currentView, setCurrentView] = useState<ViewType>('landing');
-  const [testResults, setTestResults] = useState<any[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<'javascript' | 'mock-interim' | null>(null);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth');
-    } else if (!loading && user && currentView === 'landing') {
-      setCurrentView('dashboard');
-    }
-  }, [user, loading, navigate, currentView]);
-
-
-  const handleStartTest = (category: 'javascript' | 'mock-interim') => {
-    setSelectedCategory(category);
-    setCurrentView('test');
-  };
-
-  const handleTestComplete = (data: any) => {
-    console.log('Index: Received test completion data:', data);
-    setTestResults(data.results || data);
-    console.log('Index: Setting view to results');
-    setCurrentView('results');
-  };
-
-  const handleBackToDashboard = () => {
-    setCurrentView('dashboard');
-  };
-
-  const handleViewScores = () => {
-    setCurrentView('scores');
-  };
-
-  const handleCreateTest = () => {
-    setCurrentView('create-test');
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-background">
-      {currentView === 'dashboard' && userRole && (
-        <Dashboard 
-          userRole={userRole} 
-          onStartTest={handleStartTest} 
-          onViewScores={handleViewScores} 
-          onCreateTest={handleCreateTest} 
-        />
-      )}
-      
-      {currentView === 'test' && userRole && (
-        <TestInterface 
-          onComplete={handleTestComplete}
-          onBack={handleBackToDashboard}
-          userName={user.user_metadata?.name || user.email || 'User'}
-          userRole={userRole}
-          category={selectedCategory ?? 'mock-interim'}
-        />
-      )}
-      
-      {currentView === 'results' && (
-        <ResultsView 
-          results={testResults}
-          onBack={handleBackToDashboard}
-        />
-      )}
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
+            Welcome to QA Assessment Platform
+          </h1>
+          <p className="text-xl text-muted-foreground">
+            Choose your role to continue
+          </p>
+        </div>
 
-      {currentView === 'scores' && userRole && (
-        <ScoreViewer 
-          onBack={handleBackToDashboard}
-          userRole={userRole}
-        />
-      )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <Card className="shadow-elegant hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+            <CardHeader className="text-center">
+              <div className="mx-auto w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mb-4">
+                <GraduationCap className="h-10 w-10 text-white" />
+              </div>
+              <CardTitle className="text-2xl">Student</CardTitle>
+              <CardDescription>
+                Take assessments and track your progress
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link to="/student">
+                <Button variant="default" size="lg" className="w-full">
+                  Continue as Student
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
 
-      {currentView === 'create-test' && userRole === 'trainer' && (
-        <TestCreator 
-          onBack={handleBackToDashboard}
-        />
-      )}
+          <Card className="shadow-elegant hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+            <CardHeader className="text-center">
+              <div className="mx-auto w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mb-4">
+                <UserCircle className="h-10 w-10 text-white" />
+              </div>
+              <CardTitle className="text-2xl">Trainer</CardTitle>
+              <CardDescription>
+                Create tests and view student results
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link to="/trainer">
+                <Button variant="default" size="lg" className="w-full">
+                  Continue as Trainer
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
