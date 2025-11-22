@@ -8,6 +8,17 @@ import { useTestSession } from "@/hooks/useTestSession";
 import { TestResult } from "@/types/database";
 import * as XLSX from 'xlsx';
 
+interface StudentTopicPerformance {
+  studentId: string;
+  studentName: string;
+  cohortCode: string;
+  topic: string;
+  correct: number;
+  total: number;
+  score: number;
+  feedback: string;
+}
+
 interface DashboardProps {
   userRole: 'trainer' | 'student';
   onStartTest?: (category: 'javascript' | 'mock-interim') => void;
@@ -16,15 +27,32 @@ interface DashboardProps {
 }
 
 export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }: DashboardProps) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'answers' | 'analytics'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'answers' | 'analytics' | 'topics'>('overview');
   const [studentCount, setStudentCount] = useState(0);
   const [recentTests, setRecentTests] = useState<any[]>([]);
   const [allAnswers, setAllAnswers] = useState<TestResult[]>([]);
   const [topicPerformance, setTopicPerformance] = useState<any[]>([]);
   const [difficultyPerformance, setDifficultyPerformance] = useState<any[]>([]);
+  const [studentTopicPerformance, setStudentTopicPerformance] = useState<StudentTopicPerformance[]>([]);
   const [loading, setLoading] = useState(true);
   
   const { getStudentScores, getTestResults } = useTestSession();
+
+  const generateFeedback = (score: number, topic: string, correct: number, total: number): string => {
+    const percentage = (correct / total) * 100;
+    
+    if (percentage >= 90) {
+      return `Excellent mastery of ${topic}! Keep up the outstanding work.`;
+    } else if (percentage >= 80) {
+      return `Strong understanding of ${topic}. Minor improvements needed in edge cases.`;
+    } else if (percentage >= 70) {
+      return `Good grasp of ${topic} fundamentals. Focus on advanced concepts to improve.`;
+    } else if (percentage >= 60) {
+      return `Basic understanding of ${topic}. Need significant practice on core concepts.`;
+    } else {
+      return `${topic} requires immediate attention. Schedule 1-on-1 review session.`;
+    }
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -91,6 +119,55 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
         }));
         setDifficultyPerformance(diffPerf);
         
+        // Calculate individual student performance per topic
+        const studentTopicPerf: StudentTopicPerformance[] = [];
+        const studentTopicMap = new Map<string, Map<string, { correct: number; total: number; sessionId: string }>>();
+        
+        // Group answers by student and topic
+        for (const score of scores) {
+          const sessionResults = await getTestResults(score.session_id);
+          
+          for (const result of sessionResults) {
+            const studentKey = `${score.student_id || 'unknown'}_${score.user_name}`;
+            
+            if (!studentTopicMap.has(studentKey)) {
+              studentTopicMap.set(studentKey, new Map());
+            }
+            
+            const topicMap = studentTopicMap.get(studentKey)!;
+            if (!topicMap.has(result.topic)) {
+              topicMap.set(result.topic, { correct: 0, total: 0, sessionId: score.session_id });
+            }
+            
+            const topicStats = topicMap.get(result.topic)!;
+            topicStats.total++;
+            if (result.is_correct) topicStats.correct++;
+          }
+        }
+        
+        // Generate student topic performance with feedback
+        studentTopicMap.forEach((topicMap, studentKey) => {
+          const [studentId, studentName] = studentKey.split('_');
+          const cohortCode = scores.find(s => s.student_id === studentId)?.cohort_code || 'N/A';
+          
+          topicMap.forEach((stats, topic) => {
+            const score = Math.round((stats.correct / stats.total) * 100);
+            const feedback = generateFeedback(score, topic, stats.correct, stats.total);
+            
+            studentTopicPerf.push({
+              studentId,
+              studentName,
+              cohortCode,
+              topic,
+              correct: stats.correct,
+              total: stats.total,
+              score,
+              feedback
+            });
+          });
+        });
+        
+        setStudentTopicPerformance(studentTopicPerf);
         setLoading(false);
       }
     };
@@ -99,18 +176,34 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
   }, [userRole, getStudentScores, getTestResults]);
   
   const exportPerformanceData = () => {
-    const excelData = recentTests.map(test => ({
+    // Export detailed student topic performance
+    const excelData = studentTopicPerformance.map(perf => ({
+      'Student ID': perf.studentId,
+      'Student Name': perf.studentName,
+      'Cohort Code': perf.cohortCode,
+      'Topic': perf.topic,
+      'Correct Answers': perf.correct,
+      'Total Questions': perf.total,
+      'Score (%)': perf.score,
+      'Feedback': perf.feedback
+    }));
+    
+    // Also create summary sheet
+    const summaryData = recentTests.map(test => ({
       'Student Name': test.studentName,
-      'Score': `${test.score}%`,
+      'Overall Score': `${test.score}%`,
       'Questions Correct': test.questions,
       'Completion Date': test.completedAt,
       'Time': test.time
     }));
     
     const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Performance');
-    XLSX.writeFile(workbook, `trainer-performance-${new Date().toISOString().split('T')[0]}.xlsx`);
+    const topicSheet = XLSX.utils.json_to_sheet(excelData);
+    const summarySheet = XLSX.utils.json_to_sheet(summaryData);
+    
+    XLSX.utils.book_append_sheet(workbook, topicSheet, 'Topic Performance');
+    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
+    XLSX.writeFile(workbook, `student-performance-${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   if (userRole === 'trainer') {
@@ -141,6 +234,13 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
               >
                 <BarChart3 className="h-4 w-4 mr-2" />
                 Overview
+              </Button>
+              <Button 
+                variant={activeTab === 'topics' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('topics')}
+              >
+                <Target className="h-4 w-4 mr-2" />
+                Topic Performance
               </Button>
               <Button 
                 variant={activeTab === 'answers' ? 'default' : 'outline'}
@@ -384,6 +484,129 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
                           </Badge>
                         </div>
                       ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {userRole === 'trainer' && activeTab === 'topics' && (
+          <div className="space-y-6">
+            <Card className="shadow-card">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-primary" />
+                      Batch Performance by Topic
+                    </CardTitle>
+                    <CardDescription>
+                      Overall batch performance across different topics
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <p className="text-muted-foreground">Loading topic performance...</p>
+                ) : topicPerformance.length === 0 ? (
+                  <p className="text-muted-foreground">No data available yet</p>
+                ) : (
+                  <div className="space-y-4">
+                    {topicPerformance.map((topic, i) => (
+                      <div key={i} className="p-4 bg-muted/30 rounded-lg">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-lg">{topic.topic}</span>
+                          <Badge variant={topic.score >= 80 ? "default" : topic.score >= 60 ? "secondary" : "destructive"}>
+                            {topic.score}% Average
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between text-sm text-muted-foreground mb-2">
+                          <span>{topic.correct} correct out of {topic.total} attempts</span>
+                          <span>{topic.total} students attempted</span>
+                        </div>
+                        <Progress value={topic.score} className="h-2" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-card">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5 text-accent" />
+                      Individual Student Performance by Topic
+                    </CardTitle>
+                    <CardDescription>
+                      Detailed breakdown with personalized feedback for each student
+                    </CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={exportPerformanceData}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Report
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <p className="text-muted-foreground">Loading student performance...</p>
+                ) : studentTopicPerformance.length === 0 ? (
+                  <p className="text-muted-foreground">No student data available yet</p>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Group by student */}
+                    {Array.from(new Set(studentTopicPerformance.map(p => p.studentId))).map(studentId => {
+                      const studentPerf = studentTopicPerformance.filter(p => p.studentId === studentId);
+                      const student = studentPerf[0];
+                      const avgScore = Math.round(studentPerf.reduce((sum, p) => sum + p.score, 0) / studentPerf.length);
+                      
+                      return (
+                        <div key={studentId} className="border border-border rounded-lg p-5 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="font-semibold text-lg">{student.studentName}</h3>
+                              <div className="flex gap-2 mt-1">
+                                <Badge variant="outline">ID: {student.studentId}</Badge>
+                                <Badge variant="outline">Cohort: {student.cohortCode}</Badge>
+                                <Badge variant={avgScore >= 80 ? "default" : avgScore >= 60 ? "secondary" : "destructive"}>
+                                  Avg: {avgScore}%
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            {studentPerf.map((perf, i) => (
+                              <div key={i} className="bg-muted/20 rounded-md p-4">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className="font-medium">{perf.topic}</span>
+                                      <Badge variant={perf.score >= 80 ? "default" : perf.score >= 60 ? "secondary" : "destructive"} className="text-xs">
+                                        {perf.score}%
+                                      </Badge>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">
+                                      {perf.correct} / {perf.total} correct
+                                    </p>
+                                  </div>
+                                </div>
+                                <Progress value={perf.score} className="h-2 mb-3" />
+                                <div className="bg-background/50 rounded p-3">
+                                  <p className="text-sm font-medium mb-1">Feedback:</p>
+                                  <p className="text-sm text-muted-foreground">{perf.feedback}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>

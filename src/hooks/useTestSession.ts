@@ -6,7 +6,12 @@ export const useTestSession = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const createTestSession = useCallback(async (userName: string, userRole: 'student' | 'trainer'): Promise<string | null> => {
+  const createTestSession = useCallback(async (
+    userName: string, 
+    userRole: 'student' | 'trainer',
+    studentId?: string,
+    cohortCode?: string
+  ): Promise<string | null> => {
     try {
       setLoading(true);
       setError(null);
@@ -17,6 +22,8 @@ export const useTestSession = () => {
           {
             user_name: userName,
             user_role: userRole,
+            student_id: studentId,
+            cohort_code: cohortCode,
             user_id: null,
             total_questions: 0,
             correct_answers: 0,
@@ -113,6 +120,8 @@ export const useTestSession = () => {
 
       return data.map(session => ({
         user_name: session.user_name,
+        student_id: session.student_id,
+        cohort_code: session.cohort_code,
         total_score: session.total_score,
         total_questions: session.total_questions,
         correct_answers: session.correct_answers,

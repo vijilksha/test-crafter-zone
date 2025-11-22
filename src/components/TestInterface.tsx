@@ -12,6 +12,7 @@ import { allQuestions, getQuestionsByCategory, getMixedQuestions, type Question 
 import { useTestSession } from "@/hooks/useTestSession";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { StudentInfoDialog } from "@/components/StudentInfoDialog";
 
 interface TestCaseResult {
   name: string;
@@ -40,6 +41,9 @@ export const TestInterface = ({ onComplete, onBack, userName, userRole, category
   const [timeRemaining, setTimeRemaining] = useState(2400); // 40 minutes for coding questions
   const [testResults, setTestResults] = useState<Record<string, TestCaseResult[]>>({});
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [showStudentDialog, setShowStudentDialog] = useState(userRole === 'student');
+  const [studentInfo, setStudentInfo] = useState<{ studentId: string; name: string; cohortCode: string } | null>(null);
+  const [testStarted, setTestStarted] = useState(false);
   
   const { createTestSession, saveTestResult, completeTestSession, loading } = useTestSession();
   const { toast } = useToast();
@@ -49,31 +53,52 @@ const questions = getMixedQuestions();
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
-  // Initialize test session when component mounts
+  const handleStudentInfoSubmit = async (studentId: string, name: string, cohortCode: string) => {
+    setStudentInfo({ studentId, name, cohortCode });
+    setShowStudentDialog(false);
+    
+    // Create test session with student info
+    const newSessionId = await createTestSession(name, userRole, studentId, cohortCode);
+    if (newSessionId) {
+      setSessionId(newSessionId);
+      setTestStarted(true);
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to initialize test session",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Initialize test session for trainers
   useEffect(() => {
     let mounted = true;
     
     const initializeSession = async () => {
-      const newSessionId = await createTestSession(userName, userRole);
-      if (mounted && newSessionId) {
-        setSessionId(newSessionId);
-      } else if (mounted && !newSessionId) {
-        toast({
-          title: "Error",
-          description: "Failed to initialize test session",
-          variant: "destructive"
-        });
+      if (userRole === 'trainer') {
+        const newSessionId = await createTestSession(userName, userRole);
+        if (mounted && newSessionId) {
+          setSessionId(newSessionId);
+          setTestStarted(true);
+        } else if (mounted && !newSessionId) {
+          toast({
+            title: "Error",
+            description: "Failed to initialize test session",
+            variant: "destructive"
+          });
+        }
       }
     };
 
-    if (!sessionId) {
+    if (!sessionId && userRole === 'trainer') {
       initializeSession();
     }
 
     return () => {
       mounted = false;
     };
-  }, []); // Empty deps - only run once on mount
+  }, [userRole]);
 
   // Timer effect
   useEffect(() => {
@@ -335,6 +360,18 @@ const questions = getMixedQuestions();
   const question = questions[currentQuestion];
   const currentAnswer = answers[question.id];
   const hasAnswer = currentAnswer !== undefined;
+  
+  // Show student info dialog first for students
+  if (!testStarted) {
+    return (
+      <StudentInfoDialog
+        open={showStudentDialog}
+        onSubmit={handleStudentInfoSubmit}
+        onCancel={onBack}
+      />
+    );
+  }
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">

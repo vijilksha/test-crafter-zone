@@ -204,11 +204,13 @@ export type Database = {
       }
       test_sessions: {
         Row: {
+          cohort_code: string | null
           completed_at: string | null
           correct_answers: number
           created_at: string
           id: string
           started_at: string
+          student_id: string | null
           total_questions: number
           total_score: number
           updated_at: string
@@ -217,11 +219,13 @@ export type Database = {
           user_role: string
         }
         Insert: {
+          cohort_code?: string | null
           completed_at?: string | null
           correct_answers?: number
           created_at?: string
           id?: string
           started_at?: string
+          student_id?: string | null
           total_questions?: number
           total_score?: number
           updated_at?: string
@@ -230,11 +234,13 @@ export type Database = {
           user_role: string
         }
         Update: {
+          cohort_code?: string | null
           completed_at?: string | null
           correct_answers?: number
           created_at?: string
           id?: string
           started_at?: string
+          student_id?: string | null
           total_questions?: number
           total_score?: number
           updated_at?: string
