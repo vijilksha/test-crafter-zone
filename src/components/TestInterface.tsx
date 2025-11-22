@@ -63,20 +63,26 @@ const questions = transformedQuestions.length > 0 ? transformedQuestions : baseQ
   useEffect(() => {
     const transformQuestions = async () => {
       if (difficulty === 'easy') {
+        console.log('Using easy mode - no transformation needed');
         setTransformedQuestions(baseQuestions);
         setIsTransforming(false);
         return;
       }
 
+      console.log(`Starting transformation to ${difficulty} difficulty for ${baseQuestions.length} questions`);
       setIsTransforming(true);
+      
       try {
         const transformed = await Promise.all(
-          baseQuestions.map(async (q) => {
+          baseQuestions.map(async (q, index) => {
             try {
               // Only transform multiple-choice and text-input questions
               if (q.type !== 'multiple-choice' && q.type !== 'text-input') {
+                console.log(`Question ${index + 1}: Skipping code question`);
                 return q; // Keep code questions as-is
               }
+
+              console.log(`Question ${index + 1}: Transforming ${q.type} question`);
 
               const questionData: any = {
                 scenario: q.scenario,
@@ -94,10 +100,21 @@ const questions = transformedQuestions.length > 0 ? transformedQuestions : baseQ
                 }
               });
 
-              if (error || !data?.transformedQuestion) {
-                console.error('Transform error for question:', q.id, error);
+              if (error) {
+                console.error(`Question ${index + 1}: Transform error:`, error);
                 return q; // Return original on error
               }
+
+              if (!data?.transformedQuestion) {
+                console.error(`Question ${index + 1}: No transformed question in response`);
+                return q;
+              }
+
+              console.log(`Question ${index + 1}: Successfully transformed`, {
+                originalScenario: q.scenario?.substring(0, 50),
+                newScenario: data.transformedQuestion.scenario?.substring(0, 50),
+                hasNewQuestion: !!data.transformedQuestion.question
+              });
 
               const result: any = { ...q };
               if (data.transformedQuestion.question && 'text' in result) {
@@ -112,12 +129,13 @@ const questions = transformedQuestions.length > 0 ? transformedQuestions : baseQ
 
               return result;
             } catch (err) {
-              console.error('Error transforming question:', err);
+              console.error(`Question ${index + 1}: Error transforming:`, err);
               return q; // Return original on error
             }
           })
         );
 
+        console.log('All questions transformed successfully');
         setTransformedQuestions(transformed);
       } catch (error) {
         console.error('Failed to transform questions:', error);
