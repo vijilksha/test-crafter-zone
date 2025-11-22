@@ -446,6 +446,7 @@ const questions = getMixedQuestions();
                   onCodeChange={(html, css, js) => handleCodeAnswer(question.id, html, css, js)}
                   testResults={testResults[question.id] || []}
                   showJsTab={true}
+                  jsOnly={true}
                 />
               </div>
             )}
