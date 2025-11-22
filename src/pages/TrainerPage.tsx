@@ -53,7 +53,7 @@ const TrainerPage = () => {
 
   if (currentView === 'name-entry') {
     return (
-      <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
+      <div className="min-h-screen relative overflow-hidden">
         {/* Hero Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -61,52 +61,86 @@ const TrainerPage = () => {
             backgroundImage: "url('/src/assets/hero-education.jpg')",
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 via-success/20 to-background/50 backdrop-blur-sm"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-secondary/40 via-success/30 to-background/60"></div>
         </div>
         
-        {/* Animated overlay elements */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
-        
-        <Card className="w-full max-w-md shadow-2xl border-secondary/20 relative z-10 animate-scale-in bg-background/95 backdrop-blur-md">
-          <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-secondary to-success rounded-full flex items-center justify-center shadow-glow animate-fade-in">
-              <UserCircle className="h-10 w-10 text-white" />
-            </div>
-            <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-secondary to-success bg-clip-text text-transparent">
-                Trainer Access
-              </CardTitle>
-              <CardDescription className="text-base mt-2">
-                Enter your name to access the trainer dashboard
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleNameSubmit} className="space-y-4">
-              <div className="space-y-2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <Label htmlFor="name" className="text-sm font-medium">Your Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Enter your name"
-                  value={inputName}
-                  onChange={(e) => setInputName(e.target.value)}
-                  required
-                  autoFocus
-                  className="h-12 border-secondary/20 focus:ring-secondary bg-background"
-                />
+        {/* Content */}
+        <div className="relative z-10 min-h-screen flex flex-col">
+          {/* Hero Section */}
+          <div className="flex-1 flex items-center justify-center px-4 py-16">
+            <div className="max-w-4xl w-full text-center space-y-8">
+              <div className="animate-fade-in">
+                <div className="mx-auto w-24 h-24 bg-gradient-to-br from-secondary to-success rounded-full flex items-center justify-center shadow-glow mb-6">
+                  <UserCircle className="h-12 w-12 text-white" />
+                </div>
+                <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+                  Trainer Portal
+                </h1>
+                <p className="text-xl md:text-2xl text-white/90 mb-8 drop-shadow-md">
+                  Manage and track student progress
+                </p>
               </div>
-              <Button 
-                type="submit" 
-                className="w-full h-12 bg-gradient-to-r from-secondary to-success hover:from-secondary/90 hover:to-success/90 transition-all duration-300 shadow-lg hover:shadow-xl animate-fade-in" 
-                style={{ animationDelay: '0.3s' }}
-                size="lg"
-              >
-                Continue to Dashboard
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+
+              {/* Login Card */}
+              <Card className="max-w-md mx-auto shadow-2xl border-secondary/20 bg-background/95 backdrop-blur-lg animate-scale-in" style={{ animationDelay: '0.2s' }}>
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl font-bold bg-gradient-to-r from-secondary to-success bg-clip-text text-transparent">
+                    Enter Your Name
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    Access trainer dashboard
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleNameSubmit} className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-sm font-medium">Your Name</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Enter your full name"
+                        value={inputName}
+                        onChange={(e) => setInputName(e.target.value)}
+                        required
+                        autoFocus
+                        className="h-14 text-lg border-secondary/30 focus:ring-secondary bg-background"
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full h-14 text-lg bg-gradient-to-r from-secondary to-success hover:from-secondary/90 hover:to-success/90 transition-all duration-300 shadow-lg hover:shadow-xl" 
+                      size="lg"
+                    >
+                      Continue to Dashboard
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Info Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
+                  <CardContent className="pt-6 text-center">
+                    <div className="text-3xl font-bold mb-2">Create</div>
+                    <p className="text-sm text-white/90">Custom Tests</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
+                  <CardContent className="pt-6 text-center">
+                    <div className="text-3xl font-bold mb-2">Track</div>
+                    <p className="text-sm text-white/90">Student Progress</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
+                  <CardContent className="pt-6 text-center">
+                    <div className="text-3xl font-bold mb-2">Analyze</div>
+                    <p className="text-sm text-white/90">Performance Data</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
