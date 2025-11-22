@@ -2,10 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Users, Trophy, Plus, BarChart3, FileText, Eye, MessageSquare } from "lucide-react";
+import { BookOpen, Users, Trophy, Plus, BarChart3, FileText, Eye, MessageSquare, Download, TrendingUp, Target } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTestSession } from "@/hooks/useTestSession";
 import { TestResult } from "@/types/database";
+import * as XLSX from 'xlsx';
 
 interface DashboardProps {
   userRole: 'trainer' | 'student';
@@ -15,16 +16,20 @@ interface DashboardProps {
 }
 
 export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }: DashboardProps) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'answers'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'answers' | 'analytics'>('overview');
   const [studentCount, setStudentCount] = useState(0);
   const [recentTests, setRecentTests] = useState<any[]>([]);
   const [allAnswers, setAllAnswers] = useState<TestResult[]>([]);
+  const [topicPerformance, setTopicPerformance] = useState<any[]>([]);
+  const [difficultyPerformance, setDifficultyPerformance] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   
   const { getStudentScores, getTestResults } = useTestSession();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       if (userRole === 'trainer') {
+        setLoading(true);
         const scores = await getStudentScores();
         setStudentCount(scores.length);
         
@@ -49,25 +54,92 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
           allDetailedAnswers.push(...sessionResults);
         }
         setAllAnswers(allDetailedAnswers);
+        
+        // Calculate topic performance
+        const topicStats: any = {};
+        allDetailedAnswers.forEach(answer => {
+          if (!topicStats[answer.topic]) {
+            topicStats[answer.topic] = { correct: 0, total: 0 };
+          }
+          topicStats[answer.topic].total++;
+          if (answer.is_correct) topicStats[answer.topic].correct++;
+        });
+        
+        const topicPerf = Object.entries(topicStats).map(([topic, stats]: [string, any]) => ({
+          topic,
+          score: Math.round((stats.correct / stats.total) * 100),
+          correct: stats.correct,
+          total: stats.total
+        }));
+        setTopicPerformance(topicPerf);
+        
+        // Calculate difficulty performance
+        const difficultyStats: any = {};
+        allDetailedAnswers.forEach(answer => {
+          if (!difficultyStats[answer.difficulty]) {
+            difficultyStats[answer.difficulty] = { correct: 0, total: 0 };
+          }
+          difficultyStats[answer.difficulty].total++;
+          if (answer.is_correct) difficultyStats[answer.difficulty].correct++;
+        });
+        
+        const diffPerf = Object.entries(difficultyStats).map(([difficulty, stats]: [string, any]) => ({
+          difficulty,
+          score: Math.round((stats.correct / stats.total) * 100),
+          correct: stats.correct,
+          total: stats.total
+        }));
+        setDifficultyPerformance(diffPerf);
+        
+        setLoading(false);
       }
     };
 
     fetchDashboardData();
   }, [userRole, getStudentScores, getTestResults]);
+  
+  const exportPerformanceData = () => {
+    const excelData = recentTests.map(test => ({
+      'Student Name': test.studentName,
+      'Score': `${test.score}%`,
+      'Questions Correct': test.questions,
+      'Completion Date': test.completedAt,
+      'Time': test.time
+    }));
+    
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Performance');
+    XLSX.writeFile(workbook, `trainer-performance-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
 
   if (userRole === 'trainer') {
+    const averageScore = recentTests.length > 0 
+      ? Math.round(recentTests.reduce((sum, test) => sum + test.score, 0) / recentTests.length)
+      : 0;
+      
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-foreground mb-2">Trainer Dashboard</h2>
-          <p className="text-muted-foreground">Manage concepts, create tests, and track student progress</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-bold text-foreground mb-2">Trainer Dashboard</h2>
+              <p className="text-muted-foreground">Monitor student performance and manage assessments</p>
+            </div>
+            <Button variant="outline" onClick={exportPerformanceData}>
+              <Download className="h-4 w-4 mr-2" />
+              Export Data
+            </Button>
+          </div>
           
           {userRole === 'trainer' && (
-            <div className="flex gap-4 mt-4">
+            <div className="flex gap-4 mt-6">
               <Button 
                 variant={activeTab === 'overview' ? 'default' : 'outline'}
                 onClick={() => setActiveTab('overview')}
+                className="bg-gradient-hero"
               >
+                <BarChart3 className="h-4 w-4 mr-2" />
                 Overview
               </Button>
               <Button 
@@ -77,28 +149,24 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Student Answers
               </Button>
+              <Button 
+                variant={activeTab === 'analytics' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('analytics')}
+              >
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Analytics
+              </Button>
             </div>
           )}
         </div>
 
         {activeTab === 'overview' && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="shadow-card hover:shadow-elegant transition-all duration-300">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Concepts</CardTitle>
-                  <BookOpen className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">12</div>
-                  <p className="text-xs text-muted-foreground">+2 from last week</p>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-card hover:shadow-elegant transition-all duration-300">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <Card className="shadow-card hover:shadow-elegant transition-all duration-300 border-l-4 border-l-primary">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-                  <Users className="h-4 w-4 text-secondary" />
+                  <Users className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{studentCount}</div>
@@ -106,14 +174,40 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
                 </CardContent>
               </Card>
 
-              <Card className="shadow-card hover:shadow-elegant transition-all duration-300">
+              <Card className="shadow-card hover:shadow-elegant transition-all duration-300 border-l-4 border-l-secondary">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Tests Created</CardTitle>
-                  <FileText className="h-4 w-4 text-accent" />
+                  <CardTitle className="text-sm font-medium">Tests Completed</CardTitle>
+                  <FileText className="h-4 w-4 text-secondary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">24</div>
-                  <p className="text-xs text-muted-foreground">This month</p>
+                  <div className="text-2xl font-bold">{recentTests.length}</div>
+                  <p className="text-xs text-muted-foreground">Total submissions</p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card hover:shadow-elegant transition-all duration-300 border-l-4 border-l-accent">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Class Average</CardTitle>
+                  <Trophy className="h-4 w-4 text-accent" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{averageScore}%</div>
+                  <Progress value={averageScore} className="mt-2 h-2" />
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card hover:shadow-elegant transition-all duration-300 border-l-4 border-l-success">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Pass Rate</CardTitle>
+                  <Target className="h-4 w-4 text-success" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {recentTests.length > 0 
+                      ? Math.round((recentTests.filter(t => t.score >= 70).length / recentTests.length) * 100)
+                      : 0}%
+                  </div>
+                  <p className="text-xs text-muted-foreground">Students passing (≥70%)</p>
                 </CardContent>
               </Card>
             </div>
@@ -154,13 +248,15 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {recentTests.length === 0 ? (
+                    {loading ? (
+                      <div className="text-center py-4 text-muted-foreground">Loading...</div>
+                    ) : recentTests.length === 0 ? (
                       <div className="text-center py-4 text-muted-foreground">
                         No test results yet
                       </div>
                     ) : (
                       recentTests.map((test, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                        <div key={i} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
                           <div className="flex-1">
                             <p className="font-medium">{test.studentName}</p>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -170,9 +266,15 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
                               <span>{test.time}</span>
                             </div>
                           </div>
-                          <Badge variant={test.score >= 80 ? "default" : "secondary"}>
-                            {test.score}%
-                          </Badge>
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <div className="text-lg font-bold">{test.score}%</div>
+                              <Progress value={test.score} className="w-16 h-1 mt-1" />
+                            </div>
+                            <Badge variant={test.score >= 80 ? "default" : test.score >= 70 ? "secondary" : "destructive"}>
+                              {test.score >= 80 ? "Excellent" : test.score >= 70 ? "Good" : "Needs Work"}
+                            </Badge>
+                          </div>
                         </div>
                       ))
                     )}
@@ -181,6 +283,112 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
               </Card>
             </div>
           </>
+        )}
+
+        {userRole === 'trainer' && activeTab === 'analytics' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    Performance by Topic
+                  </CardTitle>
+                  <CardDescription>Student mastery across different topics</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <p className="text-muted-foreground">Loading analytics...</p>
+                  ) : topicPerformance.length === 0 ? (
+                    <p className="text-muted-foreground">No data available yet</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {topicPerformance.map((topic, i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="font-medium">{topic.topic}</span>
+                            <span className="text-muted-foreground">
+                              {topic.correct}/{topic.total} ({topic.score}%)
+                            </span>
+                          </div>
+                          <Progress value={topic.score} className="h-2" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-accent" />
+                    Performance by Difficulty
+                  </CardTitle>
+                  <CardDescription>How students handle different difficulty levels</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <p className="text-muted-foreground">Loading analytics...</p>
+                  ) : difficultyPerformance.length === 0 ? (
+                    <p className="text-muted-foreground">No data available yet</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {difficultyPerformance.map((diff, i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="font-medium">{diff.difficulty}</span>
+                            <span className="text-muted-foreground">
+                              {diff.correct}/{diff.total} ({diff.score}%)
+                            </span>
+                          </div>
+                          <Progress value={diff.score} className="h-2" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle>Student Performance Ranking</CardTitle>
+                <CardDescription>Top performers in recent assessments</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <p className="text-muted-foreground">Loading rankings...</p>
+                ) : recentTests.length === 0 ? (
+                  <p className="text-muted-foreground">No rankings available yet</p>
+                ) : (
+                  <div className="space-y-3">
+                    {recentTests
+                      .sort((a, b) => b.score - a.score)
+                      .slice(0, 10)
+                      .map((test, i) => (
+                        <div key={i} className="flex items-center gap-4 p-3 bg-muted/30 rounded-lg">
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm">
+                            {i + 1}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{test.studentName}</p>
+                            <p className="text-xs text-muted-foreground">{test.completedAt}</p>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold text-lg">{test.score}%</div>
+                            <p className="text-xs text-muted-foreground">{test.questions}</p>
+                          </div>
+                          <Badge variant={i < 3 ? "default" : "secondary"}>
+                            {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
+                          </Badge>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {userRole === 'trainer' && activeTab === 'answers' && (
