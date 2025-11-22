@@ -51,11 +51,13 @@ const questions = getMixedQuestions();
 
   // Initialize test session when component mounts
   useEffect(() => {
+    let mounted = true;
+    
     const initializeSession = async () => {
       const newSessionId = await createTestSession(userName, userRole);
-      if (newSessionId) {
+      if (mounted && newSessionId) {
         setSessionId(newSessionId);
-      } else {
+      } else if (mounted && !newSessionId) {
         toast({
           title: "Error",
           description: "Failed to initialize test session",
@@ -64,8 +66,14 @@ const questions = getMixedQuestions();
       }
     };
 
-    initializeSession();
-  }, [userName, userRole, createTestSession, toast]);
+    if (!sessionId) {
+      initializeSession();
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, []); // Empty deps - only run once on mount
 
   // Timer effect
   useEffect(() => {
