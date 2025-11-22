@@ -1,14 +1,22 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Award, Target, TrendingUp, ArrowLeft, Download } from "lucide-react";
+import { Trophy, Award, Target, TrendingUp, ArrowLeft, Download, CheckCircle, XCircle, ChevronDown, ChevronUp } from "lucide-react";
+
+interface TestCaseResult {
+  name: string;
+  passed: boolean;
+  message: string;
+}
 
 interface TestResult {
   questionId: string | number;
   correct: boolean;
   topic: string;
   difficulty: 'Easy' | 'Medium' | 'Hard' | 'intermediate' | 'advanced';
+  testResults?: TestCaseResult[];
 }
 
 interface ResultsViewProps {
@@ -22,6 +30,8 @@ export const ResultsView = ({ results, onBack }: ResultsViewProps) => {
   // Ensure results is always an array to prevent filter errors
   const safeResults = Array.isArray(results) ? results : [];
   console.log('ResultsView: Safe results:', safeResults);
+  
+  const [expandedQuestion, setExpandedQuestion] = useState<string | number | null>(null);
   
   const totalQuestions = safeResults.length;
   const correctAnswers = safeResults.filter(r => r.correct).length;
@@ -184,6 +194,126 @@ export const ResultsView = ({ results, onBack }: ResultsViewProps) => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Detailed Test Results */}
+        <Card className="shadow-card mt-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              Detailed Test Results
+            </CardTitle>
+            <CardDescription>View all test cases and their results</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {safeResults.map((result, index) => {
+                const hasTestCases = result.testResults && result.testResults.length > 0;
+                const isExpanded = expandedQuestion === result.questionId;
+                const passedTests = result.testResults?.filter(t => t.passed).length || 0;
+                const totalTests = result.testResults?.length || 0;
+                
+                return (
+                  <div 
+                    key={result.questionId}
+                    className={`border rounded-lg p-4 transition-colors ${
+                      result.correct ? 'bg-success/5 border-success/20' : 'bg-destructive/5 border-destructive/20'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-3 flex-1">
+                        {result.correct ? (
+                          <CheckCircle className="h-5 w-5 text-success mt-0.5" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-destructive mt-0.5" />
+                        )}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <h4 className="font-semibold">Question {index + 1}</h4>
+                            <Badge variant={
+                              result.difficulty === 'Hard' || result.difficulty === 'advanced' ? 'destructive' : 
+                              result.difficulty === 'Medium' || result.difficulty === 'intermediate' ? 'secondary' : 
+                              'default'
+                            } className="text-xs">
+                              {result.difficulty}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {result.topic}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {result.correct ? 'Answered correctly' : 'Incorrect answer'}
+                          </p>
+                          {hasTestCases && (
+                            <div className="mt-2 flex items-center gap-2">
+                              <span className="text-sm font-medium">
+                                Test Cases: {passedTests}/{totalTests} passed
+                              </span>
+                              {passedTests === totalTests ? (
+                                <Badge variant="default" className="text-xs">All Passed</Badge>
+                              ) : (
+                                <Badge variant="destructive" className="text-xs">
+                                  {totalTests - passedTests} Failed
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {hasTestCases && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setExpandedQuestion(isExpanded ? null : result.questionId)}
+                        >
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                    
+                    {hasTestCases && isExpanded && (
+                      <div className="mt-4 pl-8 space-y-2 border-l-2 border-border ml-2">
+                        {result.testResults!.map((testCase, testIndex) => (
+                          <div
+                            key={testIndex}
+                            className={`p-3 rounded-md ${
+                              testCase.passed ? 'bg-success/10' : 'bg-destructive/10'
+                            }`}
+                          >
+                            <div className="flex items-start gap-2">
+                              {testCase.passed ? (
+                                <CheckCircle className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
+                              ) : (
+                                <XCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                  <span className="font-medium text-sm">{testCase.name}</span>
+                                  <Badge 
+                                    variant={testCase.passed ? "default" : "destructive"}
+                                    className="text-xs flex-shrink-0"
+                                  >
+                                    {testCase.passed ? "PASS" : "FAIL"}
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground break-words">
+                                  {testCase.message}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Recommendations */}
         <Card className="shadow-card mt-6">
