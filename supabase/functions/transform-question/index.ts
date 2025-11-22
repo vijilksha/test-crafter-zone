@@ -55,6 +55,8 @@ IMPORTANT: Return ONLY a JSON object with this exact structure:
 Do not include any markdown, code blocks, or additional text.`;
     }
 
+    console.log('Transform request:', { difficulty, type, questionText: question.question || question.text });
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -69,8 +71,7 @@ Do not include any markdown, code blocks, or additional text.`;
             role: 'user', 
             content: `Original Question:\n${JSON.stringify(question)}\n\nQuestion Type: ${type}\n\nTransform this into ${difficulty} difficulty format.` 
           }
-        ],
-        temperature: 0.7,
+        ]
       }),
     });
 
@@ -97,14 +98,22 @@ Do not include any markdown, code blocks, or additional text.`;
     const data = await response.json();
     const transformedContent = data.choices[0].message.content;
     
+    console.log('AI Response:', transformedContent.substring(0, 200));
+    
     // Parse the JSON response
     let transformedQuestion;
     try {
       // Remove markdown code blocks if present
       const cleanContent = transformedContent.replace(/```json\n?|\n?```/g, '').trim();
       transformedQuestion = JSON.parse(cleanContent);
+      console.log('Parsed transformation:', { 
+        hasScenario: !!transformedQuestion.scenario,
+        hasQuestion: !!transformedQuestion.question,
+        hasOptions: !!transformedQuestion.options
+      });
     } catch (parseError) {
       console.error('Failed to parse AI response:', transformedContent);
+      console.error('Parse error:', parseError);
       throw new Error('Invalid response format from AI');
     }
 
