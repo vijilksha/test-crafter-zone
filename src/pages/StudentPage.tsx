@@ -8,6 +8,7 @@ import { TestInterface, DifficultyLevel } from "@/components/TestInterface";
 import { ResultsView } from "@/components/ResultsView";
 import { DifficultySelector } from "@/components/DifficultySelector";
 import { GraduationCap, LogOut } from "lucide-react";
+import heroImage from "@/assets/hero-education.jpg";
 
 type ViewType = 'name-entry' | 'dashboard' | 'difficulty-select' | 'test' | 'results';
 
@@ -69,7 +70,7 @@ const StudentPage = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('/src/assets/hero-education.jpg')",
+            backgroundImage: `url(${heroImage})`,
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-secondary/30 to-background/60"></div>

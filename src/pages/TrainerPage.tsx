@@ -7,6 +7,7 @@ import { Dashboard } from "@/components/Dashboard";
 import { ScoreViewer } from "@/components/ScoreViewer";
 import { TestCreator } from "@/components/TestCreator";
 import { UserCircle, LogOut } from "lucide-react";
+import heroImage from "@/assets/hero-education.jpg";
 
 type ViewType = 'name-entry' | 'dashboard' | 'scores' | 'create-test';
 
@@ -58,7 +59,7 @@ const TrainerPage = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('/src/assets/hero-education.jpg')",
+            backgroundImage: `url(${heroImage})`,
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-secondary/30 to-background/60"></div>
