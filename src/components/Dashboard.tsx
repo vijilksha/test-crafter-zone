@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useTestSession } from "@/hooks/useTestSession";
 import { TestResult } from "@/types/database";
 import * as XLSX from 'xlsx';
+import { QuestionDownloader } from "@/components/QuestionDownloader";
 
 interface StudentTopicPerformance {
   studentId: string;
@@ -222,10 +223,13 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
               <h2 className="text-3xl font-bold text-foreground mb-2">Trainer Dashboard</h2>
               <p className="text-muted-foreground">Monitor student performance and manage assessments</p>
             </div>
-            <Button variant="outline" onClick={exportPerformanceData}>
-              <Download className="h-4 w-4 mr-2" />
-              Export Data
-            </Button>
+            <div className="flex gap-2">
+              <QuestionDownloader />
+              <Button variant="outline" onClick={exportPerformanceData}>
+                <Download className="h-4 w-4 mr-2" />
+                Export Data
+              </Button>
+            </div>
           </div>
           
           {userRole === 'trainer' && (
