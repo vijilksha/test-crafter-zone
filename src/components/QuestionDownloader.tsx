@@ -2,18 +2,21 @@ import { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, Packer } fro
 import { saveAs } from 'file-saver';
 import { Button } from './ui/button';
 import { Download } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { jsQuestions, type JSQuestion } from '@/data/jsQuestions';
+import { useState } from 'react';
 
 export const QuestionDownloader = () => {
+  const [difficulty, setDifficulty] = useState<'Medium' | 'Hard'>('Medium');
   const generateWordDocument = async () => {
-    // Filter only medium-level code questions
-    const mediumQuestions = jsQuestions.filter(
-      q => q.difficulty === 'Medium' && q.type === 'code'
+    // Filter questions by selected difficulty
+    const filteredQuestions = jsQuestions.filter(
+      q => q.difficulty === difficulty && q.type === 'code'
     ).slice(0, 20);
 
     const children: any[] = [
       new Paragraph({
-        text: '20 Scenario-Based Medium Level JavaScript Questions',
+        text: `20 Scenario-Based ${difficulty} Level JavaScript Questions`,
         heading: HeadingLevel.HEADING_1,
         alignment: AlignmentType.CENTER,
         spacing: { after: 400 }
@@ -25,7 +28,7 @@ export const QuestionDownloader = () => {
       })
     ];
 
-    mediumQuestions.forEach((question, index) => {
+    filteredQuestions.forEach((question, index) => {
       if (question.type === 'code') {
         // Question Number and Title
         children.push(
@@ -186,17 +189,28 @@ export const QuestionDownloader = () => {
     });
 
     const blob = await Packer.toBlob(doc);
-    saveAs(blob, 'JavaScript_Medium_Questions_With_Tests.docx');
+    saveAs(blob, `JavaScript_${difficulty}_Questions_With_Tests.docx`);
   };
 
   return (
-    <Button 
-      onClick={generateWordDocument}
-      variant="outline"
-      className="gap-2"
-    >
-      <Download className="h-4 w-4" />
-      Download 20 Medium Questions (Word)
-    </Button>
+    <div className="flex gap-2 items-center">
+      <Select value={difficulty} onValueChange={(value: 'Medium' | 'Hard') => setDifficulty(value)}>
+        <SelectTrigger className="w-[140px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="Medium">Medium</SelectItem>
+          <SelectItem value="Hard">Hard</SelectItem>
+        </SelectContent>
+      </Select>
+      <Button 
+        onClick={generateWordDocument}
+        variant="outline"
+        className="gap-2"
+      >
+        <Download className="h-4 w-4" />
+        Download 20 Questions
+      </Button>
+    </div>
   );
 };
