@@ -460,24 +460,159 @@ export default function TrainerDashboard() {
         )}
 
         {activeTab === 'analytics' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle>Performance Trends</CardTitle>
-                <CardDescription>Track student progress over time</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Analytics charts coming soon...</p>
-              </CardContent>
-            </Card>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-primary" />
+                    Topic Performance Distribution
+                  </CardTitle>
+                  <CardDescription>Average scores across all topics</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <p className="text-muted-foreground">Loading analytics...</p>
+                  ) : topicPerformance.length === 0 ? (
+                    <p className="text-muted-foreground">No data available yet</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {topicPerformance.map((topic, i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium text-sm">{topic.topic}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground">
+                                {topic.correct}/{topic.total}
+                              </span>
+                              <Badge variant={topic.score >= 80 ? "default" : topic.score >= 60 ? "secondary" : "destructive"}>
+                                {topic.score}%
+                              </Badge>
+                            </div>
+                          </div>
+                          <Progress value={topic.score} className="h-3" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-accent" />
+                    Student Performance Rankings
+                  </CardTitle>
+                  <CardDescription>Top performers in recent tests</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <p className="text-muted-foreground">Loading rankings...</p>
+                  ) : recentTests.length === 0 ? (
+                    <p className="text-muted-foreground">No rankings available yet</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {[...recentTests]
+                        .sort((a, b) => b.score - a.score)
+                        .slice(0, 8)
+                        .map((test, i) => (
+                          <div key={i} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/60 text-primary-foreground font-bold text-sm">
+                              {i + 1}
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-medium text-sm">{test.studentName}</p>
+                              <p className="text-xs text-muted-foreground">{test.completedAt}</p>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-lg">{test.score}%</div>
+                              <Progress value={test.score} className="w-16 h-1 mt-1" />
+                            </div>
+                            {i < 3 && (
+                              <div className="text-2xl">
+                                {i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
 
             <Card className="shadow-card">
               <CardHeader>
-                <CardTitle>Topic Mastery</CardTitle>
-                <CardDescription>Identify strong and weak areas</CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-accent" />
+                  Class Performance Metrics
+                </CardTitle>
+                <CardDescription>Overall batch statistics and insights</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Topic analysis coming soon...</p>
+                {loading ? (
+                  <p className="text-muted-foreground">Loading metrics...</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-primary"></div>
+                        <span className="text-sm font-medium">Excellence Rate</span>
+                      </div>
+                      <div className="text-3xl font-bold">
+                        {recentTests.length > 0
+                          ? Math.round((recentTests.filter(t => t.score >= 90).length / recentTests.length) * 100)
+                          : 0}%
+                      </div>
+                      <p className="text-xs text-muted-foreground">Students scoring 90% or above</p>
+                      <Progress 
+                        value={recentTests.length > 0
+                          ? (recentTests.filter(t => t.score >= 90).length / recentTests.length) * 100
+                          : 0} 
+                        className="h-2" 
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-secondary"></div>
+                        <span className="text-sm font-medium">Pass Rate</span>
+                      </div>
+                      <div className="text-3xl font-bold">
+                        {recentTests.length > 0
+                          ? Math.round((recentTests.filter(t => t.score >= 70).length / recentTests.length) * 100)
+                          : 0}%
+                      </div>
+                      <p className="text-xs text-muted-foreground">Students passing (≥70%)</p>
+                      <Progress 
+                        value={recentTests.length > 0
+                          ? (recentTests.filter(t => t.score >= 70).length / recentTests.length) * 100
+                          : 0} 
+                        className="h-2" 
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-accent"></div>
+                        <span className="text-sm font-medium">Needs Support</span>
+                      </div>
+                      <div className="text-3xl font-bold">
+                        {recentTests.length > 0
+                          ? Math.round((recentTests.filter(t => t.score < 60).length / recentTests.length) * 100)
+                          : 0}%
+                      </div>
+                      <p className="text-xs text-muted-foreground">Students needing attention</p>
+                      <Progress 
+                        value={recentTests.length > 0
+                          ? (recentTests.filter(t => t.score < 60).length / recentTests.length) * 100
+                          : 0} 
+                        className="h-2" 
+                      />
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
