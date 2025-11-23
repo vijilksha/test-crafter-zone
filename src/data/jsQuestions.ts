@@ -2932,5 +2932,1633 @@ console.log(extractUserData(response));`
         }
       }
     ]
+  },
+
+  // ========== HARD LEVEL QUESTIONS ==========
+  
+  // QUESTION 41: Advanced Array Chaining
+  {
+    id: 'js-hard-041',
+    title: 'E-commerce Analytics Pipeline',
+    scenario: 'Your e-commerce platform needs to analyze transaction data to identify top-performing products with specific criteria.',
+    difficulty: 'Hard',
+    topic: 'Advanced Array Methods (Chaining)',
+    type: 'code',
+    instructions: `Create a function called 'analyzeTransactions' that:
+1. Takes an array of transaction objects: {productId, productName, price, quantity, category, date}
+2. Filters transactions where total (price * quantity) > 100
+3. Groups by category, calculates total revenue per category
+4. Returns top 3 categories sorted by revenue (descending)
+5. Output format: [{category, revenue, transactionCount}]
+
+Example:
+const transactions = [
+  {productId: 1, productName: 'Laptop', price: 1000, quantity: 2, category: 'Electronics', date: '2024-01-15'},
+  {productId: 2, productName: 'Mouse', price: 25, quantity: 1, category: 'Electronics', date: '2024-01-16'}
+];
+analyzeTransactions(transactions) → [{category: 'Electronics', revenue: 2000, transactionCount: 1}]`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function analyzeTransactions(transactions) {
+  // Write your code using advanced array chaining
+  
+}
+
+// Test your function
+const transactions = [
+  {productId: 1, productName: 'Laptop', price: 1000, quantity: 2, category: 'Electronics', date: '2024-01-15'}
+];
+console.log(analyzeTransactions(transactions));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Filters transactions over 100',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return analyzeTransactions;');
+            const analyzeTransactions = testFunction();
+            const transactions = [
+              {productId: 1, productName: 'Item', price: 10, quantity: 5, category: 'A', date: '2024-01-15'},
+              {productId: 2, productName: 'Item2', price: 200, quantity: 1, category: 'B', date: '2024-01-15'}
+            ];
+            const result = analyzeTransactions(transactions);
+            return result.length === 1 && result[0].category === 'B';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Groups by category correctly',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return analyzeTransactions;');
+            const analyzeTransactions = testFunction();
+            const transactions = [
+              {productId: 1, productName: 'Item1', price: 100, quantity: 2, category: 'Electronics', date: '2024-01-15'},
+              {productId: 2, productName: 'Item2', price: 150, quantity: 1, category: 'Electronics', date: '2024-01-16'}
+            ];
+            const result = analyzeTransactions(transactions);
+            return result[0].revenue === 350 && result[0].transactionCount === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Returns top 3 categories only',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return analyzeTransactions;');
+            const analyzeTransactions = testFunction();
+            const transactions = [
+              {productId: 1, productName: 'Item1', price: 100, quantity: 2, category: 'A', date: '2024-01-15'},
+              {productId: 2, productName: 'Item2', price: 100, quantity: 3, category: 'B', date: '2024-01-15'},
+              {productId: 3, productName: 'Item3', price: 100, quantity: 4, category: 'C', date: '2024-01-15'},
+              {productId: 4, productName: 'Item4', price: 100, quantity: 5, category: 'D', date: '2024-01-15'}
+            ];
+            const result = analyzeTransactions(transactions);
+            return result.length === 3;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 42: Debounce Implementation
+  {
+    id: 'js-hard-042',
+    title: 'Search Input Debouncer',
+    scenario: 'You need to implement a debounce function to optimize search API calls when users type in a search box.',
+    difficulty: 'Hard',
+    topic: 'Closures, Higher-Order Functions',
+    type: 'code',
+    instructions: `Create a function called 'debounce' that:
+1. Takes a function and a delay in milliseconds
+2. Returns a debounced version of the function
+3. The debounced function delays execution until after delay ms have passed since last call
+4. Should maintain the correct 'this' context
+
+Example:
+const debouncedSearch = debounce((query) => console.log(query), 300);
+debouncedSearch('a'); debouncedSearch('ab'); debouncedSearch('abc');
+// Only logs 'abc' after 300ms`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function debounce(func, delay) {
+  // Write your code implementing debounce
+  
+}
+
+// Test your function
+const debouncedLog = debounce((msg) => console.log(msg), 100);
+debouncedLog('test');`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Delays function execution',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return debounce;');
+            const debounce = testFunction();
+            let called = false;
+            const debounced = debounce(() => { called = true; }, 50);
+            debounced();
+            if (called) return false; // Should not be called immediately
+            await new Promise(resolve => setTimeout(resolve, 60));
+            return called; // Should be called after delay
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Cancels previous calls',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return debounce;');
+            const debounce = testFunction();
+            let callCount = 0;
+            const debounced = debounce(() => { callCount++; }, 50);
+            debounced();
+            debounced();
+            debounced();
+            await new Promise(resolve => setTimeout(resolve, 60));
+            return callCount === 1; // Should only call once
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Passes arguments correctly',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return debounce;');
+            const debounce = testFunction();
+            let result = null;
+            const debounced = debounce((a, b) => { result = a + b; }, 50);
+            debounced(5, 10);
+            await new Promise(resolve => setTimeout(resolve, 60));
+            return result === 15;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 43: Deep Clone with Circular Reference
+  {
+    id: 'js-hard-043',
+    title: 'Deep Object Cloner',
+    scenario: 'You need to create a deep clone function that handles nested objects, arrays, and prevents infinite loops from circular references.',
+    difficulty: 'Hard',
+    topic: 'Objects, Recursion, WeakMap',
+    type: 'code',
+    instructions: `Create a function called 'deepClone' that:
+1. Takes an object and creates a deep copy
+2. Handles nested objects and arrays
+3. Prevents infinite loops from circular references
+4. Uses WeakMap to track visited objects
+
+Example:
+const original = {a: 1, b: {c: 2}};
+const cloned = deepClone(original);
+cloned.b.c = 3; // original.b.c remains 2`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function deepClone(obj, visited = new WeakMap()) {
+  // Write your code implementing deep clone
+  
+}
+
+// Test your function
+const obj = {a: 1, b: {c: 2}};
+console.log(deepClone(obj));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Creates independent copy',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return deepClone;');
+            const deepClone = testFunction();
+            const original = {a: 1, b: {c: 2}};
+            const cloned = deepClone(original);
+            cloned.b.c = 999;
+            return original.b.c === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Handles arrays',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return deepClone;');
+            const deepClone = testFunction();
+            const original: any = {arr: [1, 2, {x: 3}]};
+            const cloned = deepClone(original);
+            cloned.arr[2].x = 999;
+            return original.arr[2].x === 3;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Handles circular references',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return deepClone;');
+            const deepClone = testFunction();
+            const original: any = {a: 1};
+            original.self = original;
+            const cloned = deepClone(original);
+            return cloned.self === cloned && cloned !== original;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 44: Promise.all Implementation
+  {
+    id: 'js-hard-044',
+    title: 'Custom Promise.all',
+    scenario: 'You need to implement your own version of Promise.all to understand how it works internally.',
+    difficulty: 'Hard',
+    topic: 'Promises, Async Operations',
+    type: 'code',
+    instructions: `Create a function called 'promiseAll' that:
+1. Takes an array of promises
+2. Returns a promise that resolves when all input promises resolve
+3. Rejects immediately if any promise rejects
+4. Resolves with an array of results in the same order
+
+Example:
+promiseAll([Promise.resolve(1), Promise.resolve(2)])
+  .then(results => console.log(results)); // [1, 2]`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function promiseAll(promises) {
+  // Write your code implementing Promise.all
+  
+}
+
+// Test your function
+promiseAll([Promise.resolve(1), Promise.resolve(2)])
+  .then(results => console.log(results));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Resolves with all results',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return promiseAll;');
+            const promiseAll = testFunction();
+            const promises = [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)];
+            const result = await promiseAll(promises);
+            return Array.isArray(result) && result.length === 3 && result[0] === 1;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Maintains order of results',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return promiseAll;');
+            const promiseAll = testFunction();
+            const promises = [
+              new Promise(resolve => setTimeout(() => resolve(1), 100)),
+              Promise.resolve(2)
+            ];
+            const result = await promiseAll(promises);
+            return result[0] === 1 && result[1] === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Rejects if any promise rejects',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return promiseAll;');
+            const promiseAll = testFunction();
+            const promises = [Promise.resolve(1), Promise.reject('error')];
+            await promiseAll(promises);
+            return false; // Should have rejected
+          } catch (error) {
+            return error === 'error';
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 45: Memoization Cache
+  {
+    id: 'js-hard-045',
+    title: 'Function Memoizer',
+    scenario: 'You need to create a memoization function to cache expensive function results and improve performance.',
+    difficulty: 'Hard',
+    topic: 'Closures, Higher-Order Functions, Caching',
+    type: 'code',
+    instructions: `Create a function called 'memoize' that:
+1. Takes a function as input
+2. Returns a memoized version that caches results
+3. Uses function arguments as cache keys
+4. Returns cached result if same arguments are used again
+
+Example:
+const expensiveFunc = (n) => { console.log('Computing...'); return n * 2; };
+const memoized = memoize(expensiveFunc);
+memoized(5); // Logs 'Computing...', returns 10
+memoized(5); // Returns 10 from cache, no log`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function memoize(func) {
+  // Write your code implementing memoization
+  
+}
+
+// Test your function
+const expensive = (n) => n * 2;
+const memoized = memoize(expensive);
+console.log(memoized(5));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Returns correct result',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return memoize;');
+            const memoize = testFunction();
+            const func = (n) => n * 2;
+            const memoized = memoize(func);
+            return memoized(5) === 10;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Caches results',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return memoize;');
+            const memoize = testFunction();
+            let callCount = 0;
+            const func = (n) => { callCount++; return n * 2; };
+            const memoized = memoize(func);
+            memoized(5);
+            memoized(5);
+            memoized(5);
+            return callCount === 1; // Should only compute once
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Handles different arguments',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return memoize;');
+            const memoize = testFunction();
+            let callCount = 0;
+            const func = (n) => { callCount++; return n * 2; };
+            const memoized = memoize(func);
+            memoized(5);
+            memoized(10);
+            return callCount === 2; // Should compute for each unique argument
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 46: Custom Event Emitter
+  {
+    id: 'js-hard-046',
+    title: 'Event Emitter Class',
+    scenario: 'You need to implement a custom event emitter for a pub-sub pattern in your application.',
+    difficulty: 'Hard',
+    topic: 'ES6 Classes, Design Patterns',
+    type: 'code',
+    instructions: `Create a class called 'EventEmitter' that:
+1. Has methods: on(event, callback), emit(event, data), off(event, callback)
+2. on() registers a callback for an event
+3. emit() triggers all callbacks for an event
+4. off() removes a specific callback
+
+Example:
+const emitter = new EventEmitter();
+const handler = (data) => console.log(data);
+emitter.on('test', handler);
+emitter.emit('test', 'Hello'); // Logs 'Hello'
+emitter.off('test', handler);`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `class EventEmitter {
+  // Write your EventEmitter implementation
+  
+}
+
+// Test your class
+const emitter = new EventEmitter();
+emitter.on('test', (data) => console.log(data));
+emitter.emit('test', 'Hello');`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Registers and triggers events',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return EventEmitter;');
+            const EventEmitter = testFunction();
+            const emitter = new EventEmitter();
+            let result = null;
+            emitter.on('test', (data) => { result = data; });
+            emitter.emit('test', 'Hello');
+            return result === 'Hello';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Supports multiple listeners',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return EventEmitter;');
+            const EventEmitter = testFunction();
+            const emitter = new EventEmitter();
+            let count = 0;
+            emitter.on('test', () => { count++; });
+            emitter.on('test', () => { count++; });
+            emitter.emit('test');
+            return count === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Removes listeners correctly',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return EventEmitter;');
+            const EventEmitter = testFunction();
+            const emitter = new EventEmitter();
+            let count = 0;
+            const handler = () => { count++; };
+            emitter.on('test', handler);
+            emitter.off('test', handler);
+            emitter.emit('test');
+            return count === 0;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 47: Flatten Nested Array
+  {
+    id: 'js-hard-047',
+    title: 'Recursive Array Flattener',
+    scenario: 'You need to flatten deeply nested arrays of any depth for data processing.',
+    difficulty: 'Hard',
+    topic: 'Recursion, Array Methods',
+    type: 'code',
+    instructions: `Create a function called 'flattenArray' that:
+1. Takes a nested array of any depth
+2. Returns a flattened array with all elements at the same level
+3. Uses recursion to handle arbitrary nesting
+4. Preserves element order
+
+Example:
+flattenArray([1, [2, [3, [4]], 5]]) → [1, 2, 3, 4, 5]`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function flattenArray(arr) {
+  // Write your code using recursion
+  
+}
+
+// Test your function
+console.log(flattenArray([1, [2, [3, 4]]]));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Flattens single level',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return flattenArray;');
+            const flattenArray = testFunction();
+            const result = flattenArray([1, [2, 3], 4]);
+            return JSON.stringify(result) === JSON.stringify([1, 2, 3, 4]);
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Flattens deep nesting',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return flattenArray;');
+            const flattenArray = testFunction();
+            const result = flattenArray([1, [2, [3, [4]]]]);
+            return JSON.stringify(result) === JSON.stringify([1, 2, 3, 4]);
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Handles empty arrays',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return flattenArray;');
+            const flattenArray = testFunction();
+            const result = flattenArray([1, [], [2, []], 3]);
+            return JSON.stringify(result) === JSON.stringify([1, 2, 3]);
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 48: Throttle Implementation
+  {
+    id: 'js-hard-048',
+    title: 'Scroll Event Throttler',
+    scenario: 'You need to implement a throttle function to limit how often a scroll event handler executes.',
+    difficulty: 'Hard',
+    topic: 'Closures, Timing Functions',
+    type: 'code',
+    instructions: `Create a function called 'throttle' that:
+1. Takes a function and a delay in milliseconds
+2. Returns a throttled version that executes at most once per delay period
+3. The first call executes immediately
+4. Subsequent calls within delay period are ignored
+
+Example:
+const throttled = throttle(() => console.log('Scrolled'), 1000);
+// Calling rapidly will only log once per second`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function throttle(func, delay) {
+  // Write your code implementing throttle
+  
+}
+
+// Test your function
+const throttled = throttle(() => console.log('Called'), 100);
+throttled();`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Executes immediately on first call',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return throttle;');
+            const throttle = testFunction();
+            let called = false;
+            const throttled = throttle(() => { called = true; }, 1000);
+            throttled();
+            return called;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Limits execution frequency',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return throttle;');
+            const throttle = testFunction();
+            let callCount = 0;
+            const throttled = throttle(() => { callCount++; }, 100);
+            throttled();
+            throttled();
+            throttled();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            return callCount === 1;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Allows execution after delay',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return throttle;');
+            const throttle = testFunction();
+            let callCount = 0;
+            const throttled = throttle(() => { callCount++; }, 50);
+            throttled();
+            await new Promise(resolve => setTimeout(resolve, 60));
+            throttled();
+            return callCount === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 49: LRU Cache
+  {
+    id: 'js-hard-049',
+    title: 'LRU Cache Implementation',
+    scenario: 'You need to implement a Least Recently Used (LRU) cache for optimizing data access in your application.',
+    difficulty: 'Hard',
+    topic: 'Data Structures, ES6 Classes',
+    type: 'code',
+    instructions: `Create a class called 'LRUCache' that:
+1. Constructor takes capacity (max number of items)
+2. Has methods: get(key), put(key, value)
+3. get() returns value or -1 if not found, marks item as recently used
+4. put() adds/updates item, evicts least recently used if at capacity
+
+Example:
+const cache = new LRUCache(2);
+cache.put('a', 1); cache.put('b', 2);
+cache.get('a'); // Returns 1
+cache.put('c', 3); // Evicts 'b'`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `class LRUCache {
+  // Write your LRU Cache implementation
+  
+}
+
+// Test your class
+const cache = new LRUCache(2);
+cache.put('a', 1);
+console.log(cache.get('a'));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Stores and retrieves values',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return LRUCache;');
+            const LRUCache = testFunction();
+            const cache = new LRUCache(2);
+            cache.put('a', 1);
+            return cache.get('a') === 1;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Returns -1 for missing keys',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return LRUCache;');
+            const LRUCache = testFunction();
+            const cache = new LRUCache(2);
+            return cache.get('nonexistent') === -1;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Evicts least recently used',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return LRUCache;');
+            const LRUCache = testFunction();
+            const cache = new LRUCache(2);
+            cache.put('a', 1);
+            cache.put('b', 2);
+            cache.put('c', 3); // Should evict 'a'
+            return cache.get('a') === -1 && cache.get('b') === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 50: Curry Function
+  {
+    id: 'js-hard-050',
+    title: 'Function Currying',
+    scenario: 'You need to implement a curry function for creating specialized functions from general ones.',
+    difficulty: 'Hard',
+    topic: 'Functional Programming, Closures',
+    type: 'code',
+    instructions: `Create a function called 'curry' that:
+1. Takes a function as input
+2. Returns a curried version that can be called with partial arguments
+3. Continues returning functions until all arguments are provided
+4. Then executes the original function
+
+Example:
+const add = (a, b, c) => a + b + c;
+const curriedAdd = curry(add);
+curriedAdd(1)(2)(3) → 6
+curriedAdd(1, 2)(3) → 6`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function curry(func) {
+  // Write your code implementing curry
+  
+}
+
+// Test your function
+const add = (a, b, c) => a + b + c;
+const curriedAdd = curry(add);
+console.log(curriedAdd(1)(2)(3));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Handles single argument per call',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return curry;');
+            const curry = testFunction();
+            const add = (a, b, c) => a + b + c;
+            const curriedAdd = curry(add);
+            return curriedAdd(1)(2)(3) === 6;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Handles multiple arguments',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return curry;');
+            const curry = testFunction();
+            const add = (a, b, c) => a + b + c;
+            const curriedAdd = curry(add);
+            return curriedAdd(1, 2)(3) === 6;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Creates partial applications',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return curry;');
+            const curry = testFunction();
+            const multiply = (a, b, c) => a * b * c;
+            const curriedMultiply = curry(multiply);
+            const multiplyBy2 = curriedMultiply(2);
+            return multiplyBy2(3)(4) === 24;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 51: Binary Search Tree
+  {
+    id: 'js-hard-051',
+    title: 'Binary Search Tree Implementation',
+    scenario: 'You need to implement a basic Binary Search Tree for efficient data searching.',
+    difficulty: 'Hard',
+    topic: 'Data Structures, ES6 Classes',
+    type: 'code',
+    instructions: `Create a class called 'BST' that:
+1. Has methods: insert(value), search(value), getMin(), getMax()
+2. insert() adds values maintaining BST property
+3. search() returns true if value exists, false otherwise
+4. getMin() returns minimum value, getMax() returns maximum value
+
+Example:
+const bst = new BST();
+bst.insert(5); bst.insert(3); bst.insert(7);
+bst.search(3) → true
+bst.getMin() → 3`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `class BST {
+  // Write your BST implementation
+  
+}
+
+// Test your class
+const bst = new BST();
+bst.insert(5);
+console.log(bst.search(5));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Inserts and finds values',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return BST;');
+            const BST = testFunction();
+            const bst = new BST();
+            bst.insert(5);
+            bst.insert(3);
+            bst.insert(7);
+            return bst.search(3) === true && bst.search(7) === true;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Returns false for missing values',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return BST;');
+            const BST = testFunction();
+            const bst = new BST();
+            bst.insert(5);
+            return bst.search(10) === false;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Finds min and max correctly',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return BST;');
+            const BST = testFunction();
+            const bst = new BST();
+            bst.insert(5);
+            bst.insert(3);
+            bst.insert(7);
+            bst.insert(1);
+            bst.insert(9);
+            return bst.getMin() === 1 && bst.getMax() === 9;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 52: Async Retry Logic
+  {
+    id: 'js-hard-052',
+    title: 'Async Function with Retry',
+    scenario: 'You need to implement a retry mechanism for unreliable API calls that might fail intermittently.',
+    difficulty: 'Hard',
+    topic: 'Async/Await, Error Handling',
+    type: 'code',
+    instructions: `Create a function called 'retryAsync' that:
+1. Takes an async function and maxRetries count
+2. Executes the function, retrying on failure up to maxRetries times
+3. Returns result if successful
+4. Throws error if all retries fail
+
+Example:
+let attempts = 0;
+const unreliableFunc = async () => {
+  attempts++;
+  if (attempts < 3) throw new Error('Failed');
+  return 'Success';
+};
+await retryAsync(unreliableFunc, 3) → 'Success'`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `async function retryAsync(asyncFunc, maxRetries) {
+  // Write your code implementing retry logic
+  
+}
+
+// Test your function
+let attempts = 0;
+const testFunc = async () => {
+  attempts++;
+  if (attempts < 2) throw new Error('Failed');
+  return 'Success';
+};
+retryAsync(testFunc, 3).then(result => console.log(result));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Returns result on success',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return retryAsync;');
+            const retryAsync = testFunction();
+            const successFunc = async () => 'Success';
+            const result = await retryAsync(successFunc, 3);
+            return result === 'Success';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Retries on failure',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return retryAsync;');
+            const retryAsync = testFunction();
+            let attempts = 0;
+            const failThenSucceed = async () => {
+              attempts++;
+              if (attempts < 3) throw new Error('Failed');
+              return 'Success';
+            };
+            await retryAsync(failThenSucceed, 3);
+            return attempts === 3;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Throws after max retries',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return retryAsync;');
+            const retryAsync = testFunction();
+            const alwaysFail = async () => { throw new Error('Always fails'); };
+            await retryAsync(alwaysFail, 2);
+            return false; // Should have thrown
+          } catch (error) {
+            return true;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 53: Object Composition
+  {
+    id: 'js-hard-053',
+    title: 'Object Composer',
+    scenario: 'You need to implement object composition to combine multiple behavior objects into one.',
+    difficulty: 'Hard',
+    topic: 'Object Composition, Spread Operator',
+    type: 'code',
+    instructions: `Create a function called 'compose' that:
+1. Takes multiple objects as arguments
+2. Returns a new object with all properties and methods combined
+3. Later arguments override earlier ones for conflicting properties
+4. Methods maintain their 'this' context
+
+Example:
+const canEat = {eat: () => 'eating'};
+const canWalk = {walk: () => 'walking'};
+const person = compose(canEat, canWalk, {name: 'John'});
+person.eat() → 'eating'`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function compose(...objects) {
+  // Write your code implementing object composition
+  
+}
+
+// Test your function
+const obj1 = {a: 1};
+const obj2 = {b: 2};
+console.log(compose(obj1, obj2));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Combines all properties',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return compose;');
+            const compose = testFunction();
+            const obj1 = {a: 1};
+            const obj2 = {b: 2};
+            const result = compose(obj1, obj2);
+            return result.a === 1 && result.b === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Later objects override earlier',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return compose;');
+            const compose = testFunction();
+            const obj1 = {a: 1};
+            const obj2 = {a: 2};
+            const result = compose(obj1, obj2);
+            return result.a === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Preserves methods',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return compose;');
+            const compose = testFunction();
+            const obj1 = {greet: () => 'Hello'};
+            const result = compose(obj1);
+            return typeof result.greet === 'function' && result.greet() === 'Hello';
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 54: Generator Function
+  {
+    id: 'js-hard-054',
+    title: 'ID Generator with Generators',
+    scenario: 'You need to create a unique ID generator using generator functions.',
+    difficulty: 'Hard',
+    topic: 'Generators, Iterators',
+    type: 'code',
+    instructions: `Create a generator function called 'idGenerator' that:
+1. Yields sequential IDs starting from a given number
+2. Can optionally take a prefix string
+3. Generates IDs like: prefix-1, prefix-2, prefix-3, etc.
+4. Uses generator function syntax (function*)
+
+Example:
+const gen = idGenerator('user', 100);
+gen.next().value → 'user-100'
+gen.next().value → 'user-101'`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function* idGenerator(prefix, start) {
+  // Write your generator function
+  
+}
+
+// Test your function
+const gen = idGenerator('user', 1);
+console.log(gen.next().value);
+console.log(gen.next().value);`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Generates sequential IDs',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return idGenerator;');
+            const idGenerator = testFunction();
+            const gen = idGenerator('test', 1);
+            const id1 = gen.next().value;
+            const id2 = gen.next().value;
+            return id1 === 'test-1' && id2 === 'test-2';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Respects starting number',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return idGenerator;');
+            const idGenerator = testFunction();
+            const gen = idGenerator('user', 100);
+            return gen.next().value === 'user-100';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Works with different prefixes',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return idGenerator;');
+            const idGenerator = testFunction();
+            const gen = idGenerator('order', 1);
+            return gen.next().value === 'order-1';
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 55: Proxy Object
+  {
+    id: 'js-hard-055',
+    title: 'Validation Proxy',
+    scenario: 'You need to create a proxy object that validates property assignments.',
+    difficulty: 'Hard',
+    topic: 'Proxy, Meta-programming',
+    type: 'code',
+    instructions: `Create a function called 'createValidatedObject' that:
+1. Takes a schema object defining validation rules
+2. Returns a proxy that validates property assignments
+3. Throws error if value doesn't match schema type
+4. Schema format: {propertyName: 'type'}
+
+Example:
+const schema = {age: 'number', name: 'string'};
+const obj = createValidatedObject(schema);
+obj.age = 25; // OK
+obj.age = 'invalid'; // Throws error`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function createValidatedObject(schema) {
+  // Write your code using Proxy
+  
+}
+
+// Test your function
+const schema = {age: 'number'};
+const obj = createValidatedObject(schema);
+obj.age = 25;
+console.log(obj.age);`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Allows valid assignments',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return createValidatedObject;');
+            const createValidatedObject = testFunction();
+            const schema = {age: 'number'};
+            const obj = createValidatedObject(schema);
+            obj.age = 25;
+            return obj.age === 25;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Rejects invalid types',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return createValidatedObject;');
+            const createValidatedObject = testFunction();
+            const schema = {age: 'number'};
+            const obj = createValidatedObject(schema);
+            try {
+              obj.age = 'invalid';
+              return false; // Should have thrown
+            } catch (e) {
+              return true;
+            }
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Validates string types',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return createValidatedObject;');
+            const createValidatedObject = testFunction();
+            const schema = {name: 'string'};
+            const obj = createValidatedObject(schema);
+            obj.name = 'John';
+            return obj.name === 'John';
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 56: Async Queue
+  {
+    id: 'js-hard-056',
+    title: 'Async Task Queue',
+    scenario: 'You need to implement a queue that processes async tasks sequentially to prevent race conditions.',
+    difficulty: 'Hard',
+    topic: 'Async/Await, Queues',
+    type: 'code',
+    instructions: `Create a class called 'AsyncQueue' that:
+1. Has method: enqueue(asyncFunction)
+2. Processes tasks one at a time in order
+3. Each task waits for the previous one to complete
+4. Returns a promise that resolves when the task completes
+
+Example:
+const queue = new AsyncQueue();
+queue.enqueue(async () => { await delay(100); return 'First'; });
+queue.enqueue(async () => 'Second'); // Waits for first`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `class AsyncQueue {
+  // Write your AsyncQueue implementation
+  
+}
+
+// Test your class
+const queue = new AsyncQueue();
+queue.enqueue(async () => 'Task 1').then(console.log);`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Processes tasks in order',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return AsyncQueue;');
+            const AsyncQueue = testFunction();
+            const queue = new AsyncQueue();
+            const results = [];
+            await Promise.all([
+              queue.enqueue(async () => { results.push(1); return 1; }),
+              queue.enqueue(async () => { results.push(2); return 2; })
+            ]);
+            return results[0] === 1 && results[1] === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Waits for previous task',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return AsyncQueue;');
+            const AsyncQueue = testFunction();
+            const queue = new AsyncQueue();
+            let order = [];
+            queue.enqueue(async () => {
+              await new Promise(resolve => setTimeout(resolve, 50));
+              order.push(1);
+            });
+            queue.enqueue(async () => { order.push(2); });
+            await new Promise(resolve => setTimeout(resolve, 100));
+            return order[0] === 1 && order[1] === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Returns task results',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return AsyncQueue;');
+            const AsyncQueue = testFunction();
+            const queue = new AsyncQueue();
+            const result = await queue.enqueue(async () => 'Done');
+            return result === 'Done';
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 57: Prototype Chain
+  {
+    id: 'js-hard-057',
+    title: 'Custom Inheritance System',
+    scenario: 'You need to implement a custom inheritance system using prototypes.',
+    difficulty: 'Hard',
+    topic: 'Prototypes, Inheritance',
+    type: 'code',
+    instructions: `Create a function called 'inherit' that:
+1. Takes a parent constructor and child constructor
+2. Sets up proper prototype chain
+3. Child instances can access parent methods
+4. Constructor functions work correctly
+
+Example:
+function Animal(name) { this.name = name; }
+Animal.prototype.speak = function() { return this.name; };
+function Dog(name, breed) { Animal.call(this, name); this.breed = breed; }
+inherit(Animal, Dog);
+const dog = new Dog('Rex', 'Labrador');
+dog.speak() → 'Rex'`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function inherit(Parent, Child) {
+  // Write your code setting up inheritance
+  
+}
+
+// Test your function
+function Animal(name) { this.name = name; }
+Animal.prototype.speak = function() { return this.name; };
+function Dog(name) { Animal.call(this, name); }
+inherit(Animal, Dog);
+const dog = new Dog('Rex');
+console.log(dog.speak());`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Child inherits parent methods',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return inherit;');
+            const inherit = testFunction();
+            function Animal(name) { this.name = name; }
+            Animal.prototype.speak = function() { return this.name; };
+            function Dog(name) { Animal.call(this, name); }
+            inherit(Animal, Dog);
+            const dog = new Dog('Rex');
+            return dog.speak() === 'Rex';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Constructor works correctly',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return inherit;');
+            const inherit = testFunction();
+            function Animal(name) { this.name = name; }
+            function Dog(name) { Animal.call(this, name); }
+            inherit(Animal, Dog);
+            const dog = new Dog('Buddy');
+            return dog.name === 'Buddy';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: instanceof works correctly',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return inherit;');
+            const inherit = testFunction();
+            function Animal() {}
+            function Dog() {}
+            inherit(Animal, Dog);
+            const dog = new Dog();
+            return dog instanceof Dog && dog instanceof Animal;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 58: WeakMap for Private Data
+  {
+    id: 'js-hard-058',
+    title: 'Private Properties with WeakMap',
+    scenario: 'You need to implement truly private properties in a class using WeakMap.',
+    difficulty: 'Hard',
+    topic: 'WeakMap, Encapsulation',
+    type: 'code',
+    instructions: `Create a class called 'SecureUser' that:
+1. Uses WeakMap to store private password
+2. Has public methods: setPassword(pw), verifyPassword(pw)
+3. Password cannot be accessed directly
+4. verifyPassword returns true/false
+
+Example:
+const user = new SecureUser();
+user.setPassword('secret123');
+user.verifyPassword('secret123') → true
+user.password → undefined`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `const privateData = new WeakMap();
+
+class SecureUser {
+  // Write your SecureUser implementation
+  
+}
+
+// Test your class
+const user = new SecureUser();
+user.setPassword('test');
+console.log(user.verifyPassword('test'));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Sets and verifies password',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return SecureUser;');
+            const SecureUser = testFunction();
+            const user = new SecureUser();
+            user.setPassword('test123');
+            return user.verifyPassword('test123') === true;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Rejects wrong password',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return SecureUser;');
+            const SecureUser = testFunction();
+            const user = new SecureUser();
+            user.setPassword('correct');
+            return user.verifyPassword('wrong') === false;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Password is private',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return SecureUser;');
+            const SecureUser = testFunction();
+            const user = new SecureUser();
+            user.setPassword('secret');
+            return user.password === undefined;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 59: Functional Pipe
+  {
+    id: 'js-hard-059',
+    title: 'Function Pipeline',
+    scenario: 'You need to implement a pipe function that chains multiple functions together for data transformation.',
+    difficulty: 'Hard',
+    topic: 'Functional Programming, Composition',
+    type: 'code',
+    instructions: `Create a function called 'pipe' that:
+1. Takes multiple functions as arguments
+2. Returns a new function that applies them left-to-right
+3. Each function's output becomes the next function's input
+4. The final result is returned
+
+Example:
+const addOne = x => x + 1;
+const double = x => x * 2;
+const pipeline = pipe(addOne, double);
+pipeline(5) → 12 // (5 + 1) * 2`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function pipe(...functions) {
+  // Write your code implementing pipe
+  
+}
+
+// Test your function
+const addOne = x => x + 1;
+const double = x => x * 2;
+const pipeline = pipe(addOne, double);
+console.log(pipeline(5));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Chains two functions',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return pipe;');
+            const pipe = testFunction();
+            const addOne = x => x + 1;
+            const double = x => x * 2;
+            const pipeline = pipe(addOne, double);
+            return pipeline(5) === 12;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Chains multiple functions',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return pipe;');
+            const pipe = testFunction();
+            const add2 = x => x + 2;
+            const multiply3 = x => x * 3;
+            const subtract1 = x => x - 1;
+            const pipeline = pipe(add2, multiply3, subtract1);
+            return pipeline(5) === 20; // (5 + 2) * 3 - 1 = 20
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Works with single function',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return pipe;');
+            const pipe = testFunction();
+            const identity = x => x;
+            const pipeline = pipe(identity);
+            return pipeline(42) === 42;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 60: Symbol for Unique Properties
+  {
+    id: 'js-hard-060',
+    title: 'Unique Object Properties',
+    scenario: 'You need to use Symbols to create truly unique property keys that won\'t conflict.',
+    difficulty: 'Hard',
+    topic: 'Symbols, Meta-programming',
+    type: 'code',
+    instructions: `Create a function called 'createUniqueObject' that:
+1. Returns an object with a unique private method using Symbol
+2. The method can only be called using the returned symbol key
+3. Regular property enumeration doesn't show the symbol
+4. Return object format: {obj: {...}, key: Symbol}
+
+Example:
+const {obj, key} = createUniqueObject();
+obj[key]() → 'secret'
+Object.keys(obj) → [] // Symbol not enumerable`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function createUniqueObject() {
+  // Write your code using Symbols
+  
+}
+
+// Test your function
+const {obj, key} = createUniqueObject();
+console.log(obj[key]());`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Creates object with symbol property',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return createUniqueObject;');
+            const createUniqueObject = testFunction();
+            const {obj, key} = createUniqueObject();
+            return typeof key === 'symbol' && typeof obj[key] === 'function';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Symbol property not enumerable',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return createUniqueObject;');
+            const createUniqueObject = testFunction();
+            const {obj} = createUniqueObject();
+            return Object.keys(obj).length === 0;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Method is callable',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return createUniqueObject;');
+            const createUniqueObject = testFunction();
+            const {obj, key} = createUniqueObject();
+            const result = obj[key]();
+            return typeof result === 'string' && result.length > 0;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
   }
 ];
