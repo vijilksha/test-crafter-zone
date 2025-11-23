@@ -1450,7 +1450,7 @@ findMax([10]) → 10`,
   {
     id: 'js-medium-021',
     title: 'Shopping Cart Total Calculator',
-    scenario: 'You are building an e-commerce application that needs to calculate the total price of items in a shopping cart including tax.',
+    scenario: 'Your e-commerce platform shows customers a shopping cart with multiple items. Each item has a price and quantity. The finance team reports that customers are confused because the displayed subtotal doesn\'t match their final invoice - they forgot to include sales tax! The checkout system needs to show the accurate final price including the applicable tax rate before customers complete their purchase.',
     difficulty: 'Medium',
     topic: 'Array Methods (reduce)',
     type: 'code',
@@ -1522,7 +1522,7 @@ console.log(calculateCartTotal(cart, 0.1));`
   {
     id: 'js-medium-022',
     title: 'Active User Filter',
-    scenario: 'Your social media platform needs to filter and display only active users who have logged in within the last 30 days.',
+    scenario: 'Your social media platform\'s marketing team wants to send promotional emails only to engaged users. They\'ve noticed that sending emails to inactive accounts hurts their sender reputation. They need a list of users who have actually been active on the platform recently - specifically, those who logged in within the last 30 days. The list should show the most recently active users first to prioritize high-engagement accounts.',
     difficulty: 'Medium',
     topic: 'Array Methods (filter)',
     type: 'code',
@@ -1607,7 +1607,7 @@ console.log(getActiveUsers(users, '2024-01-20'));`
   {
     id: 'js-medium-023',
     title: 'Form Field Validator',
-    scenario: 'You need to validate a user registration form to ensure all required fields meet specific criteria.',
+    scenario: 'Users keep submitting your registration form with invalid data - emails without @ symbols, weak passwords, underage users checking the age checkbox, and people not accepting the terms of service. Customer support is overwhelmed with account creation issues. Before submitting data to the server, you need to catch these problems on the client side and show users exactly what\'s wrong with their input.',
     difficulty: 'Medium',
     topic: 'Array Methods (every, some)',
     type: 'code',
@@ -1685,7 +1685,7 @@ console.log(validateForm(form));`
   {
     id: 'js-medium-024',
     title: 'User Data Transformer',
-    scenario: 'Your API returns user data in one format, but your frontend needs it in a different structure.',
+    scenario: 'Your backend API was built by a different team and returns user data as separate firstName, lastName, email, age, and city fields. However, your frontend components expect a completely different structure: fullName as a combined string, email nested inside a contact object, city renamed to location, and a boolean flag indicating if the user is an adult. Rather than rewriting the entire API, you need to transform the data after receiving it.',
     difficulty: 'Medium',
     topic: 'Array Methods (map), Object Destructuring',
     type: 'code',
@@ -1760,7 +1760,7 @@ console.log(transformUsers(users));`
   {
     id: 'js-medium-025',
     title: 'Product Inventory Manager',
-    scenario: 'You are managing a warehouse inventory system that needs to track product stock levels.',
+    scenario: 'Your warehouse manager is frustrated because products keep selling out before they can reorder. The inventory system stores product quantities in an object, but there\'s no way to quickly identify which products are running low. The manager needs an automated alert system that identifies products below a certain stock threshold so they can place orders before items go out of stock.',
     difficulty: 'Medium',
     topic: 'Object Methods, Object.keys',
     type: 'code',
@@ -1833,7 +1833,7 @@ console.log(getLowStock(inventory, 10));`
   {
     id: 'js-medium-026',
     title: 'Bank Account Class',
-    scenario: 'You need to create a simple banking system that tracks account balances and transactions.',
+    scenario: 'A fintech startup is building a basic banking simulator for financial literacy training. Students need to practice managing money by making deposits and withdrawals. The simulation must prevent overdrafts - students cannot withdraw more money than they have in their account. Each student account has a unique account number and starting balance, and should be able to check their current balance at any time.',
     difficulty: 'Medium',
     topic: 'ES6 Classes',
     type: 'code',
@@ -1909,7 +1909,7 @@ console.log(account.withdraw(30));`
   {
     id: 'js-medium-027',
     title: 'Counter with Closure',
-    scenario: 'You need to create a private counter that can only be modified through specific methods.',
+    scenario: 'A web analytics dashboard needs to track button clicks, but developers keep accidentally resetting the count by directly modifying the counter variable. The count is being corrupted because different parts of the application can access and change it. You need to protect the counter so it can only be changed through controlled operations - incrementing, decrementing, and reading the value - while keeping the actual count value hidden and safe from direct manipulation.',
     difficulty: 'Medium',
     topic: 'Closures',
     type: 'code',
@@ -1991,7 +1991,7 @@ console.log(counter.getValue());`
   {
     id: 'js-medium-028',
     title: 'Safe Division Function',
-    scenario: 'You need to create a division function that handles errors gracefully.',
+    scenario: 'Your calculator application keeps crashing when users try to divide by zero or enter invalid inputs like text instead of numbers. The error messages are confusing technical jargon that scares users away. Instead of crashing, the calculator should catch these problems and show friendly, understandable error messages. When the calculation works, it should display results rounded to 2 decimal places for readability.',
     difficulty: 'Medium',
     topic: 'Error Handling, Try-Catch',
     type: 'code',
@@ -2062,7 +2062,7 @@ console.log(safeDivide(10, 0));`
   {
     id: 'js-medium-029',
     title: 'Title Case Converter',
-    scenario: 'You need to format article titles by capitalizing the first letter of each word except small words.',
+    scenario: 'Your content management system receives article titles in all lowercase from writers. The published articles look unprofessional because titles aren\'t properly capitalized. Marketing insists that titles should follow proper title case formatting where most words are capitalized, but small connecting words like "a", "an", "the", "in", "on", and "at" should remain lowercase unless they\'re the first word of the title.',
     difficulty: 'Medium',
     topic: 'String Methods, Template Literals',
     type: 'code',
@@ -2131,7 +2131,7 @@ console.log(toTitleCase("the quick brown fox"));`
   {
     id: 'js-medium-030',
     title: 'Email Template Generator',
-    scenario: 'You need to generate personalized email templates for customer notifications.',
+    scenario: 'Your e-commerce customer service team manually writes order confirmation emails, which is time-consuming and leads to inconsistent messaging. Sometimes they forget to include the order number or total amount. You need to automate this process by generating standardized, personalized emails that include the customer\'s name, their specific order number, the number of items they purchased, and the total amount they paid.',
     difficulty: 'Medium',
     topic: 'Template Literals, String Methods',
     type: 'code',
@@ -2204,7 +2204,7 @@ console.log(generateEmail(order));`
   {
     id: 'js-medium-031',
     title: 'Object Merger with Defaults',
-    scenario: 'You need to merge user preferences with default settings, with user preferences taking priority.',
+    scenario: 'Your application has default settings for theme, notifications, and language preferences. When users customize their preferences, they only change a few settings - not all of them. However, the settings panel breaks when trying to save because it expects all settings to be present. You need to merge the user\'s custom preferences with the default settings, ensuring that user choices override defaults while keeping all the default values they didn\'t customize.',
     difficulty: 'Medium',
     topic: 'Spread Operator, Objects',
     type: 'code',
@@ -2282,7 +2282,7 @@ console.log(mergeSettings(defaults, user));`
   {
     id: 'js-medium-032',
     title: 'Array Combiner',
-    scenario: 'You need to combine multiple arrays of tags from different sources without duplicates.',
+    scenario: 'Your blog platform pulls article tags from multiple sources: the author\'s tags, automatically detected keywords, and editor suggestions. The problem is that the same tags appear multiple times across these sources, and the tag cloud looks messy with duplicates. Additionally, the tags are in random order. You need to combine all tag sources, eliminate duplicates, and present them in alphabetical order for a clean, professional appearance.',
     difficulty: 'Medium',
     topic: 'Spread Operator, Arrays, Set',
     type: 'code',
@@ -2351,7 +2351,7 @@ console.log(combineUniqueTags(['js', 'react'], ['js', 'node']));`
   {
     id: 'js-medium-033',
     title: 'API Request Builder',
-    scenario: 'You need to create an API request function with sensible defaults for common parameters.',
+    scenario: 'Your development team is building a utility for making API requests, but they keep forgetting to specify the HTTP method, headers, and timeout values. This leads to inconsistent API calls across the codebase. Most requests are simple GET requests with empty headers and a 5-second timeout. You need to create a request builder that assumes these common defaults while still allowing developers to override them when needed for special cases like POST requests or custom authentication headers.',
     difficulty: 'Medium',
     topic: 'Default Parameters, Objects',
     type: 'code',
@@ -2421,7 +2421,7 @@ console.log(buildRequest('/api/users', 'POST'));`
   {
     id: 'js-medium-034',
     title: 'Statistics Calculator',
-    scenario: 'You need to calculate basic statistics for a dataset of test scores.',
+    scenario: 'Teachers are manually calculating class statistics for student test scores using a calculator, which is time-consuming and error-prone. They need to know the average score, the median (middle value), and identify both the highest and lowest scores in the class. The school wants an automated tool that can instantly provide these statistics from a list of test scores to help teachers quickly understand class performance and identify students who may need extra help.',
     difficulty: 'Medium',
     topic: 'Math Operations, Array Methods',
     type: 'code',
@@ -2490,7 +2490,7 @@ console.log(calculateStats([10, 20, 30, 40, 50]));`
   {
     id: 'js-medium-035',
     title: 'Dynamic List Creator',
-    scenario: 'You need to dynamically create a list of items from an array and add them to the page.',
+    scenario: 'Your recipe website receives ingredient lists as simple arrays from a database, but they display as plain text on the page, making recipes hard to read. Users complained that they lose their place while cooking because ingredients aren\'t visually separated. The design team wants ingredients displayed as a proper bulleted list, but the data comes in as an array after the page loads, so you can\'t just write static HTML - you need to build the list dynamically from the array data.',
     difficulty: 'Medium',
     topic: 'DOM Manipulation, createElement',
     type: 'code',
@@ -2565,7 +2565,7 @@ createList(['Apple', 'Banana', 'Cherry'], 'output');`
   {
     id: 'js-medium-036',
     title: 'Click Counter',
-    scenario: 'You need to create a button that counts how many times it has been clicked.',
+    scenario: 'Your company is running an engagement experiment to see how many times users click a specific call-to-action button. The UX team wants the button itself to show the click count so users can see they\'re participating in something interactive. Each time someone clicks the button, it should update to show "Clicked 1 times", "Clicked 2 times", and so on. This gamification might increase engagement, but you need to track and display the clicks in real-time.',
     difficulty: 'Medium',
     topic: 'DOM Manipulation, Event Listeners',
     type: 'code',
@@ -2644,7 +2644,7 @@ setupClickCounter('counterBtn');`
   {
     id: 'js-medium-037',
     title: 'Query String Builder',
-    scenario: 'You need to convert an object of parameters into a URL query string.',
+    scenario: 'Your e-commerce site needs to build product search URLs that include multiple filters. The search parameters are stored in a JavaScript object like {search: "laptop", price: 500, inStock: true}, but URLs need them formatted as ?search=laptop&price=500&inStock=true. The manual string concatenation approach is messy and bug-prone. You need a reliable way to convert any object of search parameters into a properly formatted URL query string.',
     difficulty: 'Medium',
     topic: 'Object Methods, Object.entries',
     type: 'code',
@@ -2713,7 +2713,7 @@ console.log(buildQueryString({search: 'laptop', price: 500}));`
   {
     id: 'js-medium-038',
     title: 'User Lookup',
-    scenario: 'You need to find a specific user in a database array and update their information.',
+    scenario: 'Your customer database stores users in an array, and the support team needs to update user email addresses when customers request changes. Currently, they have to manually find the user in the database and update the record. The process is slow and error-prone. You need to build a system that can quickly locate a user by their ID, update their email address, and confirm the change was successful. If the user doesn\'t exist, it should indicate that clearly rather than silently failing.',
     difficulty: 'Medium',
     topic: 'Array Methods (find, findIndex)',
     type: 'code',
@@ -2787,7 +2787,7 @@ console.log(updateUserEmail(users, 1, 'new@example.com'));`
   {
     id: 'js-medium-039',
     title: 'Data Fetcher with Timeout',
-    scenario: 'You need to simulate fetching data with a timeout mechanism.',
+    scenario: 'Your weather app needs to simulate loading weather data from a server. In real applications, network requests take time and happen asynchronously. To test your loading indicators and user experience, you need to simulate these delayed responses. The simulation should wait for a specified amount of time (like a real network request would) before returning the weather data, allowing you to see how the app behaves during loading states.',
     difficulty: 'Medium',
     topic: 'Promises, Async Operations',
     type: 'code',
@@ -2860,7 +2860,7 @@ fetchWithTimeout('Test', 100).then(data => {
   {
     id: 'js-medium-040',
     title: 'Extract Nested Data',
-    scenario: 'You need to extract specific values from deeply nested API response objects.',
+    scenario: 'Your mobile app receives deeply nested JSON responses from a legacy API that was designed years ago. The data structure is complex: user information is buried inside user.profile.name, user.profile.email, and user.settings.theme. Your UI components need this data in a simple, flat object format for easy access. Instead of repeatedly writing long property chains throughout your code, you need to extract just the specific pieces of data you need into a clean, simple object.',
     difficulty: 'Medium',
     topic: 'Object Destructuring, Nested Objects',
     type: 'code',
@@ -2940,7 +2940,7 @@ console.log(extractUserData(response));`
   {
     id: 'js-hard-041',
     title: 'E-commerce Analytics Pipeline',
-    scenario: 'Your e-commerce platform needs to analyze transaction data to identify top-performing products with specific criteria.',
+    scenario: 'Your e-commerce analytics dashboard is running slow because it processes every single transaction, even tiny $5 purchases that don\'t significantly impact revenue. The business team only cares about substantial transactions over $100. They want to see the top 3 revenue-generating product categories, but the current system shows all categories unsorted. Processing millions of small transactions is wasting server resources and making reports take minutes to generate when they should be instant.',
     difficulty: 'Hard',
     topic: 'Advanced Array Methods (Chaining)',
     type: 'code',
@@ -3031,7 +3031,7 @@ console.log(analyzeTransactions(transactions));`
   {
     id: 'js-hard-042',
     title: 'Search Input Debouncer',
-    scenario: 'You need to implement a debounce function to optimize search API calls when users type in a search box.',
+    scenario: 'Users are typing product names into your search box, and your server is getting hammered with API requests - one for every single keystroke. Someone typing "laptop" generates 6 separate API calls in under 2 seconds! Your server bills by the request, your costs are skyrocketing, and the search results are flickering rapidly as each request completes. You need to wait until users finish typing before sending the search request, but how do you know when they\'re actually done versus just pausing briefly?',
     difficulty: 'Hard',
     topic: 'Closures, Higher-Order Functions',
     type: 'code',
@@ -3115,7 +3115,7 @@ debouncedLog('test');`
   {
     id: 'js-hard-043',
     title: 'Deep Object Cloner',
-    scenario: 'You need to create a deep clone function that handles nested objects, arrays, and prevents infinite loops from circular references.',
+    scenario: 'Your state management system needs to create copies of complex nested objects for the undo/redo feature. Using simple object spread or JSON.parse/stringify doesn\'t work - spread only copies the top level (changing nested values affects the original), and JSON methods fail when objects reference themselves. Users are editing nested data structures, and changes are leaking into the history, corrupting the undo stack. You need true deep copies that handle any level of nesting and circular references where objects point to themselves.',
     difficulty: 'Hard',
     topic: 'Objects, Recursion, WeakMap',
     type: 'code',
@@ -3193,7 +3193,7 @@ console.log(deepClone(obj));`
   {
     id: 'js-hard-044',
     title: 'Custom Promise.all',
-    scenario: 'You need to implement your own version of Promise.all to understand how it works internally.',
+    scenario: 'Your dashboard loads data from 5 different microservices, and you\'re making 5 separate API calls one after another. Each takes 1 second, so users wait 5 seconds staring at a loading spinner. The services don\'t depend on each other - you could call them simultaneously! But Promise.all is too magical and you need to understand how to coordinate multiple asynchronous operations, handle their results in the correct order, and fail fast if any request fails. Build it from scratch to learn how concurrent async operations really work.',
     difficulty: 'Hard',
     topic: 'Promises, Async Operations',
     type: 'code',
@@ -3270,7 +3270,7 @@ promiseAll([Promise.resolve(1), Promise.resolve(2)])
   {
     id: 'js-hard-045',
     title: 'Function Memoizer',
-    scenario: 'You need to create a memoization function to cache expensive function results and improve performance.',
+    scenario: 'Your data visualization dashboard recalculates complex mathematical transformations every time users hover over a chart point. The same calculation runs hundreds of times for the same input values, making the UI lag and feel unresponsive. Users are frustrated by the choppy experience. The calculations are expensive but deterministic - the same input always produces the same output. You need to remember results from previous calculations and instantly return them instead of recomputing, without manually managing a cache object scattered throughout your codebase.',
     difficulty: 'Hard',
     topic: 'Closures, Higher-Order Functions, Caching',
     type: 'code',
@@ -3354,7 +3354,7 @@ console.log(memoized(5));`
   {
     id: 'js-hard-046',
     title: 'Event Emitter Class',
-    scenario: 'You need to implement a custom event emitter for a pub-sub pattern in your application.',
+    scenario: 'Your application has multiple components that need to react when important events happen - when a user logs in, when data updates, when errors occur. Currently, components are tightly coupled, directly calling functions on each other, making the code a tangled mess that\'s impossible to test or modify. You need a central event system where components can announce events without knowing who\'s listening, and other components can listen for events without knowing who triggered them. Components should be able to subscribe to events, unsubscribe when they\'re done, and broadcast events with data.',
     difficulty: 'Hard',
     topic: 'ES6 Classes, Design Patterns',
     type: 'code',
@@ -3441,7 +3441,7 @@ emitter.emit('test', 'Hello');`
   {
     id: 'js-hard-047',
     title: 'Recursive Array Flattener',
-    scenario: 'You need to flatten deeply nested arrays of any depth for data processing.',
+    scenario: 'Your file system scanner returns directory structures as deeply nested arrays - folders within folders within folders, sometimes 10 levels deep. Your reporting system needs a simple flat list of all files to count totals and calculate sizes, but it keeps failing because Array.flat() doesn\'t exist in your target browsers and you can\'t predict the nesting depth ahead of time. You need to take these arbitrarily nested arrays and flatten them completely into a single-level array, no matter how deep the nesting goes.',
     difficulty: 'Hard',
     topic: 'Recursion, Array Methods',
     type: 'code',
@@ -3510,7 +3510,7 @@ console.log(flattenArray([1, [2, [3, 4]]]));`
   {
     id: 'js-hard-048',
     title: 'Scroll Event Throttler',
-    scenario: 'You need to implement a throttle function to limit how often a scroll event handler executes.',
+    scenario: 'Your webpage has a scroll event that updates the navigation bar\'s appearance as users scroll. The scroll event fires hundreds of times per second, causing your update function to run so frequently that it makes scrolling feel janky and uses up CPU. Unlike debouncing (which waits for quiet moments), you need the updates to happen continuously while scrolling - just not hundreds of times per second. You need to limit execution to maybe once every 100ms, so the navigation updates smoothly without overwhelming the browser.',
     difficulty: 'Hard',
     topic: 'Closures, Timing Functions',
     type: 'code',
@@ -3592,7 +3592,7 @@ throttled();`
   {
     id: 'js-hard-049',
     title: 'LRU Cache Implementation',
-    scenario: 'You need to implement a Least Recently Used (LRU) cache for optimizing data access in your application.',
+    scenario: 'Your image gallery app caches downloaded images in memory, but users browse through hundreds of photos, and eventually the cache consumes gigabytes of RAM, crashing mobile browsers. You can\'t cache everything forever. You need a smart cache with a size limit that automatically removes old items when it gets full. But which items should be removed? Remove the least recently accessed ones - if someone looked at a photo recently, they might look at it again soon. If they haven\'t looked at it in a while, it\'s probably safe to remove it to make room for new items.',
     difficulty: 'Hard',
     topic: 'Data Structures, ES6 Classes',
     type: 'code',
@@ -3670,7 +3670,7 @@ console.log(cache.get('a'));`
   {
     id: 'js-hard-050',
     title: 'Function Currying',
-    scenario: 'You need to implement a curry function for creating specialized functions from general ones.',
+    scenario: 'Your logging utility needs a function that combines a log level, timestamp, and message. But in different parts of your app, you want pre-configured loggers - one that always logs at "ERROR" level, another at "INFO" level - without repeating the log level every single time. Currying lets you create specialized functions from general ones by fixing some arguments upfront. Instead of logger("ERROR", timestamp, message) everywhere, you could have errorLogger(timestamp, message) that remembers it\'s always ERROR level.',
     difficulty: 'Hard',
     topic: 'Functional Programming, Closures',
     type: 'code',
@@ -3748,7 +3748,7 @@ console.log(curriedAdd(1)(2)(3));`
   {
     id: 'js-hard-051',
     title: 'Binary Search Tree Implementation',
-    scenario: 'You need to implement a basic Binary Search Tree for efficient data searching.',
+    scenario: 'Your company\'s employee directory has 50,000 employees, and searching through them linearly (checking each one until you find a match) takes too long. Users are complaining that looking up a coworker takes several seconds. Array.includes() and Array.find() are too slow for large datasets. You need a data structure that keeps data organized so you can find anyone in milliseconds, even with tens of thousands of records. A Binary Search Tree automatically organizes data as you add it, splitting left and right, so searching becomes dramatically faster.',
     difficulty: 'Hard',
     topic: 'Data Structures, ES6 Classes',
     type: 'code',
@@ -3831,7 +3831,7 @@ console.log(bst.search(5));`
   {
     id: 'js-hard-052',
     title: 'Async Function with Retry',
-    scenario: 'You need to implement a retry mechanism for unreliable API calls that might fail intermittently.',
+    scenario: 'Your mobile app makes API calls, but cellular connections are unreliable - requests frequently fail with network errors. When a request fails, your app just shows an error message, forcing users to manually retry by refreshing. This creates a frustrating experience for users on flaky connections. Instead of failing immediately, the app should automatically retry failed requests a few times before giving up, making the app more resilient to temporary network issues without bothering the user with transient failures.',
     difficulty: 'Hard',
     topic: 'Async/Await, Error Handling',
     type: 'code',
@@ -3920,7 +3920,7 @@ retryAsync(testFunc, 3).then(result => console.log(result));`
   {
     id: 'js-hard-053',
     title: 'Object Composer',
-    scenario: 'You need to implement object composition to combine multiple behavior objects into one.',
+    scenario: 'Your game has different character types that share abilities - some characters can walk, some can swim, some can fly. Using traditional class inheritance creates a mess because a flying fish needs both swim and fly, but your class hierarchy only allows single inheritance. The diamond problem appears everywhere. Instead of "is-a" relationships, you need "has-a" - compose characters from individual ability objects. Take multiple behavior objects and merge them into one character object with all the combined capabilities.',
     difficulty: 'Hard',
     topic: 'Object Composition, Spread Operator',
     type: 'code',
@@ -3999,7 +3999,7 @@ console.log(compose(obj1, obj2));`
   {
     id: 'js-hard-054',
     title: 'ID Generator with Generators',
-    scenario: 'You need to create a unique ID generator using generator functions.',
+    scenario: 'Your system creates thousands of database records per minute, and each needs a unique ID. You started with Math.random() but got collisions. You switched to timestamps but got duplicates when records were created in the same millisecond. UUID libraries are heavy dependencies. You need a simple, reliable way to generate sequential unique IDs like "user-100", "user-101", "user-102". Generator functions can maintain state between calls, yielding the next ID each time without managing complex counter variables throughout your codebase.',
     difficulty: 'Hard',
     topic: 'Generators, Iterators',
     type: 'code',
@@ -4074,7 +4074,7 @@ console.log(gen.next().value);`
   {
     id: 'js-hard-055',
     title: 'Validation Proxy',
-    scenario: 'You need to create a proxy object that validates property assignments.',
+    scenario: 'Your user profile form keeps receiving invalid data - ages set to strings like "twenty-five", names set to numbers, boolean fields set to null. These type mismatches crash your database and corrupt records. Validating every single property assignment throughout your codebase is tedious and error-prone. You need an object that automatically validates whenever any property is set, checking that the value matches the expected type defined in a schema. If someone tries to set age to a string, it should throw an error immediately.',
     difficulty: 'Hard',
     topic: 'Proxy, Meta-programming',
     type: 'code',
@@ -4159,7 +4159,7 @@ console.log(obj.age);`
   {
     id: 'js-hard-056',
     title: 'Async Task Queue',
-    scenario: 'You need to implement a queue that processes async tasks sequentially to prevent race conditions.',
+    scenario: 'Your app uploads files to a server, and users are uploading multiple files simultaneously. This overwhelms the server with concurrent uploads, causes rate limiting errors, and makes the server performance degrade. Some uploads succeed, some fail randomly, and the UI shows inconsistent states. You need uploads to happen one at a time, in order, with each upload waiting for the previous one to complete. This prevents server overload while giving users a predictable, sequential upload experience.',
     difficulty: 'Hard',
     topic: 'Async/Await, Queues',
     type: 'code',
@@ -4244,7 +4244,7 @@ queue.enqueue(async () => 'Task 1').then(console.log);`
   {
     id: 'js-hard-057',
     title: 'Custom Inheritance System',
-    scenario: 'You need to implement a custom inheritance system using prototypes.',
+    scenario: 'You\'re working on a legacy codebase that uses constructor functions instead of ES6 classes, and you need to implement inheritance. A Dog should inherit from Animal - all dogs can speak their name (inherited from Animal), but you also need Dog-specific properties like breed. JavaScript\'s prototype chain is confusing, and when you try setting Dog.prototype = Animal.prototype, changes to Dog affect Animal too. You need to properly set up the prototype chain so Dog instances inherit Animal methods without creating this pollution problem.',
     difficulty: 'Hard',
     topic: 'Prototypes, Inheritance',
     type: 'code',
@@ -4333,7 +4333,7 @@ console.log(dog.speak());`
   {
     id: 'js-hard-058',
     title: 'Private Properties with WeakMap',
-    scenario: 'You need to implement truly private properties in a class using WeakMap.',
+    scenario: 'Your user authentication class stores passwords directly as properties, making them visible in console logs and accessible via console.log(user). Anyone with console access can see user.password in plain text! Traditional approaches to hiding properties (using underscore prefixes or closures) are clunky. WeakMap provides true privacy - the password is stored in a separate map tied to the object instance, completely inaccessible from outside the class. The password cannot be accessed via user.password or seen in debuggers.',
     difficulty: 'Hard',
     topic: 'WeakMap, Encapsulation',
     type: 'code',
@@ -4412,7 +4412,7 @@ console.log(user.verifyPassword('test'));`
   {
     id: 'js-hard-059',
     title: 'Function Pipeline',
-    scenario: 'You need to implement a pipe function that chains multiple functions together for data transformation.',
+    scenario: 'Your data processing code is nested function calls 5 levels deep: multiply(add(subtract(divide(parse(data)))))). Reading inside-out is confusing and error-prone. When you need to add another transformation, you have to find the right nesting level. Functional programming uses pipelines where data flows left-to-right through transformations: pipe(parse, divide, subtract, add, multiply)(data). Each function takes the output of the previous one. Build a pipe function that composes functions this way, making data transformations readable and maintainable.',
     difficulty: 'Hard',
     topic: 'Functional Programming, Composition',
     type: 'code',
@@ -4493,7 +4493,7 @@ console.log(pipeline(5));`
   {
     id: 'js-hard-060',
     title: 'Unique Object Properties',
-    scenario: 'You need to use Symbols to create truly unique property keys that won\'t conflict.',
+    scenario: 'Your library adds utility methods to objects, but sometimes your property names collide with properties that already exist on those objects. If you add a "refresh" method and the object already has "refresh", you overwrite important functionality. Using symbols as property keys guarantees uniqueness - even if someone else uses a symbol, it\'s a different symbol. Symbols don\'t show up in Object.keys() or JSON.stringify(), making them perfect for internal implementation details that shouldn\'t be accidentally accessed or modified.',
     difficulty: 'Hard',
     topic: 'Symbols, Meta-programming',
     type: 'code',
