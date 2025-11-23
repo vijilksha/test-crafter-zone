@@ -1442,5 +1442,1495 @@ findMax([10]) → 10`,
         }
       }
     ]
+  },
+  
+  // ========== NEW MEDIUM LEVEL QUESTIONS ==========
+  
+  // QUESTION 21: Shopping Cart Total with Tax
+  {
+    id: 'js-medium-021',
+    title: 'Shopping Cart Total Calculator',
+    scenario: 'You are building an e-commerce application that needs to calculate the total price of items in a shopping cart including tax.',
+    difficulty: 'Medium',
+    topic: 'Array Methods (reduce)',
+    type: 'code',
+    instructions: `Create a function called 'calculateCartTotal' that:
+1. Takes an array of product objects (each with 'price' and 'quantity' properties)
+2. Takes a tax rate as a decimal (e.g., 0.08 for 8%)
+3. Returns the total cost including tax, rounded to 2 decimal places
+
+Example:
+const cart = [{price: 10, quantity: 2}, {price: 5, quantity: 3}];
+calculateCartTotal(cart, 0.1) → 38.50 (subtotal: 35, tax: 3.50)`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function calculateCartTotal(cart, taxRate) {
+  // Write your code here using reduce
+  
+}
+
+// Test your function
+const cart = [{price: 10, quantity: 2}, {price: 5, quantity: 3}];
+console.log(calculateCartTotal(cart, 0.1));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Empty cart returns 0',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return calculateCartTotal;');
+            const calculateCartTotal = testFunction();
+            const result = calculateCartTotal([], 0.1);
+            return result === 0;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Calculates correct total with tax',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return calculateCartTotal;');
+            const calculateCartTotal = testFunction();
+            const cart = [{price: 10, quantity: 2}, {price: 5, quantity: 3}];
+            const result = calculateCartTotal(cart, 0.1);
+            return Math.abs(result - 38.5) < 0.01;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Handles single item correctly',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return calculateCartTotal;');
+            const calculateCartTotal = testFunction();
+            const cart = [{price: 100, quantity: 1}];
+            const result = calculateCartTotal(cart, 0.2);
+            return Math.abs(result - 120) < 0.01;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 22: Filter Active Users
+  {
+    id: 'js-medium-022',
+    title: 'Active User Filter',
+    scenario: 'Your social media platform needs to filter and display only active users who have logged in within the last 30 days.',
+    difficulty: 'Medium',
+    topic: 'Array Methods (filter)',
+    type: 'code',
+    instructions: `Create a function called 'getActiveUsers' that:
+1. Takes an array of user objects (each with 'name', 'lastLogin' date string)
+2. Returns only users who logged in within the last 30 days
+3. Sorts them by lastLogin date (most recent first)
+
+Example:
+const users = [
+  {name: 'Alice', lastLogin: '2024-01-15'},
+  {name: 'Bob', lastLogin: '2023-11-20'}
+];
+getActiveUsers(users, '2024-01-20') → [{name: 'Alice', ...}]`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function getActiveUsers(users, currentDate) {
+  // Write your code here using filter and sort
+  
+}
+
+// Test your function
+const users = [
+  {name: 'Alice', lastLogin: '2024-01-15'},
+  {name: 'Bob', lastLogin: '2023-11-20'}
+];
+console.log(getActiveUsers(users, '2024-01-20'));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Filters users within 30 days',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return getActiveUsers;');
+            const getActiveUsers = testFunction();
+            const users = [
+              {name: 'Alice', lastLogin: '2024-01-15'},
+              {name: 'Bob', lastLogin: '2023-11-20'}
+            ];
+            const result = getActiveUsers(users, '2024-01-20');
+            return result.length === 1 && result[0].name === 'Alice';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Returns empty array if no active users',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return getActiveUsers;');
+            const getActiveUsers = testFunction();
+            const users = [{name: 'Alice', lastLogin: '2023-01-15'}];
+            const result = getActiveUsers(users, '2024-01-20');
+            return result.length === 0;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Sorts by most recent login',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return getActiveUsers;');
+            const getActiveUsers = testFunction();
+            const users = [
+              {name: 'Alice', lastLogin: '2024-01-10'},
+              {name: 'Bob', lastLogin: '2024-01-18'}
+            ];
+            const result = getActiveUsers(users, '2024-01-20');
+            return result[0].name === 'Bob';
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 23: Form Validation
+  {
+    id: 'js-medium-023',
+    title: 'Form Field Validator',
+    scenario: 'You need to validate a user registration form to ensure all required fields meet specific criteria.',
+    difficulty: 'Medium',
+    topic: 'Array Methods (every, some)',
+    type: 'code',
+    instructions: `Create a function called 'validateForm' that:
+1. Takes a form object with fields: {email, password, age, terms}
+2. Validates: email contains '@', password length > 8, age >= 18, terms === true
+3. Returns an object: {valid: boolean, errors: string[]}
+
+Example:
+validateForm({email: 'test@example.com', password: 'password123', age: 25, terms: true})
+→ {valid: true, errors: []}`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function validateForm(formData) {
+  // Write your code here
+  
+}
+
+// Test your function
+const form = {
+  email: 'test@example.com',
+  password: 'password123',
+  age: 25,
+  terms: true
+};
+console.log(validateForm(form));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Valid form returns {valid: true, errors: []}',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return validateForm;');
+            const validateForm = testFunction();
+            const form = {email: 'test@example.com', password: 'password123', age: 25, terms: true};
+            const result = validateForm(form);
+            return result.valid === true && result.errors.length === 0;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Invalid email adds error',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return validateForm;');
+            const validateForm = testFunction();
+            const form = {email: 'invalid', password: 'password123', age: 25, terms: true};
+            const result = validateForm(form);
+            return result.valid === false && result.errors.length > 0;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Multiple errors detected',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return validateForm;');
+            const validateForm = testFunction();
+            const form = {email: 'invalid', password: 'short', age: 15, terms: false};
+            const result = validateForm(form);
+            return result.valid === false && result.errors.length >= 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 24: Transform User Data
+  {
+    id: 'js-medium-024',
+    title: 'User Data Transformer',
+    scenario: 'Your API returns user data in one format, but your frontend needs it in a different structure.',
+    difficulty: 'Medium',
+    topic: 'Array Methods (map), Object Destructuring',
+    type: 'code',
+    instructions: `Create a function called 'transformUsers' that:
+1. Takes an array of user objects: {firstName, lastName, email, age, city}
+2. Returns an array with: {fullName, contact: {email}, location: city, isAdult}
+3. fullName = firstName + lastName, isAdult = age >= 18
+
+Example:
+transformUsers([{firstName: 'John', lastName: 'Doe', email: 'john@example.com', age: 25, city: 'NYC'}])
+→ [{fullName: 'John Doe', contact: {email: 'john@example.com'}, location: 'NYC', isAdult: true}]`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function transformUsers(users) {
+  // Write your code here using map
+  
+}
+
+// Test your function
+const users = [
+  {firstName: 'John', lastName: 'Doe', email: 'john@example.com', age: 25, city: 'NYC'}
+];
+console.log(transformUsers(users));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Transforms single user correctly',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return transformUsers;');
+            const transformUsers = testFunction();
+            const users = [{firstName: 'John', lastName: 'Doe', email: 'john@example.com', age: 25, city: 'NYC'}];
+            const result = transformUsers(users);
+            return result[0].fullName === 'John Doe' && result[0].isAdult === true;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Correctly identifies minor',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return transformUsers;');
+            const transformUsers = testFunction();
+            const users = [{firstName: 'Jane', lastName: 'Smith', email: 'jane@example.com', age: 16, city: 'LA'}];
+            const result = transformUsers(users);
+            return result[0].isAdult === false;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Nests email in contact object',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return transformUsers;');
+            const transformUsers = testFunction();
+            const users = [{firstName: 'Bob', lastName: 'Jones', email: 'bob@example.com', age: 30, city: 'SF'}];
+            const result = transformUsers(users);
+            return result[0].contact.email === 'bob@example.com';
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 25: Product Inventory Manager
+  {
+    id: 'js-medium-025',
+    title: 'Product Inventory Manager',
+    scenario: 'You are managing a warehouse inventory system that needs to track product stock levels.',
+    difficulty: 'Medium',
+    topic: 'Object Methods, Object.keys',
+    type: 'code',
+    instructions: `Create a function called 'getLowStock' that:
+1. Takes an inventory object where keys are product names and values are quantities
+2. Takes a threshold number
+3. Returns an array of product names with quantities below the threshold
+
+Example:
+const inventory = {apples: 5, bananas: 15, oranges: 2};
+getLowStock(inventory, 10) → ['apples', 'oranges']`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function getLowStock(inventory, threshold) {
+  // Write your code here using Object.keys
+  
+}
+
+// Test your function
+const inventory = {apples: 5, bananas: 15, oranges: 2};
+console.log(getLowStock(inventory, 10));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Returns products below threshold',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return getLowStock;');
+            const getLowStock = testFunction();
+            const inventory = {apples: 5, bananas: 15, oranges: 2};
+            const result = getLowStock(inventory, 10);
+            return result.length === 2 && result.includes('apples') && result.includes('oranges');
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Returns empty array if all stock sufficient',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return getLowStock;');
+            const getLowStock = testFunction();
+            const inventory = {apples: 15, bananas: 20};
+            const result = getLowStock(inventory, 10);
+            return result.length === 0;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Returns all products if threshold is high',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return getLowStock;');
+            const getLowStock = testFunction();
+            const inventory = {apples: 5, bananas: 3};
+            const result = getLowStock(inventory, 10);
+            return result.length === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 26: ES6 Class - Bank Account
+  {
+    id: 'js-medium-026',
+    title: 'Bank Account Class',
+    scenario: 'You need to create a simple banking system that tracks account balances and transactions.',
+    difficulty: 'Medium',
+    topic: 'ES6 Classes',
+    type: 'code',
+    instructions: `Create a class called 'BankAccount' that:
+1. Constructor takes accountNumber and initialBalance
+2. Has methods: deposit(amount), withdraw(amount), getBalance()
+3. withdraw() should not allow negative balance
+4. Both methods should return the new balance or false if invalid
+
+Example:
+const account = new BankAccount('123', 100);
+account.deposit(50) → 150
+account.withdraw(200) → false`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `class BankAccount {
+  // Write your constructor and methods here
+  
+}
+
+// Test your class
+const account = new BankAccount('123', 100);
+console.log(account.deposit(50));
+console.log(account.withdraw(30));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Deposit increases balance',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return BankAccount;');
+            const BankAccount = testFunction();
+            const account = new BankAccount('123', 100);
+            const result = account.deposit(50);
+            return result === 150;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Withdraw decreases balance',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return BankAccount;');
+            const BankAccount = testFunction();
+            const account = new BankAccount('123', 100);
+            const result = account.withdraw(30);
+            return result === 70;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Cannot overdraw account',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return BankAccount;');
+            const BankAccount = testFunction();
+            const account = new BankAccount('123', 100);
+            const result = account.withdraw(200);
+            return result === false && account.getBalance() === 100;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 27: Closure Counter
+  {
+    id: 'js-medium-027',
+    title: 'Counter with Closure',
+    scenario: 'You need to create a private counter that can only be modified through specific methods.',
+    difficulty: 'Medium',
+    topic: 'Closures',
+    type: 'code',
+    instructions: `Create a function called 'createCounter' that:
+1. Returns an object with methods: increment(), decrement(), getValue()
+2. Uses closure to keep count private
+3. Count starts at 0 and cannot be accessed directly
+
+Example:
+const counter = createCounter();
+counter.increment() → 1
+counter.increment() → 2
+counter.getValue() → 2`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function createCounter() {
+  // Write your code here using closures
+  
+}
+
+// Test your function
+const counter = createCounter();
+console.log(counter.increment());
+console.log(counter.getValue());`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Increment increases count',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return createCounter;');
+            const createCounter = testFunction();
+            const counter = createCounter();
+            counter.increment();
+            counter.increment();
+            return counter.getValue() === 2;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Decrement decreases count',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return createCounter;');
+            const createCounter = testFunction();
+            const counter = createCounter();
+            counter.increment();
+            counter.increment();
+            counter.decrement();
+            return counter.getValue() === 1;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Multiple counters are independent',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return createCounter;');
+            const createCounter = testFunction();
+            const counter1 = createCounter();
+            const counter2 = createCounter();
+            counter1.increment();
+            counter1.increment();
+            counter2.increment();
+            return counter1.getValue() === 2 && counter2.getValue() === 1;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 28: Error Handler
+  {
+    id: 'js-medium-028',
+    title: 'Safe Division Function',
+    scenario: 'You need to create a division function that handles errors gracefully.',
+    difficulty: 'Medium',
+    topic: 'Error Handling, Try-Catch',
+    type: 'code',
+    instructions: `Create a function called 'safeDivide' that:
+1. Takes two numbers (dividend and divisor)
+2. Returns the division result rounded to 2 decimals
+3. Throws error if divisor is 0 with message "Cannot divide by zero"
+4. Returns error message if inputs are not numbers
+
+Example:
+safeDivide(10, 2) → 5.00
+safeDivide(10, 0) → "Error: Cannot divide by zero"`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function safeDivide(dividend, divisor) {
+  // Write your code here with try-catch
+  
+}
+
+// Test your function
+console.log(safeDivide(10, 2));
+console.log(safeDivide(10, 0));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Divides numbers correctly',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return safeDivide;');
+            const safeDivide = testFunction();
+            const result = safeDivide(10, 2);
+            return result === 5;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Handles division by zero',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return safeDivide;');
+            const safeDivide = testFunction();
+            const result = safeDivide(10, 0);
+            return typeof result === 'string' && result.includes('divide by zero');
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Rounds to 2 decimal places',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return safeDivide;');
+            const safeDivide = testFunction();
+            const result = safeDivide(10, 3);
+            return Math.abs(result - 3.33) < 0.01;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 29: String Manipulation
+  {
+    id: 'js-medium-029',
+    title: 'Title Case Converter',
+    scenario: 'You need to format article titles by capitalizing the first letter of each word except small words.',
+    difficulty: 'Medium',
+    topic: 'String Methods, Template Literals',
+    type: 'code',
+    instructions: `Create a function called 'toTitleCase' that:
+1. Takes a string and converts it to title case
+2. Small words (a, an, the, in, on, at) stay lowercase unless first word
+3. Returns the formatted string
+
+Example:
+toTitleCase("the quick brown fox") → "The Quick Brown Fox"
+toTitleCase("a tale of two cities") → "A Tale of Two Cities"`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function toTitleCase(text) {
+  // Write your code here
+  
+}
+
+// Test your function
+console.log(toTitleCase("the quick brown fox"));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Capitalizes all words',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return toTitleCase;');
+            const toTitleCase = testFunction();
+            const result = toTitleCase("hello world");
+            return result === "Hello World";
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: First word always capitalized',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return toTitleCase;');
+            const toTitleCase = testFunction();
+            const result = toTitleCase("the quick fox");
+            return result.startsWith("The");
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Handles multiple spaces',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return toTitleCase;');
+            const toTitleCase = testFunction();
+            const result = toTitleCase("hello  world");
+            return result.includes("Hello") && result.includes("World");
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 30: Template Literals
+  {
+    id: 'js-medium-030',
+    title: 'Email Template Generator',
+    scenario: 'You need to generate personalized email templates for customer notifications.',
+    difficulty: 'Medium',
+    topic: 'Template Literals, String Methods',
+    type: 'code',
+    instructions: `Create a function called 'generateEmail' that:
+1. Takes an object: {name, orderNumber, total, items}
+2. Returns a formatted email string using template literals
+3. Include greeting, order details, and total
+
+Example:
+generateEmail({name: 'John', orderNumber: '12345', total: 99.99, items: 3})
+→ "Dear John, Your order #12345 with 3 items totaling $99.99 has been confirmed."`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function generateEmail(orderData) {
+  // Write your code here using template literals
+  
+}
+
+// Test your function
+const order = {name: 'John', orderNumber: '12345', total: 99.99, items: 3};
+console.log(generateEmail(order));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Includes customer name',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return generateEmail;');
+            const generateEmail = testFunction();
+            const order = {name: 'John', orderNumber: '12345', total: 99.99, items: 3};
+            const result = generateEmail(order);
+            return result.includes('John');
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Includes order number',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return generateEmail;');
+            const generateEmail = testFunction();
+            const order = {name: 'Jane', orderNumber: '67890', total: 49.99, items: 2};
+            const result = generateEmail(order);
+            return result.includes('67890');
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Includes total amount',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return generateEmail;');
+            const generateEmail = testFunction();
+            const order = {name: 'Bob', orderNumber: '11111', total: 199.99, items: 5};
+            const result = generateEmail(order);
+            return result.includes('199.99');
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 31: Spread Operator - Merge Objects
+  {
+    id: 'js-medium-031',
+    title: 'Object Merger with Defaults',
+    scenario: 'You need to merge user preferences with default settings, with user preferences taking priority.',
+    difficulty: 'Medium',
+    topic: 'Spread Operator, Objects',
+    type: 'code',
+    instructions: `Create a function called 'mergeSettings' that:
+1. Takes defaultSettings object and userSettings object
+2. Returns merged object with user settings overriding defaults
+3. Use spread operator to merge
+
+Example:
+const defaults = {theme: 'light', notifications: true, language: 'en'};
+const user = {theme: 'dark'};
+mergeSettings(defaults, user) → {theme: 'dark', notifications: true, language: 'en'}`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function mergeSettings(defaultSettings, userSettings) {
+  // Write your code here using spread operator
+  
+}
+
+// Test your function
+const defaults = {theme: 'light', notifications: true};
+const user = {theme: 'dark'};
+console.log(mergeSettings(defaults, user));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: User settings override defaults',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return mergeSettings;');
+            const mergeSettings = testFunction();
+            const defaults = {theme: 'light', notifications: true};
+            const user = {theme: 'dark'};
+            const result = mergeSettings(defaults, user);
+            return result.theme === 'dark' && result.notifications === true;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Preserves all default settings',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return mergeSettings;');
+            const mergeSettings = testFunction();
+            const defaults = {a: 1, b: 2, c: 3};
+            const user = {a: 10};
+            const result = mergeSettings(defaults, user);
+            return result.a === 10 && result.b === 2 && result.c === 3;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Handles empty user settings',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return mergeSettings;');
+            const mergeSettings = testFunction();
+            const defaults = {theme: 'light'};
+            const user = {};
+            const result = mergeSettings(defaults, user);
+            return result.theme === 'light';
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 32: Array Spread
+  {
+    id: 'js-medium-032',
+    title: 'Array Combiner',
+    scenario: 'You need to combine multiple arrays of tags from different sources without duplicates.',
+    difficulty: 'Medium',
+    topic: 'Spread Operator, Arrays, Set',
+    type: 'code',
+    instructions: `Create a function called 'combineUniqueTags' that:
+1. Takes multiple arrays of strings as arguments
+2. Combines them and removes duplicates
+3. Returns sorted array of unique tags
+
+Example:
+combineUniqueTags(['js', 'react'], ['js', 'node'], ['react', 'vue'])
+→ ['js', 'node', 'react', 'vue']`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function combineUniqueTags(...arrays) {
+  // Write your code here using spread and Set
+  
+}
+
+// Test your function
+console.log(combineUniqueTags(['js', 'react'], ['js', 'node']));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Removes duplicates',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return combineUniqueTags;');
+            const combineUniqueTags = testFunction();
+            const result = combineUniqueTags(['js', 'react'], ['js', 'node']);
+            return result.length === 3 && result.includes('js');
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Combines multiple arrays',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return combineUniqueTags;');
+            const combineUniqueTags = testFunction();
+            const result = combineUniqueTags(['a'], ['b'], ['c']);
+            return result.length === 3;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Returns sorted array',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return combineUniqueTags;');
+            const combineUniqueTags = testFunction();
+            const result = combineUniqueTags(['z', 'a'], ['m']);
+            return result[0] === 'a' && result[result.length - 1] === 'z';
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 33: Default Parameters
+  {
+    id: 'js-medium-033',
+    title: 'API Request Builder',
+    scenario: 'You need to create an API request function with sensible defaults for common parameters.',
+    difficulty: 'Medium',
+    topic: 'Default Parameters, Objects',
+    type: 'code',
+    instructions: `Create a function called 'buildRequest' that:
+1. Takes url (required), method='GET', headers={}, timeout=5000
+2. Returns an object with all request parameters
+3. Use default parameters
+
+Example:
+buildRequest('/api/users') 
+→ {url: '/api/users', method: 'GET', headers: {}, timeout: 5000}`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function buildRequest(url, method = 'GET', headers = {}, timeout = 5000) {
+  // Write your code here
+  
+}
+
+// Test your function
+console.log(buildRequest('/api/users'));
+console.log(buildRequest('/api/users', 'POST'));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Uses default method',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return buildRequest;');
+            const buildRequest = testFunction();
+            const result = buildRequest('/api/users');
+            return result.method === 'GET';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Allows method override',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return buildRequest;');
+            const buildRequest = testFunction();
+            const result = buildRequest('/api/users', 'POST');
+            return result.method === 'POST';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Uses default timeout',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return buildRequest;');
+            const buildRequest = testFunction();
+            const result = buildRequest('/api/users');
+            return result.timeout === 5000;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 34: Math Operations
+  {
+    id: 'js-medium-034',
+    title: 'Statistics Calculator',
+    scenario: 'You need to calculate basic statistics for a dataset of test scores.',
+    difficulty: 'Medium',
+    topic: 'Math Operations, Array Methods',
+    type: 'code',
+    instructions: `Create a function called 'calculateStats' that:
+1. Takes an array of numbers
+2. Returns object with: {mean, median, min, max}
+3. Round mean and median to 2 decimal places
+
+Example:
+calculateStats([10, 20, 30, 40, 50])
+→ {mean: 30, median: 30, min: 10, max: 50}`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function calculateStats(numbers) {
+  // Write your code here using Math methods
+  
+}
+
+// Test your function
+console.log(calculateStats([10, 20, 30, 40, 50]));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Calculates correct mean',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return calculateStats;');
+            const calculateStats = testFunction();
+            const result = calculateStats([10, 20, 30]);
+            return result.mean === 20;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Finds correct min and max',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return calculateStats;');
+            const calculateStats = testFunction();
+            const result = calculateStats([5, 10, 15, 20]);
+            return result.min === 5 && result.max === 20;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Calculates correct median',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return calculateStats;');
+            const calculateStats = testFunction();
+            const result = calculateStats([1, 2, 3, 4, 5]);
+            return result.median === 3;
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 35: DOM Manipulation
+  {
+    id: 'js-medium-035',
+    title: 'Dynamic List Creator',
+    scenario: 'You need to dynamically create a list of items from an array and add them to the page.',
+    difficulty: 'Medium',
+    topic: 'DOM Manipulation, createElement',
+    type: 'code',
+    instructions: `Create a function called 'createList' that:
+1. Takes an array of strings and a container ID
+2. Creates a <ul> with <li> elements for each string
+3. Appends the list to the container element
+
+Example:
+createList(['Apple', 'Banana', 'Cherry'], 'output')
+→ Creates <ul><li>Apple</li><li>Banana</li><li>Cherry</li></ul>`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function createList(items, containerId) {
+  // Write your code here using createElement
+  
+}
+
+// Test your function
+createList(['Apple', 'Banana', 'Cherry'], 'output');`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Creates ul element',
+        test: (code) => {
+          try {
+            document.getElementById('output').innerHTML = '';
+            const testFunction = new Function('document', code + '; return createList;');
+            const createList = testFunction(document);
+            createList(['Apple'], 'output');
+            const ul = document.querySelector('#output ul');
+            return ul !== null;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Creates correct number of li elements',
+        test: (code) => {
+          try {
+            document.getElementById('output').innerHTML = '';
+            const testFunction = new Function('document', code + '; return createList;');
+            const createList = testFunction(document);
+            createList(['Apple', 'Banana', 'Cherry'], 'output');
+            const lis = document.querySelectorAll('#output li');
+            return lis.length === 3;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Li elements have correct text',
+        test: (code) => {
+          try {
+            document.getElementById('output').innerHTML = '';
+            const testFunction = new Function('document', code + '; return createList;');
+            const createList = testFunction(document);
+            createList(['Test'], 'output');
+            const li = document.querySelector('#output li');
+            return li && li.textContent === 'Test';
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 36: DOM Event Handling
+  {
+    id: 'js-medium-036',
+    title: 'Click Counter',
+    scenario: 'You need to create a button that counts how many times it has been clicked.',
+    difficulty: 'Medium',
+    topic: 'DOM Manipulation, Event Listeners',
+    type: 'code',
+    instructions: `Create a function called 'setupClickCounter' that:
+1. Takes a button ID
+2. Adds a click event listener to the button
+3. Updates the button text to show click count
+
+Example:
+setupClickCounter('myButton')
+→ Button text changes from "Click me" to "Clicked 1 times", "Clicked 2 times", etc.`,
+    starterCode: {
+      html: `<button id="counterBtn">Click me</button>`,
+      js: `function setupClickCounter(buttonId) {
+  // Write your code here
+  
+}
+
+// Test your function
+setupClickCounter('counterBtn');`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Button exists and can be found',
+        test: (code) => {
+          try {
+            const button = document.getElementById('counterBtn');
+            if (!button) return false;
+            button.textContent = 'Click me';
+            const testFunction = new Function('document', code + '; return setupClickCounter;');
+            const setupClickCounter = testFunction(document);
+            setupClickCounter('counterBtn');
+            return true;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Button text updates on click',
+        test: (code) => {
+          try {
+            const button = document.getElementById('counterBtn');
+            button.textContent = 'Click me';
+            const testFunction = new Function('document', code + '; return setupClickCounter;');
+            const setupClickCounter = testFunction(document);
+            setupClickCounter('counterBtn');
+            button.click();
+            return button.textContent.includes('1');
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Counter increments correctly',
+        test: (code) => {
+          try {
+            const button = document.getElementById('counterBtn');
+            button.textContent = 'Click me';
+            const testFunction = new Function('document', code + '; return setupClickCounter;');
+            const setupClickCounter = testFunction(document);
+            setupClickCounter('counterBtn');
+            button.click();
+            button.click();
+            return button.textContent.includes('2');
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 37: Object.entries
+  {
+    id: 'js-medium-037',
+    title: 'Query String Builder',
+    scenario: 'You need to convert an object of parameters into a URL query string.',
+    difficulty: 'Medium',
+    topic: 'Object Methods, Object.entries',
+    type: 'code',
+    instructions: `Create a function called 'buildQueryString' that:
+1. Takes an object of key-value pairs
+2. Returns a URL query string (e.g., "?key1=value1&key2=value2")
+3. Use Object.entries() to iterate
+
+Example:
+buildQueryString({search: 'laptop', price: 500, inStock: true})
+→ "?search=laptop&price=500&inStock=true"`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function buildQueryString(params) {
+  // Write your code here using Object.entries
+  
+}
+
+// Test your function
+console.log(buildQueryString({search: 'laptop', price: 500}));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Starts with question mark',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return buildQueryString;');
+            const buildQueryString = testFunction();
+            const result = buildQueryString({a: 1});
+            return result.startsWith('?');
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Includes all parameters',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return buildQueryString;');
+            const buildQueryString = testFunction();
+            const result = buildQueryString({search: 'laptop', price: 500});
+            return result.includes('search=laptop') && result.includes('price=500');
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Separates parameters with &',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return buildQueryString;');
+            const buildQueryString = testFunction();
+            const result = buildQueryString({a: 1, b: 2});
+            return result.includes('&');
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 38: Array.find and findIndex
+  {
+    id: 'js-medium-038',
+    title: 'User Lookup',
+    scenario: 'You need to find a specific user in a database array and update their information.',
+    difficulty: 'Medium',
+    topic: 'Array Methods (find, findIndex)',
+    type: 'code',
+    instructions: `Create a function called 'updateUserEmail' that:
+1. Takes users array, userId, and newEmail
+2. Finds the user by ID and updates their email
+3. Returns the updated user object or null if not found
+
+Example:
+const users = [{id: 1, email: 'old@example.com'}, {id: 2, email: 'test@example.com'}];
+updateUserEmail(users, 1, 'new@example.com') 
+→ {id: 1, email: 'new@example.com'}`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function updateUserEmail(users, userId, newEmail) {
+  // Write your code here using find and findIndex
+  
+}
+
+// Test your function
+const users = [{id: 1, email: 'old@example.com'}];
+console.log(updateUserEmail(users, 1, 'new@example.com'));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Updates correct user email',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return updateUserEmail;');
+            const updateUserEmail = testFunction();
+            const users = [{id: 1, email: 'old@example.com'}];
+            const result = updateUserEmail(users, 1, 'new@example.com');
+            return result && result.email === 'new@example.com';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Returns null for non-existent user',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return updateUserEmail;');
+            const updateUserEmail = testFunction();
+            const users = [{id: 1, email: 'test@example.com'}];
+            const result = updateUserEmail(users, 999, 'new@example.com');
+            return result === null;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Does not affect other users',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return updateUserEmail;');
+            const updateUserEmail = testFunction();
+            const users = [{id: 1, email: 'user1@example.com'}, {id: 2, email: 'user2@example.com'}];
+            updateUserEmail(users, 1, 'updated@example.com');
+            return users[1].email === 'user2@example.com';
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 39: Async/Promises (simulated)
+  {
+    id: 'js-medium-039',
+    title: 'Data Fetcher with Timeout',
+    scenario: 'You need to simulate fetching data with a timeout mechanism.',
+    difficulty: 'Medium',
+    topic: 'Promises, Async Operations',
+    type: 'code',
+    instructions: `Create a function called 'fetchWithTimeout' that:
+1. Takes data and delay (milliseconds)
+2. Returns a Promise that resolves with data after delay
+3. Simulates async data fetching
+
+Example:
+fetchWithTimeout('Hello', 1000).then(data => console.log(data))
+→ Logs "Hello" after 1 second`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function fetchWithTimeout(data, delay) {
+  // Write your code here returning a Promise
+  
+}
+
+// Test your function
+fetchWithTimeout('Test', 100).then(data => {
+  document.getElementById('output').textContent = data;
+});`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Returns a Promise',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return fetchWithTimeout;');
+            const fetchWithTimeout = testFunction();
+            const result = fetchWithTimeout('Test', 10);
+            return result instanceof Promise;
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Resolves with correct data',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return fetchWithTimeout;');
+            const fetchWithTimeout = testFunction();
+            const result = await fetchWithTimeout('Hello', 10);
+            return result === 'Hello';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Waits for specified delay',
+        test: async (code) => {
+          try {
+            const testFunction = new Function(code + '; return fetchWithTimeout;');
+            const fetchWithTimeout = testFunction();
+            const start = Date.now();
+            await fetchWithTimeout('Data', 50);
+            const elapsed = Date.now() - start;
+            return elapsed >= 45; // Allow small margin
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
+  },
+
+  // QUESTION 40: Destructuring with Nested Objects
+  {
+    id: 'js-medium-040',
+    title: 'Extract Nested Data',
+    scenario: 'You need to extract specific values from deeply nested API response objects.',
+    difficulty: 'Medium',
+    topic: 'Object Destructuring, Nested Objects',
+    type: 'code',
+    instructions: `Create a function called 'extractUserData' that:
+1. Takes an API response object with nested structure
+2. Extracts: user.profile.name, user.profile.email, user.settings.theme
+3. Returns a flat object with these three properties
+
+Example:
+const response = {user: {profile: {name: 'John', email: 'john@example.com'}, settings: {theme: 'dark'}}};
+extractUserData(response) → {name: 'John', email: 'john@example.com', theme: 'dark'}`,
+    starterCode: {
+      html: `<div id="output"></div>`,
+      js: `function extractUserData(apiResponse) {
+  // Write your code here using destructuring
+  
+}
+
+// Test your function
+const response = {
+  user: {
+    profile: {name: 'John', email: 'john@example.com'},
+    settings: {theme: 'dark'}
+  }
+};
+console.log(extractUserData(response));`
+    },
+    testCases: [
+      {
+        name: 'Test 1: Extracts name correctly',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return extractUserData;');
+            const extractUserData = testFunction();
+            const response = {user: {profile: {name: 'John', email: 'john@example.com'}, settings: {theme: 'dark'}}};
+            const result = extractUserData(response);
+            return result.name === 'John';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 2: Extracts email correctly',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return extractUserData;');
+            const extractUserData = testFunction();
+            const response = {user: {profile: {name: 'Jane', email: 'jane@example.com'}, settings: {theme: 'light'}}};
+            const result = extractUserData(response);
+            return result.email === 'jane@example.com';
+          } catch (error) {
+            return false;
+          }
+        }
+      },
+      {
+        name: 'Test 3: Extracts theme correctly',
+        test: (code) => {
+          try {
+            const testFunction = new Function(code + '; return extractUserData;');
+            const extractUserData = testFunction();
+            const response = {user: {profile: {name: 'Bob', email: 'bob@example.com'}, settings: {theme: 'blue'}}};
+            const result = extractUserData(response);
+            return result.theme === 'blue';
+          } catch (error) {
+            return false;
+          }
+        }
+      }
+    ]
   }
 ];
