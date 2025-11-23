@@ -32,8 +32,16 @@ export default function TrainerDashboard() {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
+        console.log('Fetching dashboard data...');
         const scores = await getStudentScores();
+        console.log('Scores fetched:', scores.length);
         setStudentCount(scores.length);
+        
+        if (scores.length === 0) {
+          console.log('No scores available');
+          setLoading(false);
+          return;
+        }
         
         const recent = scores
           .slice(0, 5)
@@ -64,6 +72,7 @@ export default function TrainerDashboard() {
           const sessionResults = await getTestResults(score.session_id);
           allDetailedAnswers.push(...sessionResults);
         }
+        console.log('Total answers fetched:', allDetailedAnswers.length);
         setAllAnswers(allDetailedAnswers);
         
         // Calculate batch topic performance
@@ -82,6 +91,7 @@ export default function TrainerDashboard() {
           correct: stats.correct,
           total: stats.total
         }));
+        console.log('Topic performance calculated:', topicPerf.length);
         setTopicPerformance(topicPerf);
         
         // Calculate student topic performance using the same data
@@ -127,16 +137,19 @@ export default function TrainerDashboard() {
           });
         });
         
+        console.log('Student topic performance calculated:', studentTopicPerf.length);
         setStudentTopicPerformance(studentTopicPerf);
+        console.log('Data fetch complete, setting loading to false');
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
         setLoading(false);
+        console.log('Loading set to false');
       }
     };
 
     fetchDashboardData();
-  }, [getStudentScores, getTestResults]);
+  }, []);
 
   const totalTests = recentTests.length;
   const averageScore = recentTests.length > 0 
