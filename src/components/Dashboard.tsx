@@ -58,7 +58,9 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
     const fetchDashboardData = async () => {
       if (userRole === 'trainer') {
         setLoading(true);
+        console.log('Dashboard: Fetching data...');
         const scores = await getStudentScores();
+        console.log('Dashboard: Scores fetched:', scores.length);
         setStudentCount(scores.length);
         
         // Get the 5 most recent individual test results
@@ -168,12 +170,13 @@ export const Dashboard = ({ userRole, onStartTest, onViewScores, onCreateTest }:
         });
         
         setStudentTopicPerformance(studentTopicPerf);
+        console.log('Dashboard: Data loaded successfully');
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, [userRole, getStudentScores, getTestResults]);
+  }, []);
   
   const exportPerformanceData = () => {
     // Export detailed student topic performance
