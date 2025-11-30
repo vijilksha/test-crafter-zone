@@ -31,6 +31,533 @@ interface MultipleChoiceQuestion {
 
 export type JSQuestion = JSCodeQuestion | MultipleChoiceQuestion;
 
+// Fundamental JavaScript Questions for Beginners/Intermediate
+export const fundamentalJSQuestions: JSQuestion[] = [
+  {
+    id: 'js-fund-1',
+    type: 'code',
+    difficulty: 'Medium',
+    topic: 'Variables & Scope',
+    title: 'Employee Data Manager',
+    scenario: 'Your team is building an employee management system. The previous developer left some code that has variable scope issues causing data to leak between different employee records. The system needs to properly isolate employee data.',
+    instructions: 'Fix the variable declarations to ensure proper scoping and data isolation. Use appropriate variable declarations (let, const, var) based on the requirements.',
+    starterCode: {
+      html: '',
+      js: `function createEmployee(name, age) {
+  // Fix variable declarations
+  employeeName = name;
+  employeeAge = age;
+  
+  function getDetails() {
+    return employeeName + ' is ' + employeeAge + ' years old';
+  }
+  
+  return getDetails();
+}
+
+// Create a function that demonstrates proper use of const, let, and var
+function demonstrateScoping() {
+  // Add your code here
+}`
+    },
+    testCases: [
+      {
+        name: 'Variables should not leak to global scope',
+        test: (code) => !code.includes('employeeName = ') || code.includes('let employeeName') || code.includes('const employeeName')
+      },
+      {
+        name: 'Function should work correctly',
+        test: (code) => {
+          try {
+            eval(code);
+            const createEmployee = eval('createEmployee');
+            return typeof createEmployee === 'function';
+          } catch { return false; }
+        }
+      }
+    ]
+  },
+  {
+    id: 'js-fund-2',
+    type: 'code',
+    difficulty: 'Medium',
+    topic: 'Data Types',
+    title: 'Data Validator',
+    scenario: 'A form submission system is receiving data in various formats. The backend team needs a utility that can identify and validate different data types to ensure data integrity before processing.',
+    instructions: 'Create a function that takes a value and returns an object with the type of value and whether it\'s valid for database storage.',
+    starterCode: {
+      html: '',
+      js: `function validateDataType(value) {
+  // Return object with: type, isValid, reason
+  // Handle: string, number, boolean, null, undefined, object, array
+  // Valid for DB: string, number, boolean, object, array (not null/undefined)
+}
+
+// Test your function
+console.log(validateDataType("hello"));
+console.log(validateDataType(42));
+console.log(validateDataType(null));`
+    },
+    testCases: [
+      {
+        name: 'Should correctly identify string type',
+        test: (code) => code.includes('typeof') || code.includes('String')
+      },
+      {
+        name: 'Function should be defined',
+        test: (code) => code.includes('function validateDataType')
+      }
+    ]
+  },
+  {
+    id: 'js-fund-3',
+    type: 'code',
+    difficulty: 'Medium',
+    topic: 'Loops',
+    title: 'Report Generator',
+    scenario: 'The sales team needs a report that processes transaction data. The data comes in various structures and needs different looping strategies for different report sections.',
+    instructions: 'Create functions that use for, while, for...of, and for...in loops appropriately for different data processing tasks.',
+    starterCode: {
+      html: '',
+      js: `const transactions = [
+  {id: 1, amount: 100, category: "food"},
+  {id: 2, amount: 50, category: "transport"},
+  {id: 3, amount: 200, category: "food"}
+];
+
+// Calculate total using for loop
+function calculateTotal(transactions) {
+}
+
+// Find first transaction over threshold using while
+function findFirstOverThreshold(transactions, threshold) {
+}
+
+// Sum by category using for...of
+function sumByCategory(transactions) {
+}
+
+// List all properties of first transaction using for...in
+function listProperties(transaction) {
+}`
+    },
+    testCases: [
+      {
+        name: 'Uses for loop',
+        test: (code) => code.includes('for (') || code.includes('for(')
+      },
+      {
+        name: 'Uses while loop',
+        test: (code) => code.includes('while')
+      },
+      {
+        name: 'Uses for...of',
+        test: (code) => code.includes('for') && code.includes('of')
+      }
+    ]
+  },
+  {
+    id: 'js-fund-4',
+    type: 'code',
+    difficulty: 'Medium',
+    topic: 'Functions',
+    title: 'Payment Calculator',
+    scenario: 'An e-commerce platform needs a flexible payment calculation system that can handle different scenarios: standard payments, payments with discounts, and payments with tax calculations. Some parameters should be optional.',
+    instructions: 'Create functions using different patterns: regular functions, arrow functions, default parameters, and rest parameters.',
+    starterCode: {
+      html: '',
+      js: `// Regular function with default parameters
+function calculatePayment(amount, taxRate = 0.1, discount = 0) {
+}
+
+// Arrow function for discount calculator
+const applyDiscount = 
+
+// Function using rest parameters to calculate total of multiple items
+function calculateTotal(...prices) {
+}
+
+// Higher-order function that returns a payment processor
+function createPaymentProcessor(processorFee) {
+}`
+    },
+    testCases: [
+      {
+        name: 'Has default parameters',
+        test: (code) => code.includes('=') && code.includes('function')
+      },
+      {
+        name: 'Has arrow function',
+        test: (code) => code.includes('=>')
+      },
+      {
+        name: 'Has rest parameters',
+        test: (code) => code.includes('...')
+      }
+    ]
+  },
+  {
+    id: 'js-fund-5',
+    type: 'code',
+    difficulty: 'Medium',
+    topic: 'Objects',
+    title: 'User Profile Manager',
+    scenario: 'A social media platform needs to manage user profiles. Users can update their information, and the system needs to merge updates, extract specific data, and prevent modification of certain fields.',
+    instructions: 'Work with objects using various methods: Object.keys, Object.values, Object.entries, Object.assign, spread operator, and Object.freeze.',
+    starterCode: {
+      html: '',
+      js: `const userProfile = {
+  username: "john_doe",
+  email: "john@example.com",
+  age: 28,
+  premium: false
+};
+
+// Merge user updates
+function updateProfile(original, updates) {
+}
+
+// Get all updatable fields (exclude username)
+function getUpdatableFields(profile) {
+}
+
+// Create immutable profile
+function createImmutableProfile(profile) {
+}
+
+// Count profile properties
+function countProperties(profile) {
+}
+
+// Convert profile to array of [key, value] pairs
+function profileToArray(profile) {
+}`
+    },
+    testCases: [
+      {
+        name: 'Uses Object methods',
+        test: (code) => code.includes('Object.') || code.includes('...')
+      },
+      {
+        name: 'Functions defined',
+        test: (code) => code.includes('function updateProfile')
+      }
+    ]
+  },
+  {
+    id: 'js-fund-6',
+    type: 'code',
+    difficulty: 'Medium',
+    topic: 'Arrays',
+    title: 'Inventory Manager',
+    scenario: 'A warehouse management system tracks products. The system needs to filter, transform, search, and aggregate inventory data efficiently.',
+    instructions: 'Use array methods: map, filter, find, reduce, some, every, includes, and sort.',
+    starterCode: {
+      html: '',
+      js: `const inventory = [
+  {id: 1, name: "Laptop", price: 1200, quantity: 5, category: "electronics"},
+  {id: 2, name: "Mouse", price: 25, quantity: 50, category: "electronics"},
+  {id: 3, name: "Desk", price: 300, quantity: 10, category: "furniture"},
+  {id: 4, name: "Chair", price: 150, quantity: 0, category: "furniture"}
+];
+
+// Get all product names
+function getProductNames(inventory) {
+}
+
+// Find products under certain price
+function findAffordableProducts(inventory, maxPrice) {
+}
+
+// Calculate total inventory value
+function calculateInventoryValue(inventory) {
+}
+
+// Check if any product is out of stock
+function hasOutOfStock(inventory) {
+}
+
+// Check if all electronics are in stock
+function allElectronicsInStock(inventory) {
+}
+
+// Sort by price descending
+function sortByPriceDesc(inventory) {
+}`
+    },
+    testCases: [
+      {
+        name: 'Uses array methods',
+        test: (code) => code.includes('.map') || code.includes('.filter') || code.includes('.reduce')
+      },
+      {
+        name: 'Functions defined',
+        test: (code) => code.includes('function getProductNames')
+      }
+    ]
+  },
+  {
+    id: 'js-fund-7',
+    type: 'code',
+    difficulty: 'Medium',
+    topic: 'Strings',
+    title: 'Text Processor',
+    scenario: 'A content management system needs to process user-generated text: validate formats, clean input, extract information, and format output.',
+    instructions: 'Use string methods: includes, startsWith, endsWith, slice, substring, split, join, trim, replace, toLowerCase, toUpperCase.',
+    starterCode: {
+      html: '',
+      js: `// Validate email format
+function isValidEmail(email) {
+}
+
+// Extract domain from email
+function extractDomain(email) {
+}
+
+// Clean and format user input
+function cleanInput(text) {
+  // Remove extra spaces, trim, capitalize first letter
+}
+
+// Convert camelCase to kebab-case
+function toKebabCase(str) {
+}
+
+// Count word occurrences
+function countWord(text, word) {
+}
+
+// Truncate text with ellipsis
+function truncateText(text, maxLength) {
+}`
+    },
+    testCases: [
+      {
+        name: 'Uses string methods',
+        test: (code) => code.includes('.includes') || code.includes('.split') || code.includes('.slice')
+      },
+      {
+        name: 'Functions defined',
+        test: (code) => code.includes('function isValidEmail')
+      }
+    ]
+  },
+  {
+    id: 'js-fund-8',
+    type: 'code',
+    difficulty: 'Medium',
+    topic: 'Numbers & Math',
+    title: 'Financial Calculator',
+    scenario: 'A banking application needs precise financial calculations: rounding, random account numbers, price conversions, and statistical calculations.',
+    instructions: 'Use Math methods and number operations: Math.round, Math.ceil, Math.floor, Math.random, Math.max, Math.min, toFixed, parseInt, parseFloat.',
+    starterCode: {
+      html: '',
+      js: `// Round to 2 decimal places
+function roundToDecimal(num, decimals) {
+}
+
+// Generate random account number (8 digits)
+function generateAccountNumber() {
+}
+
+// Calculate compound interest
+function calculateCompoundInterest(principal, rate, years) {
+  // Formula: A = P(1 + r)^t
+}
+
+// Find average of transactions
+function calculateAverage(transactions) {
+}
+
+// Convert string price to number
+function parsePrice(priceString) {
+  // Handle "$1,234.56" format
+}
+
+// Calculate percentage
+function calculatePercentage(value, total) {
+}`
+    },
+    testCases: [
+      {
+        name: 'Uses Math methods',
+        test: (code) => code.includes('Math.')
+      },
+      {
+        name: 'Functions defined',
+        test: (code) => code.includes('function roundToDecimal')
+      }
+    ]
+  },
+  {
+    id: 'js-fund-9',
+    type: 'code',
+    difficulty: 'Medium',
+    topic: 'OOP - Classes',
+    title: 'Library Management System',
+    scenario: 'A library needs a digital system to manage books. Each book should track its status, borrower information, and have methods to borrow and return books.',
+    instructions: 'Create a Book class with properties and methods. Include constructor, instance methods, and getter/setter methods.',
+    starterCode: {
+      html: '',
+      js: `class Book {
+  // Define properties: title, author, isbn, isAvailable, borrower
+  
+  constructor(title, author, isbn) {
+    // Initialize properties
+  }
+  
+  // Method to borrow book
+  borrow(borrowerName) {
+    // Check availability and update status
+  }
+  
+  // Method to return book
+  return() {
+  }
+  
+  // Getter for book info
+  get info() {
+  }
+}
+
+// Create and test books
+const book1 = new Book("1984", "George Orwell", "123456");`
+    },
+    testCases: [
+      {
+        name: 'Uses class syntax',
+        test: (code) => code.includes('class Book')
+      },
+      {
+        name: 'Has constructor',
+        test: (code) => code.includes('constructor')
+      },
+      {
+        name: 'Has methods',
+        test: (code) => code.includes('borrow') && code.includes('return')
+      }
+    ]
+  },
+  {
+    id: 'js-fund-10',
+    type: 'code',
+    difficulty: 'Medium',
+    topic: 'Inheritance',
+    title: 'Vehicle Management System',
+    scenario: 'A car rental company needs a system to manage different types of vehicles. All vehicles share common properties, but cars and motorcycles have specific features and pricing.',
+    instructions: 'Create a Vehicle parent class and extend it to create Car and Motorcycle child classes. Use inheritance, super, and method overriding.',
+    starterCode: {
+      html: '',
+      js: `class Vehicle {
+  constructor(make, model, year, baseRate) {
+    // Initialize common properties
+  }
+  
+  calculateRentalCost(days) {
+    // Base calculation
+  }
+  
+  getDetails() {
+    // Return vehicle details
+  }
+}
+
+class Car extends Vehicle {
+  constructor(make, model, year, baseRate, doors, hasAC) {
+    // Call parent constructor and add car-specific properties
+  }
+  
+  calculateRentalCost(days) {
+    // Override: Add AC premium if available
+  }
+}
+
+class Motorcycle extends Vehicle {
+  constructor(make, model, year, baseRate, engineSize) {
+    // Call parent constructor and add motorcycle-specific properties
+  }
+  
+  calculateRentalCost(days) {
+    // Override: Add engine size multiplier
+  }
+}
+
+// Test the classes`
+    },
+    testCases: [
+      {
+        name: 'Uses inheritance',
+        test: (code) => code.includes('extends')
+      },
+      {
+        name: 'Uses super',
+        test: (code) => code.includes('super')
+      },
+      {
+        name: 'Has parent and child classes',
+        test: (code) => code.includes('class Vehicle') && code.includes('class Car')
+      }
+    ]
+  },
+  {
+    id: 'js-fund-11',
+    type: 'code',
+    difficulty: 'Medium',
+    topic: 'JSON Operations',
+    title: 'API Data Transformer',
+    scenario: 'Your application receives data from multiple APIs in JSON format. You need to parse incoming JSON, transform the data, and convert it back to JSON for storage or further processing.',
+    instructions: 'Use JSON.parse() and JSON.stringify() to convert between JSON strings and JavaScript objects. Handle errors and format JSON properly.',
+    starterCode: {
+      html: '',
+      js: `// Parse JSON safely with error handling
+function safeJSONParse(jsonString) {
+  try {
+    // Parse and return object
+  } catch (error) {
+    // Return error info
+  }
+}
+
+// Convert object to formatted JSON string
+function objectToJSON(obj, formatted = false) {
+  // Use JSON.stringify with optional formatting
+}
+
+// Transform API response
+function transformAPIResponse(jsonString) {
+  // Parse JSON, transform data, return new JSON
+  // Transform: convert all keys to camelCase
+}
+
+// Deep clone object using JSON
+function deepClone(obj) {
+}
+
+// Remove null values and stringify
+function cleanAndStringify(obj) {
+  // Remove properties with null values, then stringify
+}
+
+// Test data
+const apiResponse = '{"user_name": "John", "user_age": 30, "is_active": true}';`
+    },
+    testCases: [
+      {
+        name: 'Uses JSON.parse',
+        test: (code) => code.includes('JSON.parse')
+      },
+      {
+        name: 'Uses JSON.stringify',
+        test: (code) => code.includes('JSON.stringify')
+      },
+      {
+        name: 'Has error handling',
+        test: (code) => code.includes('try') && code.includes('catch')
+      }
+    ]
+  }
+];
+
 export const jsQuestions: JSQuestion[] = [
   // ========== QUESTION 1: ARRAY SUM (BASICS) ==========
   {
@@ -4562,3 +5089,6 @@ console.log(obj[key]());`
     ]
   }
 ];
+
+// Export all questions combined
+export const allJSQuestions = [...fundamentalJSQuestions, ...jsQuestions];

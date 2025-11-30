@@ -3,20 +3,26 @@ import { saveAs } from 'file-saver';
 import { Button } from './ui/button';
 import { Download } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { jsQuestions, type JSQuestion } from '@/data/jsQuestions';
+import { jsQuestions, fundamentalJSQuestions, type JSQuestion } from '@/data/jsQuestions';
 import { useState } from 'react';
+import { Label } from './ui/label';
 
 export const QuestionDownloader = () => {
   const [difficulty, setDifficulty] = useState<'Medium' | 'Hard'>('Medium');
+  const [questionType, setQuestionType] = useState<'fundamental' | 'advanced'>('fundamental');
+  
   const generateWordDocument = async () => {
+    // Select question set based on type
+    const questionSet = questionType === 'fundamental' ? fundamentalJSQuestions : jsQuestions;
+    
     // Filter questions by selected difficulty
-    const filteredQuestions = jsQuestions.filter(
+    const filteredQuestions = questionSet.filter(
       q => q.difficulty === difficulty && q.type === 'code'
     ).slice(0, 20);
 
     const children: any[] = [
       new Paragraph({
-        text: `20 Scenario-Based ${difficulty} Level JavaScript Questions`,
+        text: `20 ${questionType === 'fundamental' ? 'Fundamental' : 'Advanced'} JavaScript Questions (${difficulty} Level)`,
         heading: HeadingLevel.HEADING_1,
         alignment: AlignmentType.CENTER,
         spacing: { after: 400 }
@@ -189,28 +195,44 @@ export const QuestionDownloader = () => {
     });
 
     const blob = await Packer.toBlob(doc);
-    saveAs(blob, `JavaScript_${difficulty}_Questions_With_Tests.docx`);
+    const fileName = `JavaScript_${questionType === 'fundamental' ? 'Fundamental' : 'Advanced'}_${difficulty}_Questions.docx`;
+    saveAs(blob, fileName);
   };
 
   return (
-    <div className="flex gap-2 items-center">
-      <Select value={difficulty} onValueChange={(value: 'Medium' | 'Hard') => setDifficulty(value)}>
-        <SelectTrigger className="w-[140px]">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="Medium">Medium</SelectItem>
-          <SelectItem value="Hard">Hard</SelectItem>
-        </SelectContent>
-      </Select>
-      <Button 
-        onClick={generateWordDocument}
-        variant="outline"
-        className="gap-2"
-      >
-        <Download className="h-4 w-4" />
-        Download 20 Questions
-      </Button>
+    <div className="flex flex-col gap-3">
+      <div className="flex gap-2 items-center">
+        <Label className="text-sm font-medium">Question Type:</Label>
+        <Select value={questionType} onValueChange={(value: 'fundamental' | 'advanced') => setQuestionType(value)}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="fundamental">Fundamental Topics</SelectItem>
+            <SelectItem value="advanced">Advanced Topics</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex gap-2 items-center">
+        <Label className="text-sm font-medium">Difficulty:</Label>
+        <Select value={difficulty} onValueChange={(value: 'Medium' | 'Hard') => setDifficulty(value)}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Medium">Medium</SelectItem>
+            <SelectItem value="Hard">Hard</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button 
+          onClick={generateWordDocument}
+          variant="outline"
+          className="gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Download Questions
+        </Button>
+      </div>
     </div>
   );
 };
